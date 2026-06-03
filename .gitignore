@@ -1,0 +1,27 @@
+# 账号密码/敏感信息
+serverZMMM.txt
+.env
+
+# 需求文档
+需求.txt
+
+# 依赖
+node_modules/
+app/node_modules/
+admin-frontend/node_modules/
+admin-h5/node_modules/
+
+# 构建产物（本地开发）
+app/dist/
+admin-frontend/dist/
+admin-h5/dist/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

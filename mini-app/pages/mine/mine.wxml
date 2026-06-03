@@ -1,0 +1,49 @@
+<view class="container">
+  <!-- Profile -->
+  <view class="card row">
+    <image class="avatar" src="{{userInfo.avatar_url || '/assets/default-avatar.png'}}" mode="aspectFill" />
+    <view class="ml-12">
+      <text class="text-large">{{userInfo.nickname || '用户'}}</text>
+      <text class="text-secondary ml-8">{{phone}}</text>
+    </view>
+  </view>
+
+  <!-- Status -->
+  <view class="card row space-between">
+    <text>当前状态</text>
+    <text wx:if="{{subscriptionStatus === '试用中'}}" class="tag tag-warning">{{subscriptionStatus}}（剩余{{trialDaysLeft}}天）</text>
+    <text wx:elif="{{subscriptionStatus === '已开通'}}" class="tag tag-success">{{subscriptionStatus}}</text>
+    <text wx:else class="tag tag-danger">{{subscriptionStatus}}</text>
+  </view>
+
+  <!-- Menu -->
+  <view class="card">
+    <view class="menu-item" bindtap="goToSuppliers">
+      <text>📦 供应商管理</text>
+      <text class="text-secondary">›</text>
+    </view>
+    <view class="menu-item" bindtap="exportProducts">
+      <text>📊 导出商品 Excel</text>
+      <text class="text-secondary">›</text>
+    </view>
+    <view class="menu-item" bindtap="exportSales">
+      <text>📋 导出销售记录</text>
+      <text class="text-secondary">›</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="menu-item" bindtap="goToContact">
+      <text>💬 联系管理员</text>
+      <text class="text-secondary">›</text>
+    </view>
+    <view class="menu-item">
+      <text>ℹ️ 关于</text>
+      <text class="text-secondary">v1.0.0</text>
+    </view>
+  </view>
+
+  <view class="mt-16">
+    <view class="btn btn-danger btn-block" bindtap="logout">退出登录</view>
+  </view>
+</view>

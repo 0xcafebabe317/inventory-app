@@ -1,0 +1,29 @@
+<view class="container">
+  <view wx:if="{{loading}}" class="loading-more">加载中...</view>
+  <block wx:else>
+    <view class="card">
+      <view class="row space-between">
+        <text class="text-large">{{order.customer_name}}</text>
+        <text class="tag {{order.status === 'completed' ? 'tag-success' : 'tag-danger'}}">{{order.status_label}}</text>
+      </view>
+      <view class="row space-between mt-12">
+        <text>{{order.pay_method_label}}</text>
+        <text class="text-xl">¥{{order.total_amount_fmt}}</text>
+      </view>
+      <text class="text-secondary">{{order.created_at_fmt}}</text>
+    </view>
+
+    <view class="card">
+      <view class="card-title">商品明细</view>
+      <view wx:for="{{items}}" wx:key="id" class="item-row">
+        <view class="row space-between">
+          <text>{{item.product_name}}</text>
+          <text>¥{{item.subtotal_fmt}}</text>
+        </view>
+        <text class="text-secondary">{{item.qty}} × ¥{{item.unit_price_fmt}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{order.status === 'completed'}}" class="btn btn-danger btn-block mt-16" bindtap="refund">申请退货</view>
+  </block>
+</view>

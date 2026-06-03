@@ -1,0 +1,59 @@
+<view class="container">
+  <view class="card">
+    <view class="card-title">{{isEdit ? '编辑商品' : '新增商品'}}</view>
+
+    <view class="form-item">
+      <text class="form-label">名称 *</text>
+      <input class="form-input" placeholder="商品名称" value="{{form.name}}" data-field="name" bindinput="onInput" />
+    </view>
+
+    <view class="form-item row">
+      <text class="form-label">条码</text>
+      <input class="form-input flex-1" placeholder="扫码或手动输入" value="{{form.barcode}}" data-field="barcode" bindinput="onInput" />
+      <text bindtap="onScan" style="font-size:20px;margin-left:8px">📷</text>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">规格</text>
+      <input class="form-input" placeholder="型号/规格" value="{{form.spec}}" data-field="spec" bindinput="onInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">单位</text>
+      <input class="form-input" placeholder="个/箱/斤..." value="{{form.unit}}" data-field="unit" bindinput="onInput" />
+    </view>
+
+    <view class="form-row">
+      <view class="form-item flex-1">
+        <text class="form-label">售价</text>
+        <input class="form-input" type="digit" placeholder="0.00" value="{{form.sale_price}}" data-field="sale_price" bindinput="onInput" />
+      </view>
+      <view class="form-item flex-1 ml-8">
+        <text class="form-label">进价</text>
+        <input class="form-input" type="digit" placeholder="0.00" value="{{form.purchase_price}}" data-field="purchase_price" bindinput="onInput" />
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">最低库存预警</text>
+      <input class="form-input" type="number" placeholder="低于此数量提醒" value="{{form.min_stock}}" data-field="min_stock" bindinput="onInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">分类</text>
+      <input class="form-input" placeholder="如：饮料、零食..." value="{{form.category}}" data-field="category" bindinput="onInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">图片</text>
+      <view bindtap="onChooseImage" style="width:80px;height:80px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#bbb">
+        <text wx:if="{{!form.image_url}}">+</text>
+        <image wx:else src="{{form.image_url}}" mode="aspectFill" style="width:80px;height:80px;border-radius:8px" />
+      </view>
+    </view>
+  </view>
+
+  <view class="btn btn-primary btn-block mt-12" bindtap="submit">
+    {{submitting ? '提交中...' : (isEdit ? '保存修改' : '添加商品')}}
+  </view>
+</view>

@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="card"><view class="card-title">库存流水</view></view>
+  <view wx:for="{{logs}}" wx:key="id" class="card">
+    <view class="row space-between">
+      <view>
+        <text class="tag {{item.type_class}}">{{item.type_label}}</text>
+        <text class="ml-8">×{{item.qty}}</text>
+      </view>
+      <text>{{item.before_qty}} → {{item.after_qty}}</text>
+    </view>
+    <text class="text-secondary">{{item.created_at_fmt}}</text>
+  </view>
+  <view wx:if="{{logs.length === 0}}" class="empty-state"><text class="text-secondary">暂无流水</text></view>
+  <view wx:if="{{loading}}" class="loading-more">加载中...</view>
+</view>

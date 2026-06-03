@@ -1,0 +1,6 @@
+<view class="container" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center">
+  <text style="font-size:48px;margin-bottom:24px">🔒</text>
+  <text style="font-size:18px;font-weight:600;margin-bottom:8px">试用期已结束</text>
+  <text style="color:#969799;margin-bottom:32px">请联系管理员继续使用</text>
+  <view class="btn btn-primary btn-block" bindtap="goToContact">联系管理员</view>
+</view>

@@ -1,0 +1,58 @@
+.trial-banner {
+  background: #fff3e8;
+  color: #ff976a;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.stats-item {
+  width: 50%;
+  background: #fff;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.stats-item:nth-child(1) { border-right: 1px solid #f5f5f5; border-bottom: 1px solid #f5f5f5; }
+.stats-item:nth-child(2) { border-bottom: 1px solid #f5f5f5; }
+.stats-item:nth-child(3) { border-right: 1px solid #f5f5f5; }
+
+.stats-label {
+  font-size: 12px;
+  color: #969799;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.stats-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.debt-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.debt-item:last-child {
+  border-bottom: none;
+}
+
+.sale-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.sale-row:last-child {
+  border-bottom: none;
+}

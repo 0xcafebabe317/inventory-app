@@ -1,0 +1,53 @@
+<view class="container">
+  <view class="card">
+    <view class="card-title">进货入库</view>
+
+    <view class="mb-12">
+      <text class="text-secondary">供应商：</text>
+      <text class="tag {{supplierId ? 'tag-primary' : 'tag-warning'}}" bindtap="onShowSupplierPicker">{{supplierName || '点击选择供应商'}}</text>
+    </view>
+
+    <!-- Scan/search -->
+    <view class="search-bar">
+      <input placeholder="搜索商品..." bindinput="onSearchInput" value="{{productSearch}}" />
+      <text bindtap="onScan" style="font-size:20px;margin-left:8px">📷</text>
+    </view>
+
+    <view wx:for="{{items}}" wx:key="product_id" class="item-row">
+      <view class="flex-1">
+        <text>{{item.name}}</text>
+        <text class="text-secondary ml-8">¥{{item.subtotal_fmt}}</text>
+      </view>
+      <view class="row">
+        <view class="qty-btn" data-idx="{{index}}" data-delta="-1" bindtap="changeQty">−</view>
+        <text class="qty-num">{{item.qty}}</text>
+        <view class="qty-btn" data-idx="{{index}}" data-delta="1" bindtap="changeQty">+</view>
+        <text class="remove-btn" data-idx="{{index}}" bindtap="removeItem">✕</text>
+      </view>
+    </view>
+
+    <view class="row space-between mt-12">
+      <text>合计</text>
+      <text class="text-xl">¥{{totalAmount}}</text>
+    </view>
+
+    <view class="mt-12">
+      <input class="remark-input" placeholder="备注（可选）" value="{{remark}}" bindinput="onRemarkInput" />
+    </view>
+  </view>
+
+  <view class="btn btn-primary btn-block mt-12" bindtap="submit">
+    {{submitting ? '提交中...' : '确认入库'}}
+  </view>
+</view>
+
+<!-- Supplier picker modal -->
+<view wx:if="{{showSupplierPicker}}" class="modal-mask" bindtap="onCloseSupplierPicker">
+  <view class="modal-content" catchtap="">
+    <view class="modal-title">选择供应商</view>
+    <view wx:for="{{suppliers}}" wx:key="id" class="picker-item" data-supplier="{{item}}" bindtap="selectSupplier">
+      <text>{{item.name}}</text>
+      <text class="text-secondary">{{item.contact_name || ''}}</text>
+    </view>
+  </view>
+</view>

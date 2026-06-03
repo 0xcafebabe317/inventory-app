@@ -1,0 +1,2 @@
+.product-card { cursor: pointer; }
+.product-name { font-weight: 500; }
