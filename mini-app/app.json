@@ -4,14 +4,18 @@
     "pages/checkout/checkout",
     "pages/inventory/inventory",
     "pages/mine/mine",
+    "pages/login/login",
+    "pages/register/register",
     "pages/lock/lock",
     "pages/contact/contact",
     "pages/purchase/purchase",
     "pages/customer-detail/customer-detail",
     "pages/product-form/product-form",
-    "pages/stock-check/stock-check",
     "pages/stock-log/stock-log",
-    "pages/sale-detail/sale-detail"
+    "pages/sale-detail/sale-detail",
+    "pages/today-sales/today-sales",
+    "pages/customer-manage/customer-manage",
+    "pages/supplier-manage/supplier-manage"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -39,6 +43,12 @@
         "selectedIconPath": "assets/tab-checkout-active.png"
       },
       {
+        "text": "进货",
+        "pagePath": "pages/purchase/purchase",
+        "iconPath": "assets/tab-purchase.png",
+        "selectedIconPath": "assets/tab-purchase-active.png"
+      },
+      {
         "text": "库存",
         "pagePath": "pages/inventory/inventory",
         "iconPath": "assets/tab-inventory.png",
@@ -52,5 +62,22 @@
       }
     ]
   },
-  "usingComponents": {}
+  "usingComponents": {
+    "van-button": "@vant/weapp/button/index",
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-field": "@vant/weapp/field/index",
+    "van-search": "@vant/weapp/search/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-nav-bar": "@vant/weapp/nav-bar/index",
+    "van-tabbar": "@vant/weapp/tabbar/index",
+    "van-tabbar-item": "@vant/weapp/tabbar-item/index",
+    "van-empty": "@vant/weapp/empty/index",
+    "van-dialog": "@vant/weapp/dialog/index",
+    "van-image": "@vant/weapp/image/index",
+    "van-loading": "@vant/weapp/loading/index",
+    "van-stepper": "@vant/weapp/stepper/index"
+  }
 }

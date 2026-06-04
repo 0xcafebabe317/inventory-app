@@ -1,5 +1,6 @@
 const request = require('../../utils/request').default
 const util = require('../../utils/util')
+const auth = require('../../utils/auth')
 const app = getApp()
 
 Page({
@@ -17,6 +18,7 @@ Page({
   },
 
   onShow() {
+    if (!auth.checkAuth()) { wx.reLaunch({ url: '/pages/login/login' }); return }
     if (app.isLocked()) {
       wx.redirectTo({ url: '/pages/lock/lock' })
       return
@@ -74,5 +76,9 @@ Page({
 
   goToInventory() {
     wx.switchTab({ url: '/pages/inventory/inventory' })
+  },
+
+  goToTodaySales() {
+    wx.navigateTo({ url: '/pages/today-sales/today-sales' })
   }
 })

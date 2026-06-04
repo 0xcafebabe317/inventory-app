@@ -25,3 +25,5 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+project.private.config.json
+nginx/ssl/

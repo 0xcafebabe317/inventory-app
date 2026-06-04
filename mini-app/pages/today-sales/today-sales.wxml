@@ -1,0 +1,16 @@
+<view class="today-page">
+  <view wx:for="{{sales}}" wx:key="id" class="sale-card" data-id="{{item.id}}" bindtap="goToDetail">
+    <view class="sale-top">
+      <text class="sale-customer">{{item.customer_name}}</text>
+      <van-tag type="{{item.pay_method === 'wechat' ? 'success' : (item.pay_method === 'alipay' ? 'primary' : 'warning')}}" size="medium">
+        {{item.pay_method === 'wechat' ? '微信' : (item.pay_method === 'alipay' ? '支付宝' : (item.pay_method === 'credit' ? '赊账' : '现金'))}}
+      </van-tag>
+    </view>
+    <view class="sale-amount">¥{{item.total_amount_fmt}}</view>
+    <view class="sale-meta">共 {{item.item_count}} 种商品 · {{item.total_qty}} 件 · {{item.created_at_fmt}}</view>
+  </view>
+
+  <van-empty wx:if="{{!loading && sales.length === 0}}" description="今日暂无销售" />
+  <view wx:if="{{loading}}" class="loading-more">加载中...</view>
+  <view wx:elif="{{!hasMore && sales.length > 0}}" class="loading-more">— 已加载全部 —</view>
+</view>

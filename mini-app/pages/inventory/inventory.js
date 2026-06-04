@@ -1,13 +1,12 @@
 const request = require('../../utils/request').default
 const util = require('../../utils/util')
+const auth = require('../../utils/auth')
 const app = getApp()
 
 Page({
   data: {
     products: [],
     search: '',
-    category: '',
-    categories: [],
     page: 1,
     total: 0,
     loading: false,
@@ -15,6 +14,7 @@ Page({
   },
 
   onShow() {
+    if (!auth.checkAuth()) { wx.reLaunch({ url: '/pages/login/login' }); return }
     if (app.isLocked()) {
       wx.redirectTo({ url: '/pages/lock/lock' })
       return
@@ -29,6 +29,10 @@ Page({
   },
 
   onReachBottom() {
+    this.loadMore()
+  },
+
+  loadMore() {
     if (this.data.hasMore && !this.data.loading) {
       this.loadProducts()
     }
@@ -36,22 +40,22 @@ Page({
 
   loadProducts() {
     this.setData({ loading: true })
-    const { page, search, category } = this.data
-    let url = `/api/products?page=${page}&page_size=20`
-    if (search) url += '&search=' + search
-    if (category) url += '&category=' + category
+    const { page, search } = this.data
+    let params = { page, page_size: 20 }
+    if (search) params.search = search
 
-    return request(url, 'GET').then(res => {
-      const list = res.data.list.map(p => ({
+    return request('/api/products', 'GET', params).then(res => {
+      const list = (res.data.list || []).map(p => ({
         ...p,
         sale_price_fmt: util.formatMoney(p.sale_price),
-        purchase_price_fmt: util.formatMoney(p.purchase_price),
+        supplier_name: p.supplier ? p.supplier.name : '',
         stock_warn: p.min_stock > 0 && p.stock_qty <= p.min_stock
       }))
+      const products = page === 1 ? list : [...this.data.products, ...list]
       this.setData({
-        products: page === 1 ? list : [...this.data.products, ...list],
-        total: res.data.total,
-        hasMore: this.data.products.length + list.length < res.data.total,
+        products,
+        total: res.data.total || 0,
+        hasMore: products.length < (res.data.total || 0),
         page: page + 1,
         loading: false
       })
@@ -59,7 +63,12 @@ Page({
   },
 
   onSearch(e) {
-    this.setData({ search: e.detail.value, page: 1, products: [] })
+    this.setData({ search: e.detail, page: 1, products: [], hasMore: true })
+    this.loadProducts()
+  },
+
+  onClear() {
+    this.setData({ search: '', page: 1, products: [], hasMore: true })
     this.loadProducts()
   },
 
@@ -70,10 +79,6 @@ Page({
   editProduct(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({ url: `/pages/product-form/product-form?id=${id}` })
-  },
-
-  goToStockCheck() {
-    wx.navigateTo({ url: '/pages/stock-check/stock-check' })
   },
 
   goToStockLog(e) {

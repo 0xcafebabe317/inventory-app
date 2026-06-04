@@ -1,59 +1,39 @@
-<view class="container">
+<view class="form-page">
   <view class="card">
     <view class="card-title">{{isEdit ? '编辑商品' : '新增商品'}}</view>
 
-    <view class="form-item">
-      <text class="form-label">名称 *</text>
-      <input class="form-input" placeholder="商品名称" value="{{form.name}}" data-field="name" bindinput="onInput" />
-    </view>
-
-    <view class="form-item row">
-      <text class="form-label">条码</text>
-      <input class="form-input flex-1" placeholder="扫码或手动输入" value="{{form.barcode}}" data-field="barcode" bindinput="onInput" />
-      <text bindtap="onScan" style="font-size:20px;margin-left:8px">📷</text>
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">规格</text>
-      <input class="form-input" placeholder="型号/规格" value="{{form.spec}}" data-field="spec" bindinput="onInput" />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">单位</text>
-      <input class="form-input" placeholder="个/箱/斤..." value="{{form.unit}}" data-field="unit" bindinput="onInput" />
-    </view>
-
-    <view class="form-row">
-      <view class="form-item flex-1">
-        <text class="form-label">售价</text>
-        <input class="form-input" type="digit" placeholder="0.00" value="{{form.sale_price}}" data-field="sale_price" bindinput="onInput" />
-      </view>
-      <view class="form-item flex-1 ml-8">
-        <text class="form-label">进价</text>
-        <input class="form-input" type="digit" placeholder="0.00" value="{{form.purchase_price}}" data-field="purchase_price" bindinput="onInput" />
-      </view>
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">最低库存预警</text>
-      <input class="form-input" type="number" placeholder="低于此数量提醒" value="{{form.min_stock}}" data-field="min_stock" bindinput="onInput" />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">分类</text>
-      <input class="form-input" placeholder="如：饮料、零食..." value="{{form.category}}" data-field="category" bindinput="onInput" />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">图片</text>
-      <view bindtap="onChooseImage" style="width:80px;height:80px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#bbb">
-        <text wx:if="{{!form.image_url}}">+</text>
-        <image wx:else src="{{form.image_url}}" mode="aspectFill" style="width:80px;height:80px;border-radius:8px" />
-      </view>
-    </view>
+    <van-cell-group inset>
+      <van-field label="名称" required value="{{form.name}}" placeholder="商品名称" data-field="name" bind:change="onInput" />
+      <van-field label="条码" value="{{form.barcode}}" placeholder="扫码或手动输入" data-field="barcode" bind:change="onInput">
+        <van-icon slot="right-icon" name="scan" size="20px" bindtap="onScan" />
+      </van-field>
+      <van-field label="规格" value="{{form.spec}}" placeholder="型号/规格" data-field="spec" bind:change="onInput" />
+      <van-field label="单位" value="{{form.unit}}" placeholder="个/箱/斤..." data-field="unit" bind:change="onInput" />
+      <van-field label="售价" type="digit" value="{{form.sale_price}}" placeholder="0.00" data-field="sale_price" bind:change="onInput" />
+      <van-field label="进价" type="digit" value="{{form.purchase_price}}" placeholder="0.00" data-field="purchase_price" bind:change="onInput" />
+      <van-field label="最低库存预警" type="number" value="{{form.min_stock}}" placeholder="低于此数量提醒" data-field="min_stock" bind:change="onInput" />
+      <van-field label="进货商" value="{{supplierName}}" placeholder="选择进货商" readonly is-link bind:click-input="openSupplierPicker" />
+    </van-cell-group>
   </view>
 
-  <view class="btn btn-primary btn-block mt-12" bindtap="submit">
-    {{submitting ? '提交中...' : (isEdit ? '保存修改' : '添加商品')}}
+  <view class="submit-area">
+    <van-button type="primary" block round loading="{{submitting}}" bindtap="submit">
+      {{isEdit ? '保存修改' : '添加商品'}}
+    </van-button>
   </view>
+
+  <!-- Supplier Picker -->
+  <van-popup show="{{showSupplierPicker}}" bind:close="closeSupplierPicker" position="bottom" custom-style="height:50%" round>
+    <view class="picker-head"><view class="picker-title">选择进货商</view></view>
+    <view class="picker-body">
+      <view wx:for="{{suppliers}}" wx:key="id" class="picker-item" data-supplier="{{item}}" bindtap="selectSupplier">
+        <view class="picker-info">
+          <view class="picker-name">{{item.name}}</view>
+          <view class="text-secondary">{{item.phone || ''}} · {{item.contact_name || ''}}</view>
+        </view>
+        <van-icon wx:if="{{form.supplier_id === item.id}}" name="success" color="#1989fa" size="18px" />
+      </view>
+      <van-empty wx:if="{{suppliers.length === 0}}" description="暂无进货商" />
+    </view>
+  </van-popup>
 </view>

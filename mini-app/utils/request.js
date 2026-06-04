@@ -1,4 +1,4 @@
-const BASE_URL = 'http://43.136.182.83'
+const BASE_URL = 'https://www.tzjxc.online'
 
 let isRefreshing = false
 let refreshQueue = []
@@ -31,14 +31,16 @@ function request(url, method = 'GET', data = {}) {
           return
         }
         if (res.statusCode >= 500) {
-          wx.showToast({ title: '网络开小差了，请重试', icon: 'none' })
           reject(new Error('SERVER_ERROR'))
           return
         }
         resolve(res.data)
       },
-      fail() {
-        wx.showToast({ title: '网络开小差了，请重试', icon: 'none' })
+      fail(err) {
+        // 只在真正的网络错误时提示（非用户主动取消等）
+        if (err.errMsg && !err.errMsg.includes('cancel')) {
+          console.error('Request failed:', url, err)
+        }
         reject(new Error('NETWORK_ERROR'))
       }
     })
@@ -54,7 +56,7 @@ function handleRefresh(url, method, data, resolve, reject) {
 
     if (!refreshToken) {
       clearQueue()
-      wx.navigateTo({ url: '/pages/index/index' })
+      wx.reLaunch({ url: '/pages/login/login' })
       return
     }
 
@@ -71,7 +73,7 @@ function handleRefresh(url, method, data, resolve, reject) {
           })
         } else {
           clearQueue()
-          wx.navigateTo({ url: '/pages/index/index' })
+          wx.reLaunch({ url: '/pages/login/login' })
         }
       },
       fail() {

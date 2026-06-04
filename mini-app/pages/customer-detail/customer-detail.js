@@ -11,7 +11,7 @@ Page({
     transactions: [],
     showRepayDialog: false,
     repayAmount: '',
-    repayMethod: 'wechat',
+    repayMethod: 'cash',
     submitting: false
   },
 
@@ -42,16 +42,14 @@ Page({
     })
   },
 
-  showRepay() {
-    this.setData({ showRepayDialog: true, repayAmount: '' })
-  },
+  showRepay() { this.setData({ showRepayDialog: true, repayAmount: '' }) },
+  onCloseRepay() { this.setData({ showRepayDialog: false }) },
+  onRepayInput(e) { this.setData({ repayAmount: e.detail }) },
+  onSelectRepayMethod(e) { this.setData({ repayMethod: e.currentTarget.dataset.method }) },
 
   submitRepay() {
     const amount = parseFloat(this.data.repayAmount)
-    if (!amount || amount <= 0) {
-      wx.showToast({ title: '请输入金额', icon: 'none' })
-      return
-    }
+    if (!amount || amount <= 0) { wx.showToast({ title: '请输入金额', icon: 'none' }); return }
     this.setData({ submitting: true })
     request('/api/repayments', 'POST', {
       customer_id: parseInt(this.data.id),
@@ -62,9 +60,5 @@ Page({
       this.setData({ showRepayDialog: false, submitting: false })
       this.loadData()
     }).catch(() => this.setData({ submitting: false }))
-  },
-
-  generateLedger() {
-    wx.showToast({ title: '请截图当前页面作为对账单', icon: 'none' })
   }
 })

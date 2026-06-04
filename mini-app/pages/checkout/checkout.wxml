@@ -1,105 +1,94 @@
-<view class="container">
+<view class="checkout-page">
+  <!-- Customer selector bar -->
+  <view class="customer-bar">
+    <text class="customer-bar-title">客户</text>
+    <view class="customer-actions">
+      <van-button type="{{!customerId ? 'primary' : 'default'}}" size="small" bindtap="clearCustomer">🧑 散客</van-button>
+      <van-button type="{{customerId ? 'primary' : 'default'}}" size="small" bindtap="openCustomerPicker">🏪 {{customerName || '批发'}}</van-button>
+    </view>
+  </view>
+
+  <!-- Product Search -->
+  <van-cell-group inset custom-style="margin-bottom:8px">
+    <van-field value="{{productSearch}}" placeholder="搜索商品名称" readonly right-icon="search" bind:click-input="openProductPicker" />
+  </van-cell-group>
+
   <!-- Scan button -->
-  <view class="scan-btn card" bindtap="onScan">
-    <text class="scan-icon">📷</text>
-    <text>扫码添加商品</text>
+  <view class="scan-area" bindtap="onScan">
+    📷 扫码添加商品
   </view>
 
-  <!-- Search -->
-  <view class="search-bar">
-    <input placeholder="搜索商品名称..." bindinput="onSearchInput" value="{{productSearch}}" />
-  </view>
-
-  <!-- Product picker modal -->
-  <view wx:if="{{showProductPicker}}" class="modal-mask" bindtap="onClosePicker">
-    <view class="modal-content" catchtap="">
-      <view class="modal-title">选择商品</view>
-      <view wx:if="{{products.length === 0}}" class="empty-state" style="padding:24px">
-        <text class="text-secondary">未找到商品</text>
+  <!-- Cart Items -->
+  <view wx:if="{{items.length > 0}}" class="cart-list">
+    <view wx:for="{{items}}" wx:key="product_id" class="cart-item">
+      <view class="cart-info">
+        <view class="cart-name">{{item.name}}</view>
+        <view class="cart-meta">{{item.spec || ''}} · ¥{{item.unit_price_fmt}}/{{item.unit || '个'}}</view>
       </view>
-      <view wx:for="{{products}}" wx:key="id" class="picker-item" data-product="{{item}}" bindtap="selectProduct">
-        <view>
-          <text>{{item.name}}</text>
-          <text class="text-secondary ml-8">{{item.spec}}</text>
-        </view>
-        <view class="text-right">
-          <text>¥{{item.sale_price}}</text>
-          <text class="text-secondary ml-8">库存: {{item.stock_qty}}</text>
-        </view>
+      <view class="cart-qty">
+        <van-button size="mini" icon="minus" data-idx="{{index}}" data-delta="-1" bindtap="changeQty" />
+        <input class="qty-input" type="number" value="{{item.qty}}" data-idx="{{index}}" bindinput="onQtyInput" bindblur="onQtyBlur" />
+        <van-button size="mini" icon="plus" data-idx="{{index}}" data-delta="1" bindtap="changeQty" />
       </view>
+      <view class="cart-sub">¥{{item.subtotal_fmt}}</view>
+      <van-icon name="cross" size="16px" color="#c8c9cc" data-idx="{{index}}" bindtap="removeItem" style="margin-left:6px" />
     </view>
   </view>
+  <view wx:else class="empty-hint">点击上方搜索框添加商品</view>
 
-  <!-- Selected items -->
-  <view class="card" wx:if="{{items.length > 0}}">
-    <view class="card-title">已选商品</view>
-    <view wx:for="{{items}}" wx:key="product_id" class="item-row">
-      <view class="flex-1">
-        <text>{{item.name}}</text>
-        <text class="text-secondary ml-8">{{item.unit_price_fmt}}/{{item.unit}}</text>
-      </view>
-      <view class="row">
-        <view class="qty-btn" data-idx="{{index}}" data-delta="-1" bindtap="changeQty">−</view>
-        <text class="qty-num">{{item.qty}}</text>
-        <view class="qty-btn" data-idx="{{index}}" data-delta="1" bindtap="changeQty">+</view>
-        <text class="ml-8" style="min-width:60px;text-align:right">{{item.subtotal_fmt}}</text>
-        <text class="remove-btn" data-idx="{{index}}" bindtap="removeItem">✕</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- Empty state -->
-  <view wx:if="{{items.length === 0}}" class="empty-state">
-    <text class="text-secondary">扫码或搜索添加商品</text>
-  </view>
-
-  <!-- Payment section -->
+  <!-- Payment Method -->
   <view class="card" wx:if="{{items.length > 0}}">
     <view class="card-title">收款方式</view>
-    <view class="pay-methods">
-      <view class="pay-item {{payMethod === 'cash' ? 'active' : ''}}" data-method="cash" bindtap="selectPayMethod">现金</view>
-      <view class="pay-item {{payMethod === 'wechat' ? 'active' : ''}}" data-method="wechat" bindtap="selectPayMethod">微信</view>
-      <view class="pay-item {{payMethod === 'alipay' ? 'active' : ''}}" data-method="alipay" bindtap="selectPayMethod">支付宝</view>
-      <view class="pay-item {{payMethod === 'credit' ? 'active' : ''}}" data-method="credit" bindtap="selectPayMethod">赊账</view>
-    </view>
-
-    <!-- Customer picker for credit -->
-    <view wx:if="{{payMethod === 'credit'}}" class="mt-12">
-      <text class="text-secondary">赊账客户：</text>
-      <text class="tag tag-warning" bindtap="onShowCustomerPicker">{{customerName || '点击选择客户'}}</text>
-    </view>
-
-    <!-- Customer picker modal -->
-    <view wx:if="{{showCustomerPicker}}" class="modal-mask" bindtap="onCloseCustomerPicker">
-      <view class="modal-content" catchtap="">
-        <view class="modal-title">选择客户</view>
-        <view wx:for="{{customers}}" wx:key="id" class="picker-item" data-customer="{{item}}" bindtap="selectCustomer">
-          <text>{{item.name}}</text>
-          <text class="text-secondary">{{item.phone || ''}}</text>
-        </view>
-      </view>
-    </view>
-
-    <!-- Partial payment for credit -->
-    <view wx:if="{{payMethod === 'credit'}}" class="mt-8">
-      <text class="text-secondary">已付金额：</text>
-      <input class="amount-input" type="digit" placeholder="0.00" value="{{paidAmount}}" bindinput="onPaidAmountInput" />
+    <view class="pay-row">
+      <van-button type="{{payMethod === 'wechat' ? 'primary' : 'default'}}" size="small" round data-method="wechat" bindtap="selectPayMethod">💚 微信</van-button>
+      <van-button type="{{payMethod === 'alipay' ? 'primary' : 'default'}}" size="small" round data-method="alipay" bindtap="selectPayMethod">💙 支付宝</van-button>
+      <van-button type="{{payMethod === 'cash' ? 'primary' : 'default'}}" size="small" round data-method="cash" bindtap="selectPayMethod">💵 现金</van-button>
     </view>
   </view>
 
   <!-- Bottom bar -->
   <view class="bottom-bar" wx:if="{{items.length > 0}}">
-    <view class="flex-1">
-      <text class="text-secondary">合计</text>
-      <text class="text-xl ml-8">¥{{totalAmount}}</text>
+    <view class="total-row">
+      <text>共 {{totalQty}} 件 · 合计</text>
+      <text class="total-amount">¥{{totalAmount}}</text>
     </view>
-    <view class="btn btn-primary" bindtap="submit" style="width:120px">
-      {{submitting ? '提交中...' : '确认收款'}}
-    </view>
+    <van-button type="primary" size="large" round loading="{{submitting}}" disabled="{{items.length === 0}}" bindtap="submit" block>
+      确认收款
+    </van-button>
   </view>
 
-  <!-- Quick actions -->
-  <view class="quick-actions mt-16">
-    <view class="btn btn-outline btn-block" bindtap="goToPurchase">📦 进货入库</view>
-  </view>
+  <!-- Product Picker Popup -->
+  <van-popup show="{{showProductPicker}}" bind:close="closeProductPicker" position="bottom" custom-style="height:65%" round>
+    <view class="picker-head">
+      <van-search value="{{productSearch}}" placeholder="搜索商品" bind:search="searchProducts" bind:change="onPickerSearch" />
+    </view>
+    <view class="picker-body">
+      <view wx:for="{{pickerProducts}}" wx:key="id" class="picker-item" data-product="{{item}}" bindtap="selectProduct">
+        <view class="picker-info">
+          <view class="picker-name">{{item.name}}</view>
+          <view class="text-secondary">{{item.spec || ''}} · 库存{{item.stock_qty || 0}}{{item.unit || '个'}} · {{item.supplier_name || '未知供货商'}}</view>
+        </view>
+        <text class="picker-price">¥{{item.sale_price_fmt || item.sale_price}}</text>
+      </view>
+      <van-empty wx:if="{{allProducts.length === 0 && !productSearch}}" description="暂无商品">
+        <van-button type="primary" size="small" bindtap="goToAddProduct">添加第一个商品</van-button>
+      </van-empty>
+      <van-empty wx:if="{{pickerProducts.length === 0 && productSearch}}" description="无匹配商品" />
+    </view>
+  </van-popup>
+
+  <!-- Customer Picker Popup -->
+  <van-popup show="{{showCustomerPicker}}" bind:close="closeCustomerPicker" position="bottom" custom-style="height:50%" round>
+    <view class="picker-head"><view class="picker-title">选择客户</view></view>
+    <view class="picker-body">
+      <view wx:for="{{customers}}" wx:key="id" class="picker-item" data-customer="{{item}}" bindtap="selectCustomer">
+        <view>
+          <text>{{item.name}}</text>
+          <text class="text-secondary" style="margin-left:8px">{{item.phone || ''}}</text>
+        </view>
+        <text wx:if="{{item.balance > 0}}" class="text-danger">欠 ¥{{item.balance.toFixed(2)}}</text>
+      </view>
+      <van-empty wx:if="{{customers.length === 0}}" description="暂无客户" />
+    </view>
+  </van-popup>
 </view>

@@ -1,0 +1,57 @@
+<view class="register-page">
+  <view class="register-bg">
+    <view class="logo-area">
+      <view class="logo-icon">🐰</view>
+      <view class="app-title">兔子进销存</view>
+      <view class="app-subtitle">注册即享7天免费试用</view>
+    </view>
+
+    <view class="form-card">
+      <van-field
+        value="{{phone}}"
+        placeholder="请输入手机号"
+        type="number"
+        maxlength="11"
+        left-icon="phone-o"
+        bind:change="onPhoneInput"
+        custom-style="border-radius:8px;margin-bottom:12px"
+      />
+      <van-field
+        value="{{nickname}}"
+        placeholder="昵称（选填）"
+        left-icon="user-o"
+        bind:change="onNicknameInput"
+        custom-style="border-radius:8px;margin-bottom:12px"
+      />
+      <van-field
+        value="{{password}}"
+        placeholder="请输入密码（至少6位）"
+        type="password"
+        left-icon="lock"
+        bind:change="onPasswordInput"
+        custom-style="border-radius:8px;margin-bottom:12px"
+      />
+      <van-field
+        value="{{confirmPassword}}"
+        placeholder="再次输入密码"
+        type="password"
+        left-icon="lock"
+        bind:change="onConfirmInput"
+        custom-style="border-radius:8px;margin-bottom:20px"
+      />
+      <van-button
+        type="primary"
+        block
+        round
+        loading="{{submitting}}"
+        disabled="{{submitting}}"
+        bindtap="handleRegister"
+        custom-style="height:44px;font-size:16px"
+      >注册</van-button>
+    </view>
+
+    <view class="footer-link" bindtap="goLogin">
+      已有账号？<text class="link-text">立即登录</text>
+    </view>
+  </view>
+</view>

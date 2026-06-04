@@ -1,6 +1,28 @@
-<view class="container" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center">
-  <text style="font-size:48px;margin-bottom:24px">🔒</text>
-  <text style="font-size:18px;font-weight:600;margin-bottom:8px">试用期已结束</text>
-  <text style="color:#969799;margin-bottom:32px">请联系管理员继续使用</text>
-  <view class="btn btn-primary btn-block" bindtap="goToContact">联系管理员</view>
+<view class="lock-page">
+  <view class="lock-content">
+    <view class="lock-icon">🔒</view>
+    <view class="lock-title">使用权限已到期</view>
+    <view class="lock-desc">试用期已结束，请添加管理员微信继续使用</view>
+
+    <view class="qr-card">
+      <van-image
+        src="/assets/admin-qr.png"
+        width="180"
+        height="180"
+        fit="contain"
+        use-error-slot
+      >
+        <view slot="error" class="qr-placeholder">二维码加载中</view>
+      </van-image>
+      <view class="qr-tip">截屏或长按保存图片，微信扫码添加</view>
+    </view>
+
+    <van-button
+      type="primary"
+      block
+      round
+      bindtap="goToContact"
+      custom-style="margin-top:20px;height:44px"
+    >联系管理员</van-button>
+  </view>
 </view>

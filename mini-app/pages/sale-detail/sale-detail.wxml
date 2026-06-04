@@ -1,29 +1,32 @@
-<view class="container">
-  <view wx:if="{{loading}}" class="loading-more">加载中...</view>
+<view class="detail-page">
+  <van-loading wx:if="{{loading}}" custom-style="padding:60px" />
   <block wx:else>
+    <!-- Order info -->
     <view class="card">
-      <view class="row space-between">
-        <text class="text-large">{{order.customer_name}}</text>
-        <text class="tag {{order.status === 'completed' ? 'tag-success' : 'tag-danger'}}">{{order.status_label}}</text>
+      <view class="order-header">
+        <text class="order-customer">{{order.customer_name}}</text>
+        <van-tag type="{{order.status === 'completed' ? 'success' : 'danger'}}" size="medium">{{order.status_label}}</van-tag>
       </view>
-      <view class="row space-between mt-12">
-        <text>{{order.pay_method_label}}</text>
-        <text class="text-xl">¥{{order.total_amount_fmt}}</text>
+      <view class="order-meta">{{order.pay_method_label}} · {{order.created_at_fmt}}</view>
+      <view class="order-total">¥{{order.total_amount_fmt}}</view>
+      <view wx:if="{{order.pay_method === 'credit'}}" class="credit-info">
+        <text>已付 ¥{{order.paid_amount_fmt}}</text>
+        <text class="text-danger" style="margin-left:12px">赊账 ¥{{order.credit_amount_fmt}}</text>
       </view>
-      <text class="text-secondary">{{order.created_at_fmt}}</text>
     </view>
 
+    <!-- Items -->
     <view class="card">
       <view class="card-title">商品明细</view>
       <view wx:for="{{items}}" wx:key="id" class="item-row">
-        <view class="row space-between">
-          <text>{{item.product_name}}</text>
-          <text>¥{{item.subtotal_fmt}}</text>
+        <view class="item-left">
+          <text class="item-name">{{item.product_name}}</text>
+          <text class="text-secondary">{{item.qty}} × ¥{{item.unit_price_fmt}}</text>
         </view>
-        <text class="text-secondary">{{item.qty}} × ¥{{item.unit_price_fmt}}</text>
+        <text class="item-sub">¥{{item.subtotal_fmt}}</text>
       </view>
     </view>
 
-    <view wx:if="{{order.status === 'completed'}}" class="btn btn-danger btn-block mt-16" bindtap="refund">申请退货</view>
+    <van-button wx:if="{{order.status === 'completed'}}" type="danger" block round bindtap="refund" custom-style="margin-top:16px">申请退货</van-button>
   </block>
 </view>

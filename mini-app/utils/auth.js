@@ -25,6 +25,22 @@ function login() {
   })
 }
 
+function phoneLogin(phone, password) {
+  return request('/api/auth/login', 'POST', { phone, password }).then(data => {
+    wx.setStorageSync('access_token', data.data.access)
+    wx.setStorageSync('refresh_token', data.data.refresh)
+    return data.data
+  })
+}
+
+function phoneRegister(phone, password, nickname) {
+  return request('/api/auth/register', 'POST', { phone, password, nickname }).then(data => {
+    wx.setStorageSync('access_token', data.data.access)
+    wx.setStorageSync('refresh_token', data.data.refresh)
+    return data.data
+  })
+}
+
 function bindPhone(openid, encryptedData, iv, nickname, avatarUrl) {
   return request('/api/auth/bind-phone', 'POST', {
     openid,
@@ -45,6 +61,19 @@ function checkAuth() {
   return !!(token && refresh)
 }
 
+function requireAuth() {
+  const app = getApp()
+  if (!checkAuth()) {
+    wx.reLaunch({ url: '/pages/login/login' })
+    return false
+  }
+  if (app.isLocked()) {
+    wx.redirectTo({ url: '/pages/lock/lock' })
+    return false
+  }
+  return true
+}
+
 function logout() {
   wx.removeStorageSync('access_token')
   wx.removeStorageSync('refresh_token')
@@ -52,4 +81,4 @@ function logout() {
   getApp().globalData.phone = ''
 }
 
-module.exports = { login, bindPhone, checkAuth, logout }
+module.exports = { login, phoneLogin, phoneRegister, bindPhone, checkAuth, requireAuth, logout }

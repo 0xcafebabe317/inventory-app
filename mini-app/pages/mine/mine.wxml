@@ -1,49 +1,67 @@
-<view class="container">
+<view class="mine-page">
   <!-- Profile -->
-  <view class="card row">
-    <image class="avatar" src="{{userInfo.avatar_url || '/assets/default-avatar.png'}}" mode="aspectFill" />
-    <view class="ml-12">
-      <text class="text-large">{{userInfo.nickname || '用户'}}</text>
-      <text class="text-secondary ml-8">{{phone}}</text>
+  <view class="profile-card">
+    <van-image round width="60" height="60" src="{{userInfo.avatar_url || ''}}" use-error-slot>
+      <van-icon slot="error" name="user-o" size="36px" />
+    </van-image>
+    <view class="profile-info">
+      <view class="profile-name" bindtap="openNicknameDialog">
+        {{userInfo.nickname || '点击设置昵称'}}
+        <van-icon name="edit" size="14px" color="#969799" style="margin-left:4px" />
+      </view>
+      <view class="text-secondary">{{phone}}</view>
     </view>
   </view>
 
-  <!-- Status -->
-  <view class="card row space-between">
-    <text>当前状态</text>
-    <text wx:if="{{subscriptionStatus === '试用中'}}" class="tag tag-warning">{{subscriptionStatus}}（剩余{{trialDaysLeft}}天）</text>
-    <text wx:elif="{{subscriptionStatus === '已开通'}}" class="tag tag-success">{{subscriptionStatus}}</text>
-    <text wx:else class="tag tag-danger">{{subscriptionStatus}}</text>
+  <!-- Expiry Time -->
+  <view class="card">
+    <view class="expiry-row">
+      <text>到期时间</text>
+      <text class="expiry-value {{expiryClass}}">{{expiryDisplay}}</text>
+    </view>
   </view>
 
   <!-- Menu -->
-  <view class="card">
-    <view class="menu-item" bindtap="goToSuppliers">
-      <text>📦 供应商管理</text>
-      <text class="text-secondary">›</text>
-    </view>
-    <view class="menu-item" bindtap="exportProducts">
-      <text>📊 导出商品 Excel</text>
-      <text class="text-secondary">›</text>
-    </view>
-    <view class="menu-item" bindtap="exportSales">
-      <text>📋 导出销售记录</text>
-      <text class="text-secondary">›</text>
-    </view>
+  <van-cell-group inset custom-style="margin-top:12px">
+    <van-cell title="修改昵称" icon="user-o" is-link bindtap="openNicknameDialog" />
+    <van-cell title="修改密码" icon="lock" is-link bindtap="openPwdDialog" />
+    <van-cell title="进货商管理" icon="shop-o" is-link bindtap="goToSuppliers" />
+    <van-cell title="客户管理" icon="friends-o" is-link bindtap="goToCustomers" />
+    <van-cell title="联系管理员" icon="service-o" is-link bindtap="goToContact" />
+    <van-cell title="关于" icon="info-o" value="v1.0.0" />
+  </van-cell-group>
+
+  <view class="logout-area">
+    <van-button round block type="danger" bindtap="logout">退出登录</van-button>
   </view>
 
-  <view class="card">
-    <view class="menu-item" bindtap="goToContact">
-      <text>💬 联系管理员</text>
-      <text class="text-secondary">›</text>
+  <!-- Edit Nickname Dialog -->
+  <van-dialog
+    show="{{showNicknameDialog}}"
+    title="修改昵称"
+    show-cancel-button
+    confirm-loading="{{nicknameLoading}}"
+    bind:confirm="handleUpdateNickname"
+    bind:close="closeNicknameDialog"
+  >
+    <view class="dialog-form">
+      <van-field value="{{nicknameForm}}" label="昵称" placeholder="请输入昵称" bind:change="onNicknameInput" />
     </view>
-    <view class="menu-item">
-      <text>ℹ️ 关于</text>
-      <text class="text-secondary">v1.0.0</text>
-    </view>
-  </view>
+  </van-dialog>
 
-  <view class="mt-16">
-    <view class="btn btn-danger btn-block" bindtap="logout">退出登录</view>
-  </view>
+  <!-- Change Password Dialog -->
+  <van-dialog
+    show="{{showPwdDialog}}"
+    title="修改密码"
+    show-cancel-button
+    confirm-loading="{{pwdLoading}}"
+    bind:confirm="handleChangePwd"
+    bind:close="closePwdDialog"
+  >
+    <view class="dialog-form">
+      <van-field value="{{pwdForm.oldPassword}}" type="password" label="旧密码" placeholder="请输入旧密码" bind:change="onOldPwdInput" />
+      <van-field value="{{pwdForm.newPassword}}" type="password" label="新密码" placeholder="至少6位" bind:change="onNewPwdInput" />
+      <van-field value="{{pwdForm.confirmPassword}}" type="password" label="确认密码" placeholder="再次输入新密码" bind:change="onConfirmPwdInput" />
+    </view>
+  </van-dialog>
 </view>

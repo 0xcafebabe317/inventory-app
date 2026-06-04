@@ -1,5 +1,4 @@
 const request = require('../../utils/request').default
-const util = require('../../utils/util')
 
 Page({
   data: {
@@ -7,50 +6,67 @@ Page({
     form: {
       name: '', barcode: '', spec: '', unit: '个',
       sale_price: '', purchase_price: '', min_stock: '',
-      category: '', image_url: ''
+      supplier_id: null
     },
+    supplierName: '',
+    suppliers: [],
+    showSupplierPicker: false,
     submitting: false,
     isEdit: false
   },
 
   onLoad(options) {
+    this.loadSuppliers()
     if (options.id) {
       this.setData({ id: options.id, isEdit: true })
       this.loadProduct(options.id)
     }
   },
 
+  loadSuppliers() {
+    request('/api/suppliers', 'GET').then(res => {
+      this.setData({ suppliers: res.data || [] })
+    }).catch(() => {})
+  },
+
   loadProduct(id) {
-    request(`/api/products?search=&page_size=100`, 'GET').then(res => {
+    request('/api/products', 'GET', { page_size: 500 }).then(res => {
       const p = (res.data.list || []).find(item => item.id == id)
       if (p) {
         this.setData({
           form: {
             name: p.name, barcode: p.barcode || '', spec: p.spec || '',
-            unit: p.unit || '个', sale_price: String(p.sale_price),
-            purchase_price: String(p.purchase_price), min_stock: String(p.min_stock || ''),
-            category: p.category || '', image_url: p.image_url || ''
-          }
+            unit: p.unit || '个', sale_price: String(p.sale_price || ''),
+            purchase_price: String(p.purchase_price || ''), min_stock: String(p.min_stock || ''),
+            supplier_id: p.supplier_id || null
+          },
+          supplierName: p.supplier ? p.supplier.name : ''
         })
       }
     })
   },
 
   onScan() {
-    wx.scanCode({ onlyFromCamera: true, scanType: ['barCode', 'qrCode'] })
-      .then(res => this.setData({ 'form.barcode': res.result }))
-      .catch(() => {})
+    wx.scanCode({ onlyFromCamera: true, scanType: ['barCode', 'qrCode'] }).then(res => {
+      this.setData({ 'form.barcode': res.result })
+    }).catch(() => {})
   },
 
   onInput(e) {
-    const { field } = e.currentTarget.dataset
-    this.setData({ [`form.${field}`]: e.detail.value })
+    const field = e.currentTarget.dataset.field
+    this.setData({ [`form.${field}`]: e.detail })
   },
 
-  onChooseImage() {
-    wx.chooseImage({ count: 1, sizeType: ['compressed'] })
-      .then(res => this.setData({ 'form.image_url': res.tempFilePaths[0] }))
-      .catch(() => {})
+  // --- Supplier Picker ---
+  openSupplierPicker() { this.setData({ showSupplierPicker: true }) },
+  closeSupplierPicker() { this.setData({ showSupplierPicker: false }) },
+  selectSupplier(e) {
+    const s = e.currentTarget.dataset.supplier
+    this.setData({
+      'form.supplier_id': s.id,
+      supplierName: s.name,
+      showSupplierPicker: false
+    })
   },
 
   submit() {
@@ -59,11 +75,11 @@ Page({
 
     this.setData({ submitting: true })
     const data = {
-      name: f.name, barcode: f.barcode, spec: f.spec, unit: f.unit,
+      name: f.name, barcode: f.barcode || '', spec: f.spec || '', unit: f.unit || '个',
       sale_price: parseFloat(f.sale_price) || 0,
       purchase_price: parseFloat(f.purchase_price) || 0,
       min_stock: parseInt(f.min_stock) || 0,
-      category: f.category, image_url: f.image_url
+      supplier_id: f.supplier_id || null
     }
 
     const req = this.data.isEdit

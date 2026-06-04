@@ -1,0 +1,33 @@
+<view class="manage-page">
+  <view class="toolbar">
+    <text class="text-secondary">共 {{customers.length}} 位客户</text>
+    <van-button size="small" type="primary" bindtap="showAdd">新增客户</van-button>
+  </view>
+
+  <view wx:if="{{customers.length === 0}}" style="text-align:center;padding:60px 0;color:#969799">
+    <van-empty description="暂无客户">
+      <van-button type="primary" size="small" bindtap="showAdd">添加第一个客户</van-button>
+    </van-empty>
+  </view>
+
+  <view wx:for="{{customers}}" wx:key="id" class="manage-card" data-customer="{{item}}" bindtap="showEdit">
+    <view class="manage-row">
+      <text class="manage-name">{{item.name}}</text>
+      <text wx:if="{{item.balance > 0}}" class="balance-badge">待还 ¥{{item.balance_fmt}}</text>
+    </view>
+    <view class="manage-meta">
+      <text wx:if="{{item.phone}}">{{item.phone}}</text>
+      <text wx:if="{{item.wechat}}" class="text-secondary" style="margin-left:12px">微信: {{item.wechat}}</text>
+    </view>
+  </view>
+
+  <!-- Add/Edit Dialog -->
+  <van-dialog show="{{showDialog}}" title="{{dialogTitle}}" show-cancel-button confirm-loading="{{submitting}}" bind:confirm="handleSubmit" bind:close="closeDialog">
+    <view class="dialog-form">
+      <van-field value="{{form.name}}" label="名称" required placeholder="客户名称" data-field="name" bind:change="onInput" />
+      <van-field value="{{form.phone}}" label="手机" type="number" placeholder="手机号" data-field="phone" bind:change="onInput" />
+      <van-field value="{{form.wechat}}" label="微信" placeholder="微信号" data-field="wechat" bind:change="onInput" />
+      <van-field value="{{form.remark}}" label="备注" placeholder="备注" data-field="remark" bind:change="onInput" />
+    </view>
+  </van-dialog>
+</view>

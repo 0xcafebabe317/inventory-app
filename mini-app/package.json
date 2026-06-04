@@ -1,0 +1,8 @@
+{
+  "name": "inventory-mini-app",
+  "version": "1.0.0",
+  "description": "进销存管理系统 - 小程序端",
+  "dependencies": {
+    "@vant/weapp": "^1.11.0"
+  }
+}

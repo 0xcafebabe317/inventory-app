@@ -1,55 +1,34 @@
-<view class="container">
-  <view class="card">
-    <view class="row space-between">
-      <view>
-        <text class="text-large">{{customer.name}}</text>
-        <text class="text-secondary ml-8">{{customer.phone}}</text>
-      </view>
-      <view class="text-right">
-        <text class="text-secondary">余额</text>
-        <text class="text-xl {{parseFloat(balance) > 0 ? 'text-danger' : 'text-success'}}">¥{{balance}}</text>
-      </view>
-    </view>
+<view class="detail-page">
+  <view class="balance-card">
+    <view class="cust-name">{{customer.name}}</view>
+    <view class="text-secondary">{{customer.phone || ''}}</view>
+    <view class="balance-amount {{parseFloat(balance) > 0 ? 'text-danger' : 'text-success'}}">¥{{balance}}</view>
+    <view class="balance-label">待还金额</view>
   </view>
 
-  <view class="row mt-12 mb-12" style="gap:12px">
-    <view class="btn btn-outline flex-1" bindtap="showRepay">记录还款</view>
-    <view class="btn btn-outline flex-1" bindtap="generateLedger">生成对账单</view>
-  </view>
+  <van-button type="primary" block round bindtap="showRepay" custom-style="margin-bottom:12px">记录还款</van-button>
 
   <view class="card">
     <view class="card-title">往来明细</view>
-    <view wx:if="{{transactions.length === 0}}" class="empty-state" style="padding:24px">
-      <text class="text-secondary">暂无记录</text>
-    </view>
+    <view wx:if="{{transactions.length === 0}}" style="text-align:center;padding:24px;color:#969799">暂无记录</view>
     <view wx:for="{{transactions}}" wx:key="index" class="txn-row">
-      <view class="row space-between">
-        <view>
-          <text class="tag {{item.type === 'sale' ? 'tag-warning' : 'tag-success'}}">{{item.type_label}}</text>
-          <text class="ml-8">{{item.remark || ''}}</text>
-        </view>
-        <text class="{{item.type_class}}">¥{{item.amount_fmt}}</text>
+      <view class="txn-top">
+        <van-tag type="{{item.type === 'sale' ? 'warning' : 'success'}}" size="medium">{{item.type_label}}</van-tag>
+        <text class="txn-amount {{item.type_class}}">{{item.type === 'sale' ? '-' : '+'}}¥{{item.amount_fmt}}</text>
       </view>
       <text class="text-secondary">{{item.date}}</text>
     </view>
   </view>
-</view>
 
-<!-- Repay dialog -->
-<view wx:if="{{showRepayDialog}}" class="modal-mask" bindtap="onCloseRepay">
-  <view class="modal-content" catchtap="">
-    <view class="modal-title">记录还款</view>
-    <view class="mb-12">
-      <text class="text-secondary">金额</text>
-      <input class="amount-input" type="digit" placeholder="0.00" value="{{repayAmount}}" bindinput="onRepayInput" style="width:100%;border:1px solid #ebedf0;border-radius:4px;padding:8px;margin-top:4px" />
+  <!-- Repay Popup -->
+  <van-popup show="{{showRepayDialog}}" bind:close="onCloseRepay" position="bottom" round custom-style="padding:20px">
+    <view class="popup-title">记录还款</view>
+    <van-field value="{{repayAmount}}" type="digit" label="金额" placeholder="0.00" bind:change="onRepayInput" />
+    <view class="pay-row">
+      <van-button size="small" type="{{repayMethod === 'wechat' ? 'primary' : 'default'}}" data-method="wechat" bindtap="onSelectRepayMethod">微信</van-button>
+      <van-button size="small" type="{{repayMethod === 'alipay' ? 'primary' : 'default'}}" data-method="alipay" bindtap="onSelectRepayMethod">支付宝</van-button>
+      <van-button size="small" type="{{repayMethod === 'cash' ? 'primary' : 'default'}}" data-method="cash" bindtap="onSelectRepayMethod">现金</van-button>
     </view>
-    <view class="pay-methods mb-12">
-      <view class="pay-item {{repayMethod === 'wechat' ? 'active' : ''}}" data-method="wechat" bindtap="onSelectRepayMethod">微信</view>
-      <view class="pay-item {{repayMethod === 'alipay' ? 'active' : ''}}" data-method="alipay" bindtap="onSelectRepayMethod">支付宝</view>
-      <view class="pay-item {{repayMethod === 'cash' ? 'active' : ''}}" data-method="cash" bindtap="onSelectRepayMethod">现金</view>
-    </view>
-    <view class="btn btn-primary btn-block" bindtap="submitRepay">
-      {{submitting ? '提交中...' : '确认还款'}}
-    </view>
-  </view>
+    <van-button type="primary" block round loading="{{submitting}}" bindtap="submitRepay" custom-style="margin-top:16px">确认还款</van-button>
+  </van-popup>
 </view>

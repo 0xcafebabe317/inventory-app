@@ -23,8 +23,12 @@ services:
       DB_DSN: "root:${MYSQL_ROOT_PASSWORD}@tcp(mysql:3306)/inventory?charset=utf8mb4&parseTime=True&loc=Local"
       REDIS_ADDR: "redis:6379"
       JWT_SECRET: "${JWT_SECRET}"
-      # ADMIN_USER / ADMIN_PASS 仅首次启动时用于创建初始管理员，后续不再使用
-      # 管理员已存在时不会重置密码，请通过管理后台修改
+      WECHAT_APPID: "${WECHAT_APPID}"
+      WECHAT_SECRET: "${WECHAT_SECRET}"
+      # 管理员账号（仅首次启动无管理员时自动创建）
+      # 已存在管理员则忽略，不会重置密码
+      ADMIN_USER: "${ADMIN_USER:-admin}"
+      ADMIN_PASS: "${ADMIN_PASS:-admin123}"
     depends_on:
       mysql:
         condition: service_healthy

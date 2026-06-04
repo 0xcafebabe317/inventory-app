@@ -1,53 +1,117 @@
-<view class="container">
-  <view class="card">
-    <view class="card-title">进货入库</view>
-
-    <view class="mb-12">
-      <text class="text-secondary">供应商：</text>
-      <text class="tag {{supplierId ? 'tag-primary' : 'tag-warning'}}" bindtap="onShowSupplierPicker">{{supplierName || '点击选择供应商'}}</text>
-    </view>
-
-    <!-- Scan/search -->
-    <view class="search-bar">
-      <input placeholder="搜索商品..." bindinput="onSearchInput" value="{{productSearch}}" />
-      <text bindtap="onScan" style="font-size:20px;margin-left:8px">📷</text>
-    </view>
-
-    <view wx:for="{{items}}" wx:key="product_id" class="item-row">
-      <view class="flex-1">
-        <text>{{item.name}}</text>
-        <text class="text-secondary ml-8">¥{{item.subtotal_fmt}}</text>
+<view class="page">
+  <!-- Supplier Card -->
+  <view class="supplier-card {{supplierId ? 'supplier-selected' : ''}}">
+    <view class="supplier-top">
+      <view class="supplier-icon">🏭</view>
+      <view class="supplier-info">
+        <view wx:if="{{supplierId}}" class="supplier-name">{{supplierName}}</view>
+        <view wx:else class="supplier-placeholder">选择进货商开始入库</view>
+        <view wx:if="{{supplierPhone}}" class="supplier-phone">{{supplierPhone}}</view>
+        <view wx:if="{{supplierId}}" class="supplier-hint-meta">仅显示该进货商商品</view>
       </view>
-      <view class="row">
-        <view class="qty-btn" data-idx="{{index}}" data-delta="-1" bindtap="changeQty">−</view>
-        <text class="qty-num">{{item.qty}}</text>
-        <view class="qty-btn" data-idx="{{index}}" data-delta="1" bindtap="changeQty">+</view>
-        <text class="remove-btn" data-idx="{{index}}" bindtap="removeItem">✕</text>
+      <view class="supplier-actions">
+        <van-button wx:if="{{supplierId}}" size="small" plain type="warning" icon="cross" bindtap="clearSupplier">切换</van-button>
+        <van-button size="small" type="primary" plain icon="{{supplierId ? 'swap' : 'add-o'}}" bindtap="openSupplierPicker">{{supplierId ? '换商' : '选择'}}</van-button>
       </view>
     </view>
+    <van-field wx:if="{{supplierId}}" value="{{remark}}" label="备注" placeholder="选填" label-width="3em" bind:change="onRemarkInput" />
+  </view>
 
-    <view class="row space-between mt-12">
-      <text>合计</text>
-      <text class="text-xl">¥{{totalAmount}}</text>
+  <!-- No supplier selected -->
+  <view wx:if="{{!supplierId}}" class="no-supplier">
+    <van-icon name="shop-o" size="48px" color="#c8c9cc" />
+    <view class="no-supplier-text">请先选择进货商</view>
+    <view class="no-supplier-hint">选择进货商后将显示该供应商的商品列表</view>
+  </view>
+
+  <!-- Products -->
+  <view wx:if="{{supplierId}}" class="product-card">
+    <view class="product-header">
+      <text class="product-title">📦 入库商品</text>
+      <text class="product-count">{{items.length}} 种 | {{allProducts.length}} 可选</text>
     </view>
 
-    <view class="mt-12">
-      <input class="remark-input" placeholder="备注（可选）" value="{{remark}}" bindinput="onRemarkInput" />
+    <van-cell-group inset custom-style="margin-bottom:8px">
+      <van-field value="{{productSearch}}" placeholder="🔍 搜索商品添加" readonly right-icon="search" bind:click-input="openProductPicker" />
+    </van-cell-group>
+
+    <!-- Cart Items -->
+    <view wx:if="{{items.length > 0}}" class="cart-list">
+      <view wx:for="{{items}}" wx:key="product_id" class="cart-item">
+        <view class="cart-left">
+          <view class="cart-name">{{item.name}}</view>
+          <view class="cart-meta">
+            <text class="meta-spec">{{item.spec || '默认规格'}}</text>
+            <text class="meta-dot">·</text>
+            <text class="meta-price">进价 ¥{{item.unit_price_fmt}}</text>
+            <text class="meta-dot">·</text>
+            <text>{{item.unit || '个'}}</text>
+          </view>
+        </view>
+        <view class="cart-qty">
+          <van-button size="mini" icon="minus" data-idx="{{index}}" data-delta="-1" bindtap="changeQty" />
+          <input class="qty-input" type="number" value="{{item.qty}}" data-idx="{{index}}" bindinput="onQtyInput" />
+          <van-button size="mini" icon="plus" data-idx="{{index}}" data-delta="1" bindtap="changeQty" />
+        </view>
+        <van-icon name="cross" size="16px" color="#c8c9cc" data-idx="{{index}}" bindtap="removeItem" class="cart-remove" />
+      </view>
+    </view>
+    <view wx:else class="empty-hint">
+      <van-icon name="add-o" size="24px" color="#c8c9cc" />
+      <text>点击上方搜索框添加商品</text>
     </view>
   </view>
 
-  <view class="btn btn-primary btn-block mt-12" bindtap="submit">
-    {{submitting ? '提交中...' : '确认入库'}}
-  </view>
-</view>
-
-<!-- Supplier picker modal -->
-<view wx:if="{{showSupplierPicker}}" class="modal-mask" bindtap="onCloseSupplierPicker">
-  <view class="modal-content" catchtap="">
-    <view class="modal-title">选择供应商</view>
-    <view wx:for="{{suppliers}}" wx:key="id" class="picker-item" data-supplier="{{item}}" bindtap="selectSupplier">
-      <text>{{item.name}}</text>
-      <text class="text-secondary">{{item.contact_name || ''}}</text>
+  <!-- Bottom bar -->
+  <view wx:if="{{supplierId}}" class="bottom-bar">
+    <view class="total-row">
+      <view class="total-label">
+        <text class="total-text">入库合计</text>
+        <text class="total-qty">{{totalQty}} 件</text>
+      </view>
+      <text class="total-amount">¥{{totalAmount}}</text>
     </view>
+    <van-button type="primary" size="large" round loading="{{submitting}}" disabled="{{items.length === 0}}" bindtap="submit" block>
+      确认入库
+    </van-button>
   </view>
+
+  <!-- Product Picker -->
+  <van-popup show="{{showProductPicker}}" bind:close="closeProductPicker" position="bottom" custom-style="height:65%" round>
+    <view class="picker-head">
+      <van-search value="{{productSearch}}" placeholder="搜索商品" bind:change="onPickerSearch" />
+    </view>
+    <view class="picker-body">
+      <view wx:for="{{pickerProducts}}" wx:key="id" class="picker-item" data-product="{{item}}" bindtap="selectProduct">
+        <view class="picker-info">
+          <view class="picker-name">{{item.name}}</view>
+          <view class="text-secondary">{{item.spec || ''}} · 库存 {{item.stock_qty || 0}}{{item.unit || '个'}}</view>
+        </view>
+        <view class="picker-price">
+          <text class="price-label">进价</text>
+          <text class="price-value">¥{{item.purchase_price_fmt || '0.00'}}</text>
+        </view>
+      </view>
+      <van-empty wx:if="{{!allProducts.length && !productSearch}}" description="该进货商暂无商品" />
+      <van-empty wx:if="{{productSearch && !pickerProducts.length}}" description="无匹配商品" />
+    </view>
+  </van-popup>
+
+  <!-- Supplier Picker -->
+  <van-popup show="{{showSupplierPicker}}" bind:close="closeSupplierPicker" position="bottom" custom-style="height:55%" round>
+    <view class="picker-head"><view class="picker-title">选择进货商</view></view>
+    <view class="picker-body">
+      <view wx:for="{{suppliers}}" wx:key="id" class="picker-item picker-supplier {{supplierId === item.id ? 'picker-supplier-active' : ''}}" data-supplier="{{item}}" bindtap="selectSupplier">
+        <view class="picker-supplier-left">
+          <view class="picker-supplier-avatar">🏭</view>
+          <view>
+            <view class="picker-supplier-name">{{item.name}}</view>
+            <view class="text-secondary">{{item.phone || '无联系方式'}}</view>
+          </view>
+        </view>
+        <van-icon wx:if="{{supplierId === item.id}}" name="success" size="20px" color="#2563eb" />
+      </view>
+      <van-empty wx:if="{{suppliers.length === 0}}" description="暂无进货商，请先到「我的 → 进货商管理」添加" />
+    </view>
+  </van-popup>
 </view>

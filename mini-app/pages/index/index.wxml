@@ -1,64 +1,69 @@
-<view class="container">
+<view class="dashboard">
   <!-- Trial banner -->
   <view wx:if="{{trialDaysLeft > 0 && trialDaysLeft <= 3}}" class="trial-banner">
-    试用期还剩 {{trialDaysLeft}} 天
+    ⏰ 试用期还剩 {{trialDaysLeft}} 天
   </view>
 
-  <!-- Stats cards -->
+  <!-- KPI Stats -->
   <view class="stats-grid">
-    <view class="stats-item">
-      <text class="stats-label">今日销售</text>
-      <text class="stats-value">¥{{todaySales}}</text>
+    <view class="stat-card" style="border-top:3px solid #2563eb">
+      <view class="stat-top"><text class="stat-icon">💰</text><text class="stat-label">今日销售</text></view>
+      <text class="stat-value" style="color:#2563eb">¥{{todaySales}}</text>
     </view>
-    <view class="stats-item">
-      <text class="stats-label">今日利润</text>
-      <text class="stats-value text-success">¥{{todayProfit}}</text>
+    <view class="stat-card" style="border-top:3px solid #16a34a">
+      <view class="stat-top"><text class="stat-icon">📈</text><text class="stat-label">今日利润</text></view>
+      <text class="stat-value" style="color:#16a34a">¥{{todayProfit}}</text>
     </view>
-    <view class="stats-item">
-      <text class="stats-label">本月销售</text>
-      <text class="stats-value">¥{{monthSales}}</text>
+    <view class="stat-card" style="border-top:3px solid #f59e0b">
+      <view class="stat-top"><text class="stat-icon">📊</text><text class="stat-label">本月销售</text></view>
+      <text class="stat-value" style="color:#f59e0b">¥{{monthSales}}</text>
     </view>
-    <view class="stats-item">
-      <text class="stats-label">本月利润</text>
-      <text class="stats-value text-success">¥{{monthProfit}}</text>
-    </view>
-  </view>
-
-  <!-- AR card -->
-  <view class="card" wx:if="{{customersWithDebt.length > 0}}">
-    <view class="card-title row space-between">
-      <text>应收账款</text>
-      <text class="text-xl text-danger">¥{{totalAr}}</text>
-    </view>
-    <view wx:for="{{customersWithDebt}}" wx:key="id" class="debt-item" data-id="{{item.id}}" bindtap="goToCustomer">
-      <text>{{item.name}}</text>
-      <text class="text-danger">¥{{item.balance_fmt}}</text>
+    <view class="stat-card" style="border-top:3px solid #8b5cf6">
+      <view class="stat-top"><text class="stat-icon">✨</text><text class="stat-label">本月利润</text></view>
+      <text class="stat-value" style="color:#8b5cf6">¥{{monthProfit}}</text>
     </view>
   </view>
 
-  <!-- Low stock -->
-  <view class="card" wx:if="{{lowStockCount > 0}}" bindtap="goToInventory">
-    <view class="row space-between">
-      <text class="text-warning">⚠ {{lowStockCount}} 个商品库存不足</text>
-      <text class="text-secondary">查看 ›</text>
+  <!-- Accounts Receivable -->
+  <view wx:if="{{customersWithDebt.length > 0}}" class="card ar-card" data-id="{{customersWithDebt[0].id}}" bindtap="goToCustomer">
+    <view class="card-title">
+      <text>💳 应收账款</text>
+      <van-tag type="danger" size="medium">{{customersWithDebt.length}}人</van-tag>
+    </view>
+    <view class="ar-total">¥{{totalAr}}</view>
+    <view wx:for="{{customersWithDebt}}" wx:for-item="c" wx:key="id" class="ar-item">
+      <text>{{c.name}}</text>
+      <text class="text-danger">¥{{c.balance_fmt}}</text>
     </view>
   </view>
 
-  <!-- Recent sales -->
+  <!-- Low Stock -->
+  <view wx:if="{{lowStockCount > 0}}" class="card low-stock-card" bindtap="goToInventory">
+    <view class="card-title">
+      <text>⚠️ 库存不足</text>
+      <van-tag type="danger" size="medium">{{lowStockCount}}个</van-tag>
+    </view>
+    <view class="low-stock-hint">有商品库存低于安全线，点击查看 ›</view>
+  </view>
+
+  <!-- Today Sales -->
   <view class="card">
-    <view class="card-title">最近销售</view>
-    <view wx:if="{{recentSales.length === 0}}" class="empty-state" style="padding:24px">
-      <text class="text-secondary">暂无记录</text>
+    <view class="card-title" bindtap="goToTodaySales">
+      <text>📋 今日销售</text>
+      <van-icon name="arrow" size="14px" color="#969799" />
     </view>
-    <view wx:for="{{recentSales}}" wx:key="id" class="sale-row" data-id="{{item.id}}" bindtap="goToSaleDetail">
-      <view class="row space-between">
-        <view>
-          <text>{{item.customer_name}}</text>
-          <text class="tag tag-primary ml-8">{{item.pay_method === 'credit' ? '赊账' : '已收'}}</text>
-        </view>
-        <text class="text-large">¥{{item.total_amount_fmt}}</text>
+    <view wx:if="{{recentSales.length === 0}}" class="empty-state">
+      <text class="text-secondary">暂无销售记录</text>
+    </view>
+    <view wx:for="{{recentSales}}" wx:key="id" class="sale-item" data-id="{{item.id}}" bindtap="goToSaleDetail">
+      <view class="sale-row">
+        <text class="sale-customer">{{item.customer_name}}</text>
+        <text class="sale-amount">¥{{item.total_amount_fmt}}</text>
       </view>
-      <text class="text-secondary">{{item.created_at_fmt}}</text>
+      <view class="sale-meta">
+        <van-tag type="{{item.pay_method === 'credit' ? 'warning' : 'success'}}" size="medium">{{item.pay_method === 'credit' ? '赊账' : '已收'}}</van-tag>
+        <text class="text-secondary">{{item.created_at_fmt}}</text>
+      </view>
     </view>
   </view>
 </view>
