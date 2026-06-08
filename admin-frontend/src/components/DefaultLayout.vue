@@ -68,10 +68,12 @@
       <!-- Content -->
       <el-main class="layout-content">
         <slot />
-        <div class="icp-footer">
-          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">藏ICP备2026000658号</a>
-        </div>
       </el-main>
+
+      <!-- ICP Footer — 固定在底部 -->
+      <div class="layout-footer">
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">藏ICP备2026000658号</a>
+      </div>
     </el-container>
 
     <!-- Change Password Dialog -->
@@ -255,14 +257,20 @@ function logout() {
   opacity: 0;
 }
 
-/* ICP footer */
-.icp-footer {
+/* ICP footer — 固定在主区域底部，始终可见不随内容滚动 */
+.layout-footer {
+  flex-shrink: 0;
   text-align: center;
-  padding: 20px 0 8px;
+  padding: 8px 0;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
 }
-.icp-footer a {
+.layout-footer a {
   font-size: 12px;
   color: #969799;
   text-decoration: none;
+}
+.layout-footer a:hover {
+  color: #2563eb;
 }
 </style>
