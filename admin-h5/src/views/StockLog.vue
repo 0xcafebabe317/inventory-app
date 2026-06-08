@@ -32,9 +32,9 @@ function typeLabel(t: string) {
   return map[t] || t
 }
 
-function typeColor(t: string) {
-  const map: Record<string, string> = { in: 'success', out: 'danger', refund_back: 'primary' }
-  return map[t] || 'default'
+function typeColor(t: string): 'success' | 'danger' | 'primary' {
+  const map: Record<string, 'success' | 'danger' | 'primary'> = { in: 'success', out: 'danger', refund_back: 'primary' }
+  return map[t] || 'primary'
 }
 </script>
 

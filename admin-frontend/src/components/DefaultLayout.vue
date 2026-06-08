@@ -68,6 +68,9 @@
       <!-- Content -->
       <el-main class="layout-content">
         <slot />
+        <div class="icp-footer">
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">藏ICP备2026000658号</a>
+        </div>
       </el-main>
     </el-container>
 
@@ -250,5 +253,16 @@ function logout() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* ICP footer */
+.icp-footer {
+  text-align: center;
+  padding: 20px 0 8px;
+}
+.icp-footer a {
+  font-size: 12px;
+  color: #969799;
+  text-decoration: none;
 }
 </style>

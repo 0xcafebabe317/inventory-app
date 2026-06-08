@@ -89,7 +89,7 @@ Page({
   handleChangePwd() {
     const { oldPassword, newPassword, confirmPassword } = this.data.pwdForm
     if (!oldPassword || !newPassword) { wx.showToast({ title: '请填写完整', icon: 'none' }); return }
-    if (newPassword.length < 6) { wx.showToast({ title: '新密码至少6位', icon: 'none' }); return }
+    if (newPassword.length < 8) { wx.showToast({ title: '新密码至少8位', icon: 'none' }); return }
     if (newPassword !== confirmPassword) { wx.showToast({ title: '两次密码不一致', icon: 'none' }); return }
     this.setData({ pwdLoading: true })
     api.changePassword(oldPassword, newPassword).then(() => {

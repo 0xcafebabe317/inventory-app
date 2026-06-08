@@ -15,8 +15,8 @@ async function handleLogin() {
     showToast('请输入手机号和密码')
     return
   }
-  if (password.value.length < 6) {
-    showToast('密码至少6位')
+  if (password.value.length < 8) {
+    showToast('密码至少8位')
     return
   }
   loading.value = true

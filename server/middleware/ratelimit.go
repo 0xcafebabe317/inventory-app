@@ -12,13 +12,13 @@ import (
 
 func RateLimit(rdb *redis.Client, limit int, window time.Duration) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID, exists := c.Get("user_id")
-		if !exists {
-			c.Next()
-			return
+		// Use user_id if available, otherwise use client IP
+		identifier := c.ClientIP()
+		if userID, exists := c.Get("user_id"); exists {
+			identifier = fmt.Sprintf("user:%v", userID)
 		}
 
-		key := "ratelimit:" + c.Request.URL.Path + ":" + toString(userID)
+		key := "ratelimit:" + c.Request.URL.Path + ":" + identifier
 		ctx := c.Request.Context()
 
 		count, err := rdb.Incr(ctx, key).Result()
@@ -35,14 +35,5 @@ func RateLimit(rdb *redis.Client, limit int, window time.Duration) gin.HandlerFu
 			return
 		}
 		c.Next()
-	}
-}
-
-func toString(v any) string {
-	switch val := v.(type) {
-	case int64:
-		return fmt.Sprintf("%d", val)
-	default:
-		return fmt.Sprintf("%v", v)
 	}
 }

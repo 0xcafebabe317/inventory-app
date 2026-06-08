@@ -28,11 +28,11 @@ function actionLabel(a: string) {
   return map[a] || a
 }
 
-function actionColor(a: string) {
-  const map: Record<string, string> = {
+function actionColor(a: string): 'success' | 'primary' | 'danger' {
+  const map: Record<string, 'success' | 'primary' | 'danger'> = {
     activate: 'success', renew: 'primary', disable: 'danger'
   }
-  return map[a] || 'default'
+  return map[a] || 'primary'
 }
 </script>
 

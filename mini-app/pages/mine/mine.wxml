@@ -35,6 +35,8 @@
     <van-button round block type="danger" bindtap="logout">退出登录</van-button>
   </view>
 
+  <view class="icp-footer">藏ICP备2026000658号</view>
+
   <!-- Edit Nickname Dialog -->
   <van-dialog
     show="{{showNicknameDialog}}"

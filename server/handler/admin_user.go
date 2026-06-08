@@ -43,14 +43,35 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 
 	// Mask phone numbers
 	type UserResp struct {
-		model.User
-		PhoneMasked     string `json:"phone_masked"`
-		TrialExpiresAt  string `json:"trial_expires_at,omitempty"`
+		ID                    int64      `json:"id"`
+		Openid                *string    `json:"openid"`
+		Phone                 string     `json:"-"`
+		PhoneMasked           string     `json:"phone_masked"`
+		Nickname              string     `json:"nickname"`
+		AvatarURL             string     `json:"avatar_url"`
+		SubscriptionStatus    string     `json:"subscription_status"`
+		SubscriptionPlan      string     `json:"subscription_plan"`
+		TrialStartAt          time.Time  `json:"trial_start_at"`
+		SubscriptionExpiresAt *time.Time `json:"subscription_expires_at"`
+		CreatedAt             time.Time  `json:"created_at"`
+		UpdatedAt             time.Time  `json:"updated_at"`
+		TrialExpiresAt        string     `json:"trial_expires_at,omitempty"`
 	}
 	var result []UserResp
 	for _, u := range users {
 		masked := maskPhone(u.Phone)
-		ur := UserResp{User: u, PhoneMasked: masked}
+		ur := UserResp{
+			ID:                    u.ID,
+			PhoneMasked:           masked,
+			Nickname:              u.Nickname,
+			AvatarURL:             u.AvatarURL,
+			SubscriptionStatus:    u.SubscriptionStatus,
+			SubscriptionPlan:      u.SubscriptionPlan,
+			TrialStartAt:          u.TrialStartAt,
+			SubscriptionExpiresAt: u.SubscriptionExpiresAt,
+			CreatedAt:             u.CreatedAt,
+			UpdatedAt:             u.UpdatedAt,
+		}
 		// For trial users, calculate trial expiry as created_at + 7 days
 		if u.SubscriptionStatus == "trial" {
 			ur.TrialExpiresAt = u.CreatedAt.Add(7 * 24 * time.Hour).Format("2006-01-02")
@@ -73,9 +94,10 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 		utils.Fail(c, 404, "NOT_FOUND", "用户不存在")
 		return
 	}
+	// Mask phone number in response
+	user.Phone = maskPhone(user.Phone)
 	utils.OK(c, gin.H{
-		"user":          user,
-		"phone_masked":  maskPhone(user.Phone),
+		"user": user,
 	})
 }
 

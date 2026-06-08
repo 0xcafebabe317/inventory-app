@@ -92,17 +92,25 @@ func main() {
 	r.RedirectTrailingSlash = false
 	r.MaxMultipartMemory = 8 << 20 // 8 MB
 
+	// Security middleware (applied to all routes)
+	r.Use(middleware.RequestID())
+	r.Use(middleware.SecurityHeaders(cfg))
+
 	// ===== Public Routes =====
-	r.POST("/api/auth/register", authH.Register)
-	r.POST("/api/auth/login", authH.PhoneLogin)
-	r.POST("/api/auth/wechat-login", authH.WechatLogin)
-	r.POST("/api/auth/bind-phone", authH.BindPhone)
-	r.POST("/api/auth/refresh", authH.RefreshToken)
-	r.GET("/api/auth/seed-admin", authH.SeedAdmin)
+	// Rate limit auth endpoints: 10 req/min per IP
+	authGroup := r.Group("/api/auth")
+	authGroup.Use(middleware.RateLimit(rdb, 10, 1*time.Minute))
+	{
+		authGroup.POST("/register", authH.Register)
+		authGroup.POST("/login", authH.PhoneLogin)
+		authGroup.POST("/wechat-login", authH.WechatLogin)
+		authGroup.POST("/bind-phone", authH.BindPhone)
+		authGroup.POST("/refresh", authH.RefreshToken)
+	}
 
 	// ===== User API (requires JWT + subscription check) =====
 	api := r.Group("/api")
-	api.Use(middleware.Auth(cfg))
+	api.Use(middleware.AuthWithPasswordCheck(cfg, db))
 	api.Use(middleware.CheckSubscription(db))
 	{
 		// Profile
@@ -160,8 +168,9 @@ func main() {
 
 	// ===== Admin API =====
 	adminAPI := r.Group("/admin/api")
-	adminAPI.POST("/login", authH.AdminLogin)
-	adminAPI.Use(middleware.AdminAuth(cfg))
+	// Admin login rate limit: 5 req/min per IP
+	adminAPI.POST("/login", middleware.RateLimit(rdb, 5, 1*time.Minute), authH.AdminLogin)
+	adminAPI.Use(middleware.AdminAuthWithPasswordCheck(cfg, db))
 	{
 		adminAPI.GET("/profile", authH.AdminProfile)
 		adminAPI.PUT("/password", authH.AdminChangePassword)

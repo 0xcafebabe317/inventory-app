@@ -31,12 +31,14 @@ export function statusLabel(s: string): string {
   return map[s] || s
 }
 
-export function statusColor(s: string): string {
-  const map: Record<string, string> = {
+export type TagColor = 'primary' | 'success' | 'warning' | 'danger'
+
+export function statusColor(s: string): TagColor {
+  const map: Record<string, TagColor> = {
     active: 'success', trial: 'primary', expired: 'warning', disabled: 'danger',
     completed: 'success', refunded: 'warning'
   }
-  return map[s] || 'default'
+  return map[s] || 'primary'
 }
 
 export function planLabel(p: string): string {

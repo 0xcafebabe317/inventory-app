@@ -13,6 +13,7 @@ type User struct {
 	SubscriptionPlan      string     `gorm:"type:enum('custom','monthly','quarterly','yearly','permanent');default:null" json:"subscription_plan"`
 	TrialStartAt          time.Time  `gorm:"not null" json:"trial_start_at"`
 	SubscriptionExpiresAt *time.Time `gorm:"default:null" json:"subscription_expires_at"`
+	PasswordChangedAt     *time.Time `gorm:"default:null" json:"-"`
 	CreatedAt             time.Time  `json:"created_at"`
 	UpdatedAt             time.Time  `json:"updated_at"`
 }

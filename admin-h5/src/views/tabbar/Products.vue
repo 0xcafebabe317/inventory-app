@@ -57,7 +57,7 @@ async function handleDelete(id: number, name: string) {
       <div v-for="p in products" :key="p.id" class="item" @click="goEdit(p.id)">
         <div class="item-main">
           <div class="item-name">{{ p.name }}</div>
-          <van-tag v-if="p.stock_qty <= (p.min_stock || 10)" type="danger" size="mini">低库存</van-tag>
+          <van-tag v-if="p.stock_qty <= (p.min_stock || 10)" type="danger" size="medium">低库存</van-tag>
         </div>
         <div class="item-info">
           <span>{{ p.barcode || '无条码' }} · 库存 {{ p.stock_qty || 0 }}{{ p.unit || '个' }}</span>

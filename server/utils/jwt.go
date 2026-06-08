@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"time"
 
@@ -24,6 +26,14 @@ var (
 	ErrInvalidToken = errors.New("invalid token")
 )
 
+const tokenIssuer = "inventory-api"
+
+func generateJTI() string {
+	b := make([]byte, 16)
+	rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
 func GenerateToken(secret string, userID int64, openid string) (access string, refresh string, err error) {
 	access, err = generateAccessToken(secret, userID, openid)
 	if err != nil {
@@ -37,24 +47,32 @@ func GenerateToken(secret string, userID int64, openid string) (access string, r
 }
 
 func generateAccessToken(secret string, userID int64, openid string) (string, error) {
+	now := time.Now()
 	claims := Claims{
 		UserID: userID,
 		Openid: openid,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(2 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(now.Add(2 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			ID:        generateJTI(),
+			Issuer:    tokenIssuer,
 		},
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
 }
 
 func generateRefreshToken(secret string, userID int64, openid string) (string, error) {
+	now := time.Now()
 	claims := Claims{
 		UserID: userID,
 		Openid: openid,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(now.Add(7 * 24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			ID:        generateJTI(),
+			Issuer:    tokenIssuer,
 		},
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
@@ -63,7 +81,7 @@ func generateRefreshToken(secret string, userID int64, openid string) (string, e
 func ParseToken(secret string, tokenStr string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (any, error) {
 		return []byte(secret), nil
-	})
+	}, jwt.WithIssuer(tokenIssuer))
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return nil, ErrTokenExpired
@@ -78,12 +96,16 @@ func ParseToken(secret string, tokenStr string) (*Claims, error) {
 }
 
 func GenerateAdminToken(secret string, adminID int64, username string) (string, error) {
+	now := time.Now()
 	claims := AdminClaims{
 		AdminID:  adminID,
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+			ID:        generateJTI(),
+			Issuer:    tokenIssuer,
 		},
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
@@ -92,7 +114,7 @@ func GenerateAdminToken(secret string, adminID int64, username string) (string, 
 func ParseAdminToken(secret string, tokenStr string) (*AdminClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &AdminClaims{}, func(t *jwt.Token) (any, error) {
 		return []byte(secret), nil
-	})
+	}, jwt.WithIssuer(tokenIssuer))
 	if err != nil {
 		return nil, ErrInvalidToken
 	}

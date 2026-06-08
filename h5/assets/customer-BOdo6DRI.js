@@ -1,0 +1,1 @@
+import{k as e}from"./index-BRiOj2NI.js";function u(){return e.get("/api/customers")}function o(t){return e.get(`/api/customers/${t}/ledger`)}function a(t){return e.post("/api/customers",t)}function n(t,r){return e.put(`/api/customers/${t}`,r)}export{o as a,a as c,u as g,n as u};

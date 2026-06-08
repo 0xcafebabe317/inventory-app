@@ -50,8 +50,8 @@ func (h *AuthHandler) WechatLogin(c *gin.Context) {
 	result := h.DB.Where("openid = ?", openid).First(&user)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
-			// Dev mode: auto-create user so mini-program can be tested immediately
-			if h.Cfg.WechatAppID == "" || h.Cfg.WechatAppID == "YOUR_APPID" {
+			// Only auto-create users in explicit development mode
+			if h.Cfg.IsDevelopment() {
 				phone := fmt.Sprintf("138%08d", time.Now().Unix()%100000000)
 				user = model.User{
 					Openid:             &openid,
@@ -108,7 +108,7 @@ func (h *AuthHandler) WechatLogin(c *gin.Context) {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req struct {
 		Phone    string `json:"phone" binding:"required"`
-		Password string `json:"password" binding:"required,min=6"`
+		Password string `json:"password" binding:"required,min=8"`
 		Nickname string `json:"nickname"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -119,7 +119,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	// Check phone uniqueness
 	var existing model.User
 	if err := h.DB.Where("phone = ?", req.Phone).First(&existing).Error; err == nil {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "该手机号已注册")
+		utils.Fail(c, 400, "VALIDATION_ERROR", "注册失败，请检查输入信息")
 		return
 	}
 
@@ -209,7 +209,7 @@ func (h *AuthHandler) PhoneLogin(c *gin.Context) {
 // ========== End Phone+Password Auth ==========
 
 func (h *AuthHandler) BindPhone(c *gin.Context) {
-	isDev := h.Cfg.WechatAppID == "" || h.Cfg.WechatAppID == "YOUR_APPID"
+	isDev := h.Cfg.IsDevelopment()
 
 	var req struct {
 		Openid        string `json:"openid" binding:"required"`
@@ -325,28 +325,6 @@ func (h *AuthHandler) GetProfile(c *gin.Context) {
 	})
 }
 
-func (h *AuthHandler) SeedAdmin(c *gin.Context) {
-	var count int64
-	h.DB.Model(&model.Admin{}).Count(&count)
-	if count > 0 {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "管理员已存在")
-		return
-	}
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(h.Cfg.AdminPass), bcrypt.DefaultCost)
-	if err != nil {
-		utils.Fail(c, 500, "INTERNAL_ERROR", "密码加密失败")
-		return
-	}
-
-	admin := model.Admin{
-		Username:     h.Cfg.AdminUser,
-		PasswordHash: string(hash),
-	}
-	h.DB.Create(&admin)
-	utils.OK(c, gin.H{"msg": "管理员创建成功", "username": admin.Username})
-}
-
 // ========== Change Password ==========
 
 func (h *AuthHandler) ChangePassword(c *gin.Context) {
@@ -354,7 +332,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 
 	var req struct {
 		OldPassword string `json:"old_password" binding:"required"`
-		NewPassword string `json:"new_password" binding:"required,min=6"`
+		NewPassword string `json:"new_password" binding:"required,min=8"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入旧密码和新密码(新密码至少6位)")
@@ -378,8 +356,12 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	h.DB.Model(&user).Update("password_hash", string(hash))
-	utils.OK(c, gin.H{"msg": "密码修改成功"})
+	now := time.Now()
+	h.DB.Model(&user).Updates(map[string]any{
+		"password_hash":       string(hash),
+		"password_changed_at": now,
+	})
+	utils.OK(c, gin.H{"msg": "密码修改成功，请重新登录"})
 }
 
 func (h *AuthHandler) UpdateProfile(c *gin.Context) {
@@ -415,7 +397,7 @@ func (h *AuthHandler) AdminChangePassword(c *gin.Context) {
 
 	var req struct {
 		OldPassword string `json:"old_password" binding:"required"`
-		NewPassword string `json:"new_password" binding:"required,min=6"`
+		NewPassword string `json:"new_password" binding:"required,min=8"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入旧密码和新密码(新密码至少6位)")
@@ -439,8 +421,12 @@ func (h *AuthHandler) AdminChangePassword(c *gin.Context) {
 		return
 	}
 
-	h.DB.Model(&admin).Update("password_hash", string(hash))
-	utils.OK(c, gin.H{"msg": "密码修改成功"})
+	now := time.Now()
+	h.DB.Model(&admin).Updates(map[string]any{
+		"password_hash":       string(hash),
+		"password_changed_at": now,
+	})
+	utils.OK(c, gin.H{"msg": "密码修改成功，请重新登录"})
 }
 
 func (h *AuthHandler) AdminLogin(c *gin.Context) {
@@ -484,10 +470,10 @@ func (h *AuthHandler) AdminProfile(c *gin.Context) {
 }
 
 // getOpenid exchanges wx.login code for openid.
-// In dev mode (no AppID configured), the code is used as the openid directly.
+// In dev mode only, the code is used as the openid directly (for local testing).
 func getOpenid(code string, cfg *config.Config) (string, error) {
-	// Dev mode: no WeChat AppID configured, use code as openid
-	if cfg.WechatAppID == "" || cfg.WechatAppID == "YOUR_APPID" {
+	// Dev mode: use code as openid for local testing
+	if cfg.IsDevelopment() && (cfg.WechatAppID == "" || cfg.WechatAppID == "YOUR_APPID") {
 		return fmt.Sprintf("dev_%s", code), nil
 	}
 

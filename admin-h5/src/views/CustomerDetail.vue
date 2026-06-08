@@ -47,7 +47,7 @@ async function loadLedger() {
         <div class="card-title">交易记录</div>
         <div v-for="tx in transactions" :key="tx.id" class="tx-item">
           <div class="tx-row">
-            <van-tag :type="tx.type === 'repayment' ? 'success' : 'warning'" size="mini">
+            <van-tag :type="tx.type === 'repayment' ? 'success' : 'warning'" size="medium">
               {{ tx.type === 'repayment' ? '还款' : '赊账' }}
             </van-tag>
             <span :class="tx.type === 'repayment' ? 'green' : 'red'">

@@ -1,0 +1,23 @@
+package middleware
+
+import (
+	"inventory-api/config"
+
+	"github.com/gin-gonic/gin"
+)
+
+func SecurityHeaders(cfg *config.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("X-XSS-Protection", "0")
+		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+		c.Header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+
+		if cfg.IsProduction() {
+			c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		}
+
+		c.Next()
+	}
+}

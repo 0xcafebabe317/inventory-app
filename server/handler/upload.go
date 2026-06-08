@@ -3,8 +3,10 @@ package handler
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"inventory-api/utils"
@@ -24,17 +26,33 @@ func (h *UploadHandler) UploadAvatar(c *gin.Context) {
 	}
 	defer file.Close()
 
-	// Validate file type
-	ext := filepath.Ext(header.Filename)
+	// Validate size (max 5MB)
+	if header.Size > 5*1024*1024 {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "图片大小不能超过5MB")
+		return
+	}
+
+	// Validate file extension
+	ext := strings.ToLower(filepath.Ext(header.Filename))
 	allowed := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".webp": true}
 	if !allowed[ext] {
 		utils.Fail(c, 400, "VALIDATION_ERROR", "仅支持 jpg/png/gif/webp 格式")
 		return
 	}
 
-	// Validate size (max 5MB)
-	if header.Size > 5*1024*1024 {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "图片大小不能超过5MB")
+	// Validate MIME type by reading file header (magic bytes)
+	magicBuf := make([]byte, 512)
+	n, _ := file.Read(magicBuf)
+	file.Seek(0, io.SeekStart) // Reset for later copy
+	mimeType := http.DetectContentType(magicBuf[:n])
+	allowedMimes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/gif":  true,
+		"image/webp": true,
+	}
+	if !allowedMimes[mimeType] {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "文件类型不合法，仅支持 jpg/png/gif/webp 格式")
 		return
 	}
 
@@ -45,9 +63,9 @@ func (h *UploadHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	// Generate unique filename
+	// Generate unique filename with random component to prevent path traversal
 	filename := fmt.Sprintf("%d_%d%s", userID, time.Now().UnixNano(), ext)
-	savePath := filepath.Join(uploadDir, filename)
+	savePath := filepath.Join(uploadDir, filepath.Base(filename))
 
 	dst, err := os.Create(savePath)
 	if err != nil {

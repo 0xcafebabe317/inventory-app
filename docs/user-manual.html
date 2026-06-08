@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>兔子进销存 — 用户使用手册</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 2.2cm;
+    @bottom-center {
+      content: "— " counter(page) " —";
+      font-size: 10px;
+      color: #999;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+  }
+  @page:first {
+    @bottom-center { content: none; }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #333;
+    counter-reset: h2-counter;
+  }
+
+  /* ===== Cover ===== */
+  .cover {
+    text-align: center;
+    padding: 100px 0 60px;
+    page-break-after: always;
+  }
+  .cover .logo {
+    font-size: 72px;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-size: 36px;
+    color: #1989fa;
+    margin: 0 0 10px;
+    letter-spacing: 4px;
+  }
+  .cover .subtitle {
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 60px;
+  }
+  .cover .meta {
+    font-size: 14px;
+    color: #999;
+    line-height: 2.5;
+  }
+  .cover .version {
+    display: inline-block;
+    padding: 4px 16px;
+    border: 2px solid #1989fa;
+    border-radius: 20px;
+    color: #1989fa;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+
+  /* ===== TOC ===== */
+  .toc {
+    page-break-after: always;
+  }
+  .toc h2 {
+    font-size: 28px;
+    color: #1989fa;
+    border-bottom: 3px solid #1989fa;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+  }
+  .toc ul {
+    list-style: none;
+    padding: 0;
+  }
+  .toc li {
+    padding: 8px 0;
+    border-bottom: 1px dotted #ddd;
+    font-size: 15px;
+  }
+  .toc li span.num {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    background: #1989fa;
+    color: #fff;
+    border-radius: 50%;
+    margin-right: 12px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  /* ===== Sections ===== */
+  h2 {
+    font-size: 26px;
+    color: #1989fa;
+    border-left: 5px solid #1989fa;
+    padding-left: 15px;
+    margin: 50px 0 20px;
+    page-break-before: always;
+    counter-increment: h2-counter;
+  }
+  h2::before {
+    content: counter(h2-counter) ". ";
+  }
+  h2.no-break { page-break-before: avoid; }
+  h3 {
+    font-size: 18px;
+    color: #444;
+    margin: 30px 0 12px;
+    padding: 8px 12px;
+    background: #f0f7ff;
+    border-radius: 6px;
+  }
+  h4 {
+    font-size: 15px;
+    color: #555;
+    margin: 20px 0 8px;
+  }
+
+  p { margin: 8px 0; }
+
+  /* ===== Phone Mockup ===== */
+  .phone-frame {
+    width: 320px;
+    margin: 20px auto;
+    border: 8px solid #333;
+    border-radius: 32px;
+    overflow: hidden;
+    background: #f5f5f5;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    page-break-inside: avoid;
+  }
+  .phone-statusbar {
+    background: #1989fa;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .phone-title {
+    background: #fff;
+    padding: 12px 16px;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+  }
+  .phone-body {
+    padding: 16px;
+    min-height: 300px;
+  }
+
+  /* ===== Mock Components ===== */
+  .mc-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .mc-input {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    color: #999;
+    font-size: 13px;
+  }
+  .mc-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+    margin: 8px 0;
+  }
+  .mc-btn.primary { background: #1989fa; color: #fff; }
+  .mc-btn.outline { background: #fff; color: #1989fa; border: 1px solid #1989fa; }
+  .mc-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .mc-stat-item {
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .mc-stat-item .val { font-size: 20px; font-weight: bold; }
+  .mc-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .mc-tag.blue { background: #e8f4fd; color: #1989fa; }
+  .mc-tag.green { background: #e8f8e8; color: #16a34a; }
+  .mc-tag.amber { background: #fff8e1; color: #f59e0b; }
+  .mc-tag.red { background: #ffeaea; color: #e53e3e; }
+  .mc-divider { border-top: 1px solid #eee; margin: 10px 0; }
+  .mc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .mc-bottom-bar {
+    background: #fff;
+    border-top: 1px solid #eee;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ===== Info boxes ===== */
+  .info-box {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .info-box.tip { background: #e8f4fd; border-left: 4px solid #1989fa; }
+  .info-box.warn { background: #fff8e1; border-left: 4px solid #f59e0b; }
+  .info-box.success { background: #e8f8e8; border-left: 4px solid #16a34a; }
+
+  /* ===== Flow ===== */
+  .flow-steps {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+    page-break-inside: avoid;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid #1989fa;
+    border-radius: 12px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 100px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #1989fa;
+  }
+  .flow-step .icon { font-size: 28px; display: block; margin-bottom: 4px; }
+  .flow-arrow {
+    font-size: 24px;
+    color: #1989fa;
+    align-self: center;
+    font-weight: bold;
+  }
+
+  /* ===== Feature table ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #1989fa;
+    color: #fff;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: bold;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* ===== Two-column ===== */
+  .two-col {
+    display: flex;
+    gap: 20px;
+    page-break-inside: avoid;
+  }
+  .two-col > div { flex: 1; }
+
+  /* Utility */
+  .text-center { text-align: center; }
+  .text-muted { color: #999; font-size: 12px; }
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ COVER ════════════════ -->
+<div class="cover">
+  <div class="logo">🐰</div>
+  <h1>兔子进销存</h1>
+  <div class="subtitle">用户使用手册</div>
+  <div class="version">v1.0</div>
+  <div class="meta">
+    适用平台：手机浏览器 / 微信小程序<br>
+    发布日期：2026年6月<br>
+    系统网址：www.tzjxc.online
+  </div>
+</div>
+
+<!-- ════════════════ TOC ════════════════ -->
+<div class="toc">
+  <h2>目 录</h2>
+  <ul>
+    <li><span class="num">1</span> 系统概述</li>
+    <li><span class="num">2</span> 注册与登录</li>
+    <li><span class="num">3</span> 首页（工作台）</li>
+    <li><span class="num">4</span> 销售开单</li>
+    <li><span class="num">5</span> 进货入库</li>
+    <li><span class="num">6</span> 库存管理</li>
+    <li><span class="num">7</span> 我的（个人中心）</li>
+    <li><span class="num">8</span> 客户管理</li>
+    <li><span class="num">9</span> 进货商管理</li>
+    <li><span class="num">10</span> 商品管理</li>
+    <li><span class="num">11</span> 销售记录与详情</li>
+    <li><span class="num">12</span> 库存流水</li>
+    <li><span class="num">13</span> 常见问题</li>
+  </ul>
+</div>
+
+<!-- ════════════════ 1. 系统概述 ════════════════ -->
+<h2>系统概述</h2>
+
+<p><strong>兔子进销存</strong>是一款轻量级移动进销存管理系统，专为个体商户和小型批发商设计。支持手机浏览器和微信小程序两种方式使用，无需安装 APP，打开即可操作。</p>
+
+<div class="two-col">
+  <div>
+    <h4>核心功能</h4>
+    <table>
+      <tr><th>模块</th><th>功能</th></tr>
+      <tr><td>📊 首页</td><td>经营概览、KPI 统计</td></tr>
+      <tr><td>🧾 开单</td><td>销售下单、收款</td></tr>
+      <tr><td>📦 进货</td><td>采购入库、进价记录</td></tr>
+      <tr><td>📋 库存</td><td>商品管理、库存预警</td></tr>
+      <tr><td>👤 我的</td><td>账户管理、客户/进货商</td></tr>
+    </table>
+  </div>
+  <div>
+    <h4>适用场景</h4>
+    <ul>
+      <li>建材五金、汽配摩配</li>
+      <li>酒水饮料、副食干杂批发</li>
+      <li>藏药材、特产批发</li>
+      <li>农资饲料、小型加工作坊</li>
+      <li>日均开单 5-30 笔的商户</li>
+    </ul>
+    <div class="info-box tip">
+      <strong>💡 提示：</strong>本系统适合"低频但有记账需求"的商家。高频零售（便利店/超市）建议使用专业 POS 系统。
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ 2. 注册与登录 ════════════════ -->
+<h2>注册与登录</h2>
+
+<h3>2.1 注册账号</h3>
+<p>首次使用需要注册账号。新用户享有 <strong>7 天免费试用期</strong>。</p>
+
+<div class="two-col">
+  <div>
+    <!-- Register Mockup -->
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 12:00</div>
+      <div class="phone-title">注册账号</div>
+      <div class="phone-body">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:40px;">🐰</div>
+          <div style="font-weight:bold;font-size:17px;color:#333;">兔子进销存</div>
+          <div style="font-size:13px;color:#999;">注册即享7天免费试用</div>
+        </div>
+        <div class="mc-input">📱 请输入手机号</div>
+        <div class="mc-input">😊 请输入昵称（选填）</div>
+        <div class="mc-input">🔒 请输入密码（至少6位）</div>
+        <div class="mc-input">🔒 请确认密码</div>
+        <div class="mc-btn primary">注 册</div>
+        <div style="text-align:center;font-size:13px;color:#1989fa;margin-top:12px;">已有账号？去登录 →</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 注册页面</p>
+  </div>
+  <div>
+    <h4>注册步骤</h4>
+    <div class="flow-steps" style="justify-content:flex-start;">
+      <div class="flow-step"><span class="icon">📱</span>输入手机号</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">🔒</span>设置密码</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">✅</span>点击注册</div>
+    </div>
+    <div class="info-box warn">
+      <strong>⚠️ 注意：</strong>
+      <ul>
+        <li>手机号必须为 11 位中国大陆手机号</li>
+        <li>密码长度至少 6 位</li>
+        <li>两次输入的密码必须一致</li>
+        <li>昵称可选，不填则自动生成</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h3>2.2 登录</h3>
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 12:01</div>
+      <div class="phone-title">手机号登录</div>
+      <div class="phone-body">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:40px;">🐰</div>
+          <div style="font-weight:bold;font-size:17px;color:#333;">兔子进销存</div>
+          <div style="font-size:13px;color:#999;">手机号登录</div>
+        </div>
+        <div class="mc-input">📱 请输入手机号</div>
+        <div class="mc-input">🔒 请输入密码</div>
+        <div class="mc-btn primary">登 录</div>
+        <div style="text-align:center;font-size:13px;color:#1989fa;margin-top:12px;">没有账号？去注册 →</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 登录页面</p>
+  </div>
+  <div>
+    <div class="info-box tip">
+      <strong>💡 登录说明：</strong>
+      <ul>
+        <li>使用注册时的手机号和密码登录</li>
+        <li>登录成功后自动跳转到首页</li>
+        <li>Token 有效期 7 天，过期需重新登录</li>
+        <li>试用到期后将无法进入系统</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 3. 首页 ════════════════ -->
+<h2>首页（工作台）</h2>
+<p>登录后默认进入首页。首页展示经营关键数据，是日常运营的"仪表盘"。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">🏠 首页</div>
+      <div class="phone-body">
+        <!-- Trial banner -->
+        <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:10px 12px;border-radius:10px;margin-bottom:10px;font-size:12px;">
+          🎉 试用期剩余 <strong>7</strong> 天 · 点击了解套餐
+        </div>
+        <!-- Stat cards -->
+        <div class="mc-stat-grid">
+          <div class="mc-stat-item" style="background:#eff6ff;border-top:3px solid #2563eb;">
+            <div>💰 今日销售</div>
+            <div class="val">¥1,280</div>
+          </div>
+          <div class="mc-stat-item" style="background:#f0fdf4;border-top:3px solid #16a34a;">
+            <div>📈 今日利润</div>
+            <div class="val">¥356</div>
+          </div>
+          <div class="mc-stat-item" style="background:#fffbeb;border-top:3px solid #f59e0b;">
+            <div>📊 本月销售</div>
+            <div class="val">¥28,500</div>
+          </div>
+          <div class="mc-stat-item" style="background:#f5f3ff;border-top:3px solid #8b5cf6;">
+            <div>✨ 本月利润</div>
+            <div class="val">¥8,200</div>
+          </div>
+        </div>
+        <!-- AR Card -->
+        <div class="mc-card" style="margin-top:10px;">
+          <div class="mc-row">
+            <span>📋 应收账款</span>
+            <span class="mc-tag red">3笔</span>
+          </div>
+          <div style="font-size:22px;font-weight:bold;color:#e53e3e;">¥12,600</div>
+        </div>
+        <!-- Low stock -->
+        <div class="mc-card">
+          <div class="mc-row">
+            <span>⚠️ 库存不足（低于安全库存）</span>
+            <span class="mc-tag amber">5件</span>
+          </div>
+          <div style="font-size:12px;color:#999;">点击查看 &gt;</div>
+        </div>
+        <!-- Today sales -->
+        <div style="font-weight:bold;margin:10px 0 6px;">📋 今日销售</div>
+        <div class="mc-card">
+          <div class="mc-row"><span>张三</span><span class="mc-tag green">微信</span><span>¥680</span></div>
+          <div class="text-muted">2026-06-04 10:30</div>
+        </div>
+        <div class="mc-card">
+          <div class="mc-row"><span>散客</span><span class="mc-tag blue">支付宝</span><span>¥420</span></div>
+          <div class="text-muted">2026-06-04 09:15</div>
+        </div>
+        <div style="text-align:center;color:#1989fa;font-size:13px;margin-top:6px;">查看全部 →</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 首页（工作台）</p>
+  </div>
+  <div>
+    <h4>页面组成</h4>
+    <table>
+      <tr><th>区域</th><th>说明</th></tr>
+      <tr><td>试用横幅</td><td>显示剩余试用天数（渐变紫色）</td></tr>
+      <tr><td>KPI 卡片</td><td>今日销售/利润、本月销售/利润（4 色区分）</td></tr>
+      <tr><td>应收账款</td><td>客户欠款总额和笔数</td></tr>
+      <tr><td>低库存预警</td><td>库存量低于安全库存的商品数</td></tr>
+      <tr><td>今日销售</td><td>最近 5 笔销售记录</td></tr>
+    </table>
+
+    <h4>操作指引</h4>
+    <ul>
+      <li><strong>下拉刷新：</strong>在首页顶部下拉可刷新数据</li>
+      <li><strong>点击应收款：</strong>跳转到欠款客户列表</li>
+      <li><strong>点击低库存：</strong>跳转到库存页面</li>
+      <li><strong>点击"查看全部"：</strong>进入今日销售汇总</li>
+    </ul>
+
+    <div class="info-box tip">
+      <strong>💡 每日工作流：</strong>早上打开首页 → 查看昨日销售/利润 → 查看库存预警 → 开始一天的开单和进货。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 4. 销售开单 ════════════════ -->
+<h2>销售开单</h2>
+<p>开单是最高频的操作。支持选择客户、扫码添加商品、三种支付方式。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">🧾 开单</div>
+      <div class="phone-body">
+        <!-- Customer bar -->
+        <div class="mc-row" style="margin-bottom:10px;">
+          <span class="mc-btn outline" style="width:auto;padding:6px 14px;font-size:13px;">散客</span>
+          <span class="mc-btn outline" style="width:auto;padding:6px 14px;font-size:13px;">批发客户</span>
+          <span style="font-size:13px;">当前：<strong>散客</strong></span>
+        </div>
+        <!-- Search + scan -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div class="mc-input" style="flex:1;margin:0;">🔍 搜索商品...</div>
+          <div style="background:#1989fa;color:#fff;width:44px;height:44px;border-radius:8px;text-align:center;line-height:44px;font-size:20px;">📷</div>
+        </div>
+        <!-- Cart items -->
+        <div class="mc-card" style="border:1px solid #eee;">
+          <div class="mc-row"><strong>农夫山泉</strong><span>¥2.00</span></div>
+          <div style="color:#999;font-size:12px;">500ml · 瓶</div>
+          <div class="mc-row" style="margin-top:6px;">
+            <span style="background:#eee;padding:4px 10px;border-radius:4px;">−</span>
+            <span style="font-weight:bold;margin:0 12px;">2</span>
+            <span style="background:#eee;padding:4px 10px;border-radius:4px;">+</span>
+            <span style="color:#999;">小计：¥4.00</span>
+            <span>✕</span>
+          </div>
+        </div>
+        <div class="mc-card" style="border:1px solid #eee;">
+          <div class="mc-row"><strong>康师傅红茶</strong><span>¥3.00</span></div>
+          <div style="color:#999;font-size:12px;">500ml · 瓶</div>
+          <div class="mc-row" style="margin-top:6px;">
+            <span style="background:#eee;padding:4px 10px;border-radius:4px;">−</span>
+            <span style="font-weight:bold;margin:0 12px;">1</span>
+            <span style="background:#eee;padding:4px 10px;border-radius:4px;">+</span>
+            <span style="color:#999;">小计：¥3.00</span>
+            <span>✕</span>
+          </div>
+        </div>
+        <!-- Payment method -->
+        <div style="margin-top:10px;">
+          <div style="font-size:13px;color:#999;margin-bottom:6px;">支付方式</div>
+          <div style="display:flex;gap:8px;">
+            <span class="mc-tag green" style="padding:8px 16px;">💚 微信</span>
+            <span style="padding:8px 16px;color:#999;">💙 支付宝</span>
+            <span style="padding:8px 16px;color:#999;">💵 现金</span>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom bar -->
+      <div class="mc-bottom-bar">
+        <div><div style="font-size:11px;color:#999;">合计 3件</div><div style="font-weight:bold;font-size:18px;color:#e53e3e;">¥7.00</div></div>
+        <div class="mc-btn primary" style="width:auto;padding:10px 24px;">确认收款</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 开单页面</p>
+  </div>
+  <div>
+    <h4>开单流程</h4>
+    <div class="flow-steps" style="justify-content:flex-start;">
+      <div class="flow-step"><span class="icon">👤</span>选择客户</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">🔍</span>搜索商品</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">🛒</span>调整数量</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">💳</span>选择支付</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">✅</span>确认收款</div>
+    </div>
+
+    <h4>功能说明</h4>
+    <table>
+      <tr><th>功能</th><th>操作</th></tr>
+      <tr><td>散客/批发</td><td>顶部切换客户类型，批发可选具体客户</td></tr>
+      <tr><td>扫码添加</td><td>点击 📷 按钮扫描商品条码</td></tr>
+      <tr><td>搜索商品</td><td>输入名称或条码搜索，底部弹窗选择</td></tr>
+      <tr><td>加减数量</td><td>点击 − / + 按钮或直接输入数字</td></tr>
+      <tr><td>删除商品</td><td>点击 ✕ 按钮从购物车移除</td></tr>
+      <tr><td>支付方式</td><td>微信 / 支付宝 / 现金，三选一</td></tr>
+      <tr><td>确认收款</td><td>底部红色按钮，提交订单并扣减库存</td></tr>
+    </table>
+
+    <div class="info-box tip">
+      <strong>💡 快捷操作：</strong>"散客"模式无需提前创建客户，直接开单。适合过路客、一次性购买场景。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 5. 进货入库 ════════════════ -->
+<h2>进货入库</h2>
+<p>管理采购入库。选择进货商后添加商品，记录进价和数量，提交后自动更新库存。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">📦 进货</div>
+      <div class="phone-body">
+        <!-- Supplier card -->
+        <div class="mc-card" style="border-left:4px solid #1989fa;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;text-align:center;line-height:40px;">🏭</div>
+            <div>
+              <div style="font-weight:bold;">宏发建材批发</div>
+              <div style="font-size:12px;color:#999;">138****5678</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#999;margin-top:4px;">仅显示该进货商商品</div>
+          <div class="mc-row" style="margin-top:6px;">
+            <span style="color:#1989fa;font-size:13px;">🔄 切换进货商</span>
+          </div>
+        </div>
+        <!-- Product header -->
+        <div class="mc-row" style="margin-top:10px;">
+          <span>📦 入库商品</span>
+          <span class="mc-tag blue">2件</span>
+        </div>
+        <!-- Cart item -->
+        <div class="mc-card" style="border:1px solid #e0e0e0;">
+          <div class="mc-row"><strong>水泥 425#</strong><span style="color:#2563eb;">¥28.00</span></div>
+          <div style="font-size:12px;color:#999;">50kg · 进价 ¥22.00 · 袋</div>
+          <div class="mc-row" style="margin-top:6px;">
+            <span style="background:#eee;padding:4px 10px;border-radius:4px;">−</span>
+            <span style="font-weight:bold;margin:0 12px;">10</span>
+            <span style="background:#eee;padding:4px 10px;border-radius:4px;">+</span>
+            <span style="color:#999;">小计：¥220</span>
+            <span>✕</span>
+          </div>
+        </div>
+        <!-- Remark -->
+        <div class="mc-input" style="margin-top:10px;">📝 备注（选填）</div>
+      </div>
+      <!-- Bottom bar -->
+      <div class="mc-bottom-bar">
+        <div>
+          <div style="font-size:11px;color:#999;">入库合计</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="mc-tag blue">10件</span>
+            <span style="font-weight:bold;font-size:18px;color:#e53e3e;">¥220.00</span>
+          </div>
+        </div>
+        <div class="mc-btn primary" style="width:auto;padding:10px 20px;">确认入库</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 进货页面</p>
+  </div>
+  <div>
+    <h4>进货流程</h4>
+    <div class="flow-steps" style="justify-content:flex-start;">
+      <div class="flow-step"><span class="icon">🏭</span>选择进货商</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">🔍</span>搜索商品</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">📝</span>填写数量</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="icon">✅</span>确认入库</div>
+    </div>
+
+    <h4>关键特性</h4>
+    <ul>
+      <li><strong>进货商关联：</strong>选择进货商后，商品列表会优先显示该进货商供应的商品</li>
+      <li><strong>进价记录：</strong>每件商品独立记录进价，用于成本核算和利润统计</li>
+      <li><strong>自动更新库存：</strong>入库后商品库存数量自动增加</li>
+      <li><strong>备注字段：</strong>可记录批次号、物流信息等</li>
+    </ul>
+
+    <div class="info-box warn">
+      <strong>⚠️ 注意：</strong>必须先创建进货商才能使用进货功能。进货商管理在「我的 → 进货商管理」中操作。如果列表为空，请先去添加进货商。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 6. 库存管理 ════════════════ -->
+<h2>库存管理</h2>
+<p>查看所有商品库存，支持搜索、预警提示、快速编辑。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">📋 库存管理</div>
+      <div class="phone-body">
+        <!-- Search -->
+        <div class="mc-input">🔍 搜索商品名称或条码</div>
+        <!-- Toolbar -->
+        <div class="mc-row" style="margin-bottom:8px;">
+          <span style="font-size:13px;color:#999;">共 <strong>48</strong> 件商品</span>
+          <span style="background:#1989fa;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;">＋ 新增</span>
+        </div>
+        <!-- Product card 1 -->
+        <div class="mc-card" style="border-left:4px solid #f59e0b;">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">水泥 425#</div>
+              <div style="font-size:12px;color:#999;">50kg · 袋 · 宏发建材</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:bold;">¥28.00</div>
+              <div><span class="mc-tag amber">库存 3</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Product card 2 -->
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">农夫山泉 500ml</div>
+              <div style="font-size:12px;color:#999;">500ml · 瓶 · 农夫山泉代理</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:bold;">¥2.00</div>
+              <div><span class="mc-tag green">库存 120</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Product card 3 -->
+        <div class="mc-card" style="border-left:4px solid #f59e0b;">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">螺纹钢 Φ12</div>
+              <div style="font-size:12px;color:#999;">12mm · 吨 · 宏发建材</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:bold;">¥3,800</div>
+              <div><span class="mc-tag amber">库存 2</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Loading more -->
+        <div style="text-align:center;color:#999;padding:10px;">加载更多...</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 库存管理页面</p>
+  </div>
+  <div>
+    <h4>功能说明</h4>
+    <table>
+      <tr><th>功能</th><th>操作</th></tr>
+      <tr><td>搜索</td><td>顶部搜索框，支持名称和条码</td></tr>
+      <tr><td>新增商品</td><td>点击"＋ 新增"进入商品表单</td></tr>
+      <tr><td>编辑商品</td><td>点击商品卡片进入编辑页</td></tr>
+      <tr><td>库存预警</td><td>库存 ≤ 安全库存时左侧橙色边框 + 黄色标签</td></tr>
+      <tr><td>库存流水</td><td>点击商品进入详情后可查看流水</td></tr>
+      <tr><td>滚动加载</td><td>滚动到底自动加载更多</td></tr>
+      <tr><td>下拉刷新</td><td>顶部下拉重新加载</td></tr>
+    </table>
+
+    <h4>颜色标识</h4>
+    <p><span class="mc-tag amber">库存不足</span> 橙色预警，表示库存 ≤ 最低安全库存</p>
+    <p><span class="mc-tag green">库存充足</span> 绿色安全，库存 > 最低安全库存</p>
+
+    <div class="info-box tip">
+      <strong>💡 设置安全库存：</strong>在新增/编辑商品时，填写"最低库存"字段。当实际库存 ≤ 该值时自动预警。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 7. 我的 ════════════════ -->
+<h2>我的（个人中心）</h2>
+<p>查看账户信息、管理资源、修改设置。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">👤 我的</div>
+      <div class="phone-body">
+        <!-- Profile card -->
+        <div class="mc-card" style="display:flex;align-items:center;gap:12px;">
+          <div style="width:56px;height:56px;border-radius:50%;background:#eee;text-align:center;line-height:56px;font-size:28px;">🐰</div>
+          <div style="flex:1;">
+            <div style="font-weight:bold;font-size:16px;">张老板 <span style="font-size:12px;color:#1989fa;">✎</span></div>
+            <div style="font-size:13px;color:#999;">158****7905</div>
+          </div>
+          <div><span class="mc-tag green">试用中</span></div>
+        </div>
+        <!-- Expiry -->
+        <div class="mc-card" style="text-align:center;">
+          <div style="font-size:12px;color:#999;">到期时间</div>
+          <div style="font-weight:bold;font-size:17px;">2026-06-11</div>
+          <div style="font-size:12px;color:#f59e0b;">剩余 7 天</div>
+        </div>
+        <!-- Menu -->
+        <div style="margin-top:12px;">
+          <div class="mc-card"><div class="mc-row"><span>✏️ 修改昵称</span><span style="color:#ccc;">›</span></div></div>
+          <div class="mc-card"><div class="mc-row"><span>🔒 修改密码</span><span style="color:#ccc;">›</span></div></div>
+          <div class="mc-card"><div class="mc-row"><span>🏭 进货商管理</span><span style="color:#ccc;">›</span></div></div>
+          <div class="mc-card"><div class="mc-row"><span>👥 客户管理</span><span style="color:#ccc;">›</span></div></div>
+          <div class="mc-card"><div class="mc-row"><span>📞 联系我们</span><span style="color:#ccc;">›</span></div></div>
+          <div class="mc-card"><div class="mc-row"><span>ℹ️ 关于</span><span style="color:#ccc;">›</span></div></div>
+        </div>
+        <!-- Logout -->
+        <div class="mc-btn outline" style="margin-top:16px;color:#e53e3e;border-color:#e53e3e;">退出登录</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 个人中心页面</p>
+  </div>
+  <div>
+    <h4>功能清单</h4>
+    <table>
+      <tr><th>菜单项</th><th>功能</th></tr>
+      <tr><td>修改昵称</td><td>弹窗输入新昵称，点确定保存</td></tr>
+      <tr><td>修改密码</td><td>输入旧密码 + 新密码 + 确认新密码</td></tr>
+      <tr><td>进货商管理</td><td>管理进货商列表，增删改查</td></tr>
+      <tr><td>客户管理</td><td>管理客户列表，增删改查</td></tr>
+      <tr><td>联系我们</td><td>显示客服二维码和联系方式</td></tr>
+      <tr><td>关于</td><td>系统版本和介绍信息</td></tr>
+      <tr><td>退出登录</td><td>清除登录状态，返回登录页</td></tr>
+    </table>
+
+    <h4>到期状态</h4>
+    <p><span class="mc-tag green">试用中 / 正常</span> 绿色 = 距离到期超过 7 天</p>
+    <p><span class="mc-tag red">即将到期</span> 红色 = 距离到期 ≤ 7 天</p>
+
+    <div class="info-box warn">
+      <strong>⚠️ 到期后：</strong>系统将锁定，无法进入首页、开单、进货等功能页面，只能查看锁定页的联系方式和续费引导。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 8. 客户管理 ════════════════ -->
+<h2>客户管理</h2>
+<p>管理批发客户信息。入口：「我的 → 客户管理」。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">👥 客户管理</div>
+      <div class="phone-body">
+        <div style="text-align:right;margin-bottom:10px;">
+          <span style="background:#1989fa;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;">＋ 添加客户</span>
+        </div>
+        <!-- Customer list -->
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">张三</div>
+              <div style="font-size:12px;color:#999;">138****8888</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="mc-tag red">欠款 ¥2,500</span>
+            </div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">李四建材</div>
+              <div style="font-size:12px;color:#999;">139****9999</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="mc-tag green">已结清</span>
+            </div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">王五餐馆</div>
+              <div style="font-size:12px;color:#999;">137****7777</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="mc-tag red">欠款 ¥860</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 客户管理页面</p>
+  </div>
+  <div>
+    <h4>操作说明</h4>
+    <ul>
+      <li><strong>添加客户：</strong>点击右上角"＋ 添加客户"，弹窗输入姓名、电话、微信号、备注</li>
+      <li><strong>编辑客户：</strong>点击客户卡片，弹窗修改信息</li>
+      <li><strong>查看详情：</strong>点击客户进入交易明细页</li>
+    </ul>
+
+    <h4>添加客户表单</h4>
+    <table>
+      <tr><th>字段</th><th>必填</th><th>说明</th></tr>
+      <tr><td>客户姓名</td><td>是</td><td>客户名称或公司名</td></tr>
+      <tr><td>手机号</td><td>否</td><td>用于联系和查找</td></tr>
+      <tr><td>微信号</td><td>否</td><td>方便微信联系</td></tr>
+      <tr><td>备注</td><td>否</td><td>其他备注信息</td></tr>
+    </table>
+
+    <div class="info-box tip">
+      <strong>💡 使用场景：</strong>在开单时选择"批发客户"，即可从已创建的客户列表中选取，该客户的购买记录和欠款会自动关联。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 9. 进货商管理 ════════════════ -->
+<h2>进货商管理</h2>
+<p>管理商品供应商信息。入口：「我的 → 进货商管理」。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">🏭 进货商管理</div>
+      <div class="phone-body">
+        <div style="text-align:right;margin-bottom:10px;">
+          <span style="background:#1989fa;color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;">＋ 添加入库商</span>
+        </div>
+        <!-- Supplier list -->
+        <div class="mc-card" style="display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;text-align:center;line-height:40px;">🏭</div>
+          <div style="flex:1;">
+            <div style="font-weight:bold;">宏发建材批发</div>
+            <div style="font-size:12px;color:#999;">联系人：李经理 · 13812345678</div>
+          </div>
+          <span style="color:#ccc;">›</span>
+        </div>
+        <div class="mc-card" style="display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;text-align:center;line-height:40px;">🏗️</div>
+          <div style="flex:1;">
+            <div style="font-weight:bold;">西藏建材总汇</div>
+            <div style="font-size:12px;color:#999;">联系人：王总 · 13900001111</div>
+          </div>
+          <span style="color:#ccc;">›</span>
+        </div>
+        <div class="mc-card" style="display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;text-align:center;line-height:40px;">📦</div>
+          <div style="flex:1;">
+            <div style="font-weight:bold;">农夫山泉代理</div>
+            <div style="font-size:12px;color:#999;">联系人：陈经理 · 13600002222</div>
+          </div>
+          <span style="color:#ccc;">›</span>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 进货商管理页面</p>
+  </div>
+  <div>
+    <h4>操作说明</h4>
+    <ul>
+      <li><strong>添加：</strong>弹窗填写名称、联系人、联系电话、备注</li>
+      <li><strong>编辑：</strong>点击进货商卡片修改信息</li>
+      <li><strong>与进货联动：</strong>进货商创建后，在进货页面可选择，系统会自动关联该进货商供应的商品</li>
+    </ul>
+
+    <h4>添加进货商表单</h4>
+    <table>
+      <tr><th>字段</th><th>必填</th><th>说明</th></tr>
+      <tr><td>进货商名称</td><td>是</td><td>供应商公司名或简称</td></tr>
+      <tr><td>联系人</td><td>否</td><td>对接人姓名</td></tr>
+      <tr><td>联系电话</td><td>否</td><td>联系手机或座机</td></tr>
+      <tr><td>备注</td><td>否</td><td>其他备注信息</td></tr>
+    </table>
+
+    <div class="info-box tip">
+      <strong>💡 进货商 vs 客户：</strong>进货商是你向上游采购的来源（你付钱给他们）。客户是你向下游销售的对象（他们付钱给你）。两者在系统中分开管理。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 10. 商品管理 ════════════════ -->
+<h2>商品管理</h2>
+<p>新增和编辑商品信息。可以从库存页点击商品卡片编辑，或点击"新增"按钮创建。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">新增商品</div>
+      <div class="phone-body">
+        <div class="mc-input">商品名称 *</div>
+        <div class="mc-input">条码（支持扫码录入） <span style="float:right;">📷</span></div>
+        <div style="display:flex;gap:8px;">
+          <div class="mc-input" style="flex:1;">规格</div>
+          <div class="mc-input" style="flex:1;">单位</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div class="mc-input" style="flex:1;">售价 ¥</div>
+          <div class="mc-input" style="flex:1;">进价 ¥</div>
+        </div>
+        <div class="mc-input">最低库存（低于此数量预警）</div>
+        <div class="mc-input">进货商 ›</div>
+        <div style="margin-top:12px;">
+          <div class="mc-btn primary">保 存</div>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 商品表单页面</p>
+  </div>
+  <div>
+    <h4>商品字段说明</h4>
+    <table>
+      <tr><th>字段</th><th>必填</th><th>说明</th></tr>
+      <tr><td>商品名称</td><td>是</td><td>商品名称，便于搜索</td></tr>
+      <tr><td>条码</td><td>否</td><td>商品条形码，支持扫码录入</td></tr>
+      <tr><td>规格</td><td>否</td><td>如 500ml、50kg、12mm</td></tr>
+      <tr><td>单位</td><td>否</td><td>如 瓶、袋、吨、箱</td></tr>
+      <tr><td>售价</td><td>否</td><td>销售单价，开单时自动带入</td></tr>
+      <tr><td>进价</td><td>否</td><td>进货单价，入库时自动带入</td></tr>
+      <tr><td>最低库存</td><td>否</td><td>安全库存预警线</td></tr>
+      <tr><td>进货商</td><td>否</td><td>关联供应商</td></tr>
+    </table>
+
+    <div class="info-box success">
+      <strong>✅ 扫码录入：</strong>点击条码旁的 📷 图标，可用手机摄像头扫描商品条码，条码自动填入。开单时也可扫码搜索商品。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 11. 销售记录 ════════════════ -->
+<h2>销售记录与详情</h2>
+<p>查看销售订单列表和详情，支持退款操作。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">今日销售</div>
+      <div class="phone-body">
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">张三</div>
+              <div style="font-size:12px;color:#999;">2026-06-04 10:30</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="mc-tag green">微信</span>
+              <div style="font-weight:bold;margin-top:4px;">¥680.00</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#999;">3件商品</div>
+        </div>
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div style="font-weight:bold;">散客</div>
+              <div style="font-size:12px;color:#999;">2026-06-04 09:15</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="mc-tag blue">支付宝</span>
+              <div style="font-weight:bold;margin-top:4px;">¥420.00</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#999;">2件商品</div>
+        </div>
+        <div style="text-align:center;color:#999;padding:10px;">加载更多...</div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 销售记录页</p>
+  </div>
+  <div>
+    <h4>入口</h4>
+    <ul>
+      <li>首页 → 今日销售 → "查看全部"</li>
+      <li>首页 → 点击某笔销售</li>
+      <li>客户详情 → 交易记录</li>
+    </ul>
+
+    <h4>销售详情页</h4>
+    <p>点击任意销售记录进入详情：</p>
+    <ul>
+      <li>订单编号、时间、客户信息</li>
+      <li>商品清单（名称、数量、单价、小计）</li>
+      <li>支付方式、总金额</li>
+      <li><strong>退款按钮：</strong>点击可对整单退款，库存自动回退</li>
+    </ul>
+
+    <div class="info-box warn">
+      <strong>⚠️ 退款说明：</strong>退款后库存自动恢复，但历史销售统计数据不会回溯修改（原销售记录保留，新增退款记录）。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 12. 库存流水 ════════════════ -->
+<h2>库存流水</h2>
+<p>追踪每件商品的库存变动历史，包括入库、销售、退款等操作。</p>
+
+<div class="two-col">
+  <div>
+    <div class="phone-frame">
+      <div class="phone-statusbar">📶 兔子进销存</div>
+      <div class="phone-title">库存流水 · 水泥425#</div>
+      <div class="phone-body">
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div><span class="mc-tag green">入库</span> +10</div>
+              <div style="font-size:12px;color:#999;">2026-06-04 08:00</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:#999;">进货商：宏发建材</div>
+              <div>进价 ¥22.00</div>
+            </div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div><span class="mc-tag red">销售</span> -2</div>
+              <div style="font-size:12px;color:#999;">2026-06-04 10:30</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:#999;">客户：张三</div>
+              <div>售价 ¥28.00</div>
+            </div>
+          </div>
+        </div>
+        <div class="mc-card">
+          <div class="mc-row">
+            <div>
+              <div><span class="mc-tag blue">退款</span> +1</div>
+              <div style="font-size:12px;color:#999;">2026-06-04 11:00</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:#999;">客户：李四</div>
+              <div>退回库存</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:13px;color:#999;padding:8px;background:#f5f5f5;border-radius:6px;margin-top:8px;">
+          当前库存：<strong style="color:#333;">9</strong>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-muted">▲ 库存流水页面</p>
+  </div>
+  <div>
+    <h4>流水类型</h4>
+    <table>
+      <tr><th>类型</th><th>图标</th><th>库存变动</th></tr>
+      <tr><td>入库</td><td><span class="mc-tag green">入库</span></td><td>增加 (+)</td></tr>
+      <tr><td>销售</td><td><span class="mc-tag red">销售</span></td><td>减少 (−)</td></tr>
+      <tr><td>退款</td><td><span class="mc-tag blue">退款</span></td><td>增加 (+)</td></tr>
+      <tr><td>手动调整</td><td><span class="mc-tag">调整</span></td><td>增减 (±)</td></tr>
+    </table>
+
+    <h4>入口</h4>
+    <p>库存管理页 → 点击商品 → 点击"库存流水"</p>
+
+    <div class="info-box tip">
+      <strong>💡 用途：</strong>当库存数量对不上时，查看流水记录可以追溯每一次库存变动的时间、原因和关联订单。
+    </div>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ════════════════ 13. 常见问题 ════════════════ -->
+<h2>常见问题</h2>
+
+<h3>Q1: 试用到期后怎么办？</h3>
+<p>联系客服购买正式套餐。到期前系统会在首页顶部显示剩余天数，到期后系统锁定，只能看到续费联系页面。</p>
+
+<h3>Q2: 如何修改商品信息？</h3>
+<p>库存管理 → 点击商品卡片 → 进入编辑页 → 修改字段 → 保存。</p>
+
+<h3>Q3: 开单时搜不到商品？</h3>
+<p>请先在「库存管理 → 新增商品」中创建商品。商品必须提前录入系统才能开单。</p>
+
+<h3>Q4: 进货时找不到进货商？</h3>
+<p>请先去「我的 → 进货商管理」添加进货商。进货必须先有进货商。</p>
+
+<h3>Q5: 扫码功能怎么用？</h3>
+<p>开单页点击 📷 按钮，对准商品条码扫描。系统自动搜索匹配商品并添加到购物车。</p>
+
+<h3>Q6: 如何退款？</h3>
+<p>首页 → 今日销售 → 点击订单进入详情 → 点击底部"退款"按钮。退款后库存自动恢复。</p>
+
+<h3>Q7: 数据安全吗？</h3>
+<p>所有数据加密传输（HTTPS），数据库每日备份。服务器位于腾讯云，提供 99.95% 可用性保障。</p>
+
+<h3>Q8: 可以多人同时使用吗？</h3>
+<p>当前版本每个账号支持单设备登录。如需多店员同时操作，可联系客服了解多用户版本。</p>
+
+<h3>Q9: 忘记密码怎么办？</h3>
+<p>目前请联系客服重置密码。后续版本将支持短信验证码重置。</p>
+
+<h3>Q10: 支持导出数据吗？</h3>
+<p>当前版本暂不支持批量导出。如需导出销售报表或库存清单，请联系客服协助处理。</p>
+
+<div style="margin-top:40px;padding:20px;background:#f0f7ff;border-radius:10px;text-align:center;">
+  <p style="font-size:16px;font-weight:bold;color:#1989fa;">📞 技术支持</p>
+  <p>如有任何问题，请通过以下方式联系我们：</p>
+  <p>网址：www.tzjxc.online</p>
+  <p>微信公众号：兔子进销存</p>
+  <p style="margin-top:20px;font-size:12px;color:#999;">© 2026 兔子进销存 · 保留所有权利</p>
+</div>
+
+</body>
+</html>

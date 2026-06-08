@@ -46,7 +46,7 @@ function goDetail(id: number) { router.push(`/sale-detail/${id}`) }
       <div v-for="s in sales" :key="s.id" class="item" @click="goDetail(s.id)">
         <div class="item-row">
           <span class="item-no">#{{ s.id }}</span>
-          <van-tag :type="statusColor(s.status)" size="mini">{{ statusLabel(s.status) }}</van-tag>
+          <van-tag :type="statusColor(s.status)" size="medium">{{ statusLabel(s.status) }}</van-tag>
         </div>
         <div class="item-row">
           <span class="text-secondary">{{ s.customer?.name || '散客' }}</span>

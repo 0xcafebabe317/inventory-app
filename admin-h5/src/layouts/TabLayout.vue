@@ -26,4 +26,20 @@ function onChange(name: string) {
     <van-tabbar-item name="sales" icon="orders-o" to="/sales">订单</van-tabbar-item>
     <van-tabbar-item name="more" icon="manager-o" to="/more">更多</van-tabbar-item>
   </van-tabbar>
+  <div class="icp-footer">
+    <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">藏ICP备2026000658号</a>
+  </div>
 </template>
+
+<style scoped>
+.icp-footer {
+  text-align: center;
+  padding: 2px 0 6px;
+  font-size: 10px;
+  background: #fff;
+}
+.icp-footer a {
+  color: #969799;
+  text-decoration: none;
+}
+</style>

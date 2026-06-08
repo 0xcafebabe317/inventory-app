@@ -23,7 +23,7 @@ Page({
     if (!phone) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
     if (!/^1\d{10}$/.test(phone)) { wx.showToast({ title: '手机号格式不正确', icon: 'none' }); return }
     if (!password) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
-    if (password.length < 6) { wx.showToast({ title: '密码至少6位', icon: 'none' }); return }
+    if (password.length < 8) { wx.showToast({ title: '密码至少8位', icon: 'none' }); return }
 
     this.setData({ submitting: true })
     auth.phoneLogin(phone, password).then(data => {

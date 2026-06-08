@@ -17,8 +17,8 @@ async function handleRegister() {
     showToast('请输入手机号和密码')
     return
   }
-  if (password.value.length < 6) {
-    showToast('密码至少6位')
+  if (password.value.length < 8) {
+    showToast('密码至少8位')
     return
   }
   if (password.value !== confirmPassword.value) {
@@ -64,7 +64,7 @@ async function handleRegister() {
         <van-field
           v-model="password"
           type="password"
-          placeholder="密码（至少6位）"
+          placeholder="密码（至少8位）"
           left-icon="lock"
           :rules="[{ required: true }]"
         />
