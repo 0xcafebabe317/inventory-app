@@ -38,9 +38,6 @@ function onTabChange(idx: number) {
         {{ tab.title }}
       </van-tabbar-item>
     </van-tabbar>
-    <div class="icp-footer">
-      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">藏ICP备2026000658号</a>
-    </div>
   </div>
 </template>
 
@@ -55,15 +52,5 @@ function onTabChange(idx: number) {
   overflow-y: auto;
   background: #f7f8fa;
   padding-bottom: 8px;
-}
-.icp-footer {
-  text-align: center;
-  padding: 2px 0 6px;
-  font-size: 10px;
-  background: #fff;
-}
-.icp-footer a {
-  color: #969799;
-  text-decoration: none;
 }
 </style>

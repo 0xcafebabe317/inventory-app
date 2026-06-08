@@ -156,6 +156,11 @@ function handleLogout() {
       <van-button round block type="danger" @click="handleLogout">退出登录</van-button>
     </div>
 
+    <!-- ICP备案号 -->
+    <div class="icp-footer">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">藏ICP备2026000658号</a>
+    </div>
+
     <!-- Change Password Dialog -->
     <van-dialog v-model:show="showPwdDialog" title="修改密码" show-cancel-button
       :confirm-loading="pwdLoading" @confirm="handleChangePwd">
@@ -202,4 +207,14 @@ function handleLogout() {
 }
 .text-secondary { color: #969799; font-size: 13px; }
 .dialog-form { padding: 12px 0; }
+
+.icp-footer {
+  text-align: center;
+  padding: 0 0 20px;
+}
+.icp-footer a {
+  font-size: 11px;
+  color: #c8c9cc;
+  text-decoration: none;
+}
 </style>
