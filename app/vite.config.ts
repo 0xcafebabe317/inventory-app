@@ -12,7 +12,7 @@ export default defineConfig({
       }
     }
   },
-  base: '/h5/',
+  base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets'
