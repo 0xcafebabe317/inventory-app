@@ -54,5 +54,10 @@ Page({
       this.setData({ showDialog: false, submitting: false })
       this.loadData()
     }).catch(() => this.setData({ submitting: false }))
+  },
+
+  goTransactions(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: '/pages/supplier-transactions/supplier-transactions?id=' + id })
   }
 })

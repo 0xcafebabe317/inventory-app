@@ -9,6 +9,7 @@ type PurchaseOrder struct {
 	TotalAmount float64         `gorm:"type:decimal(10,2);not null;default:0" json:"total_amount"`
 	PaidAmount  float64         `gorm:"type:decimal(10,2);not null;default:0" json:"paid_amount"`
 	Remark      string          `gorm:"type:varchar(256);default:''" json:"remark"`
+	InvoiceURL  string          `gorm:"type:varchar(512);default:''" json:"invoice_url"`
 	CreatedAt   time.Time       `gorm:"index:idx_created_at" json:"created_at"`
 	Supplier    Supplier        `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
 	Items       []PurchaseItem  `gorm:"foreignKey:OrderID" json:"items,omitempty"`

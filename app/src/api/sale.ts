@@ -15,3 +15,11 @@ export function getSale(id: number) {
 export function refundSale(id: number) {
   return http.post(`/api/sale-orders/${id}/refund`)
 }
+
+export function getCustomerTransactions(customerId: number, params?: any) {
+  return http.get(`/api/customers/${customerId}/transactions`, { params })
+}
+
+export function updateSaleInvoice(orderId: number, invoiceUrl: string) {
+  return http.put(`/api/sale-orders/${orderId}/invoice`, { invoice_url: invoiceUrl })
+}

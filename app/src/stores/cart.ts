@@ -1,24 +1,36 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
+export interface CartItemProduct {
+  id: number
+  name: string
+  sale_price: number
+  wholesale_price?: number
+  purchase_price?: number
+  spec?: string
+  unit?: string
+  stock_qty?: number
+}
+
 export interface CartItem {
-  product: {
-    id: number
-    name: string
-    sale_price: number
-    purchase_price?: number
-    spec?: string
-    unit?: string
-    stock_qty?: number
-  }
+  product: CartItemProduct
   qty: number
 }
 
 export const useCartStore = defineStore('cart', () => {
   const items = ref<CartItem[]>([])
+  const isWholesale = ref(false)
+
+  function effectivePrice(item: CartItem): number {
+    const wp = item.product.wholesale_price
+    if (isWholesale.value && wp != null && wp > 0) {
+      return wp
+    }
+    return item.product.sale_price
+  }
 
   const totalAmount = computed(() => {
-    return items.value.reduce((sum, item) => sum + item.product.sale_price * item.qty, 0)
+    return items.value.reduce((sum, item) => sum + effectivePrice(item) * item.qty, 0)
   })
 
   const totalPurchaseAmount = computed(() => {
@@ -27,7 +39,7 @@ export const useCartStore = defineStore('cart', () => {
 
   const itemCount = computed(() => items.value.length)
   const totalQty = computed(() => items.value.reduce((sum, item) => sum + item.qty, 0))
-  function addItem(product: CartItem['product']) {
+  function addItem(product: CartItemProduct) {
     const existing = items.value.find(i => i.product.id === product.id)
     if (existing) {
       existing.qty++

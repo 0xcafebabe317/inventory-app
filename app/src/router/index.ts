@@ -78,6 +78,18 @@ const routes = [
     name: 'CustomerManage',
     component: () => import('../views/CustomerManage.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/supplier-transactions/:id',
+    name: 'SupplierTransactions',
+    component: () => import('../views/SupplierTransactions.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/customer-transactions/:id',
+    name: 'CustomerTransactions',
+    component: () => import('../views/CustomerTransactions.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

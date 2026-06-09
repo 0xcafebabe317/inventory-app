@@ -157,3 +157,58 @@ func (h *CustomerHandler) Ledger(c *gin.Context) {
 		"transactions":  txns,
 	})
 }
+
+func (h *CustomerHandler) Transactions(c *gin.Context) {
+	userID := c.GetInt64("user_id")
+	customerID := c.Param("id")
+	page := parseIntDefault(c.Query("page"), 1)
+	pageSize := parseIntDefault(c.Query("page_size"), 20)
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+	search := c.Query("search")
+
+	// Verify customer belongs to this user
+	var cust model.Customer
+	if err := h.DB.Where("id = ? AND user_id = ?", customerID, userID).First(&cust).Error; err != nil {
+		utils.Fail(c, 404, "NOT_FOUND", "客户不存在")
+		return
+	}
+
+	query := h.DB.Where("sale_order.user_id = ? AND sale_order.customer_id = ?", userID, customerID)
+
+	// Date range filter
+	if startDate != "" {
+		query = query.Where("sale_order.created_at >= ?", startDate)
+	}
+	if endDate != "" {
+		query = query.Where("sale_order.created_at < ?", endDate+" 23:59:59")
+	}
+
+	// Product name search via subquery
+	if search != "" {
+		query = query.Where(`sale_order.id IN (
+			SELECT si.order_id FROM sale_item si
+			JOIN product p ON p.id = si.product_id
+			WHERE p.name LIKE ?
+		)`, "%"+search+"%")
+	}
+
+	var total int64
+	query.Model(&model.SaleOrder{}).Count(&total)
+
+	var orders []model.SaleOrder
+	query.Preload("Customer").
+		Preload("Items.Product.Supplier").
+		Order("sale_order.created_at DESC").
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&orders)
+
+	utils.OK(c, gin.H{
+		"list":      orders,
+		"total":     total,
+		"page":      page,
+		"page_size": pageSize,
+		"customer":  cust,
+	})
+}

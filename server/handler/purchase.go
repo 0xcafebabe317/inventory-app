@@ -18,7 +18,8 @@ type purchaseReq struct {
 	SupplierID int64             `json:"supplier_id" binding:"required"`
 	Items      []purchaseItemReq `json:"items" binding:"required"`
 	PaidAmount float64           `json:"paid_amount"`
-	Remark     string             `json:"remark"`
+	Remark     string            `json:"remark"`
+	InvoiceURL string            `json:"invoice_url"`
 }
 
 type purchaseItemReq struct {
@@ -53,6 +54,7 @@ func (h *PurchaseHandler) Create(c *gin.Context) {
 			TotalAmount: total,
 			PaidAmount:  req.PaidAmount,
 			Remark:      req.Remark,
+			InvoiceURL:  req.InvoiceURL,
 		}
 		if err := tx.Create(&order).Error; err != nil {
 			return err
@@ -118,6 +120,30 @@ func (h *PurchaseHandler) List(c *gin.Context) {
 		"page":      page,
 		"page_size": pageSize,
 	})
+}
+
+func (h *PurchaseHandler) UpdateInvoice(c *gin.Context) {
+	userID := c.GetInt64("user_id")
+	id := c.Param("id")
+
+	var req struct {
+		InvoiceURL string `json:"invoice_url" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "请提供发票URL")
+		return
+	}
+
+	result := h.DB.Model(&model.PurchaseOrder{}).
+		Where("id = ? AND user_id = ?", id, userID).
+		Update("invoice_url", req.InvoiceURL)
+
+	if result.RowsAffected == 0 {
+		utils.Fail(c, 404, "NOT_FOUND", "进货单不存在")
+		return
+	}
+
+	utils.OK(c, gin.H{"msg": "发票上传成功"})
 }
 
 func (h *PurchaseHandler) Get(c *gin.Context) {

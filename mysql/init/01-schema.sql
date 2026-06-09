@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS product (
     spec VARCHAR(64) DEFAULT '',
     unit VARCHAR(16) DEFAULT '个',
     sale_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+    wholesale_price DECIMAL(10,2) NOT NULL DEFAULT 0,
     purchase_price DECIMAL(10,2) NOT NULL DEFAULT 0,
     stock_qty INT NOT NULL DEFAULT 0,
     min_stock INT DEFAULT 0,

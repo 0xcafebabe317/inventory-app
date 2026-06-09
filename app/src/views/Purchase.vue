@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showSuccessToast } from 'vant'
 import { getProducts } from '../api/product'
 import { getSuppliers } from '../api/supplier'
 import { createPurchase } from '../api/purchase'
+import { uploadInvoice } from '../api/upload'
 import { useCartStore } from '../stores/cart'
 import { formatMoney } from '../utils/format'
 
@@ -20,9 +21,50 @@ const suppliers = ref<any[]>([])
 const selectedSupplier = ref<any>(null)
 const remark = ref('')
 const submitting = ref(false)
+const invoiceUrl = ref('')
+const invoiceFile = ref<File | null>(null)
+const invoicePreviewUrl = ref('')
+const invoiceInputRef = ref<HTMLInputElement | null>(null)
+const uploadingInvoice = ref(false)
+
+function onInvoiceChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  invoiceFile.value = file
+  if (invoicePreviewUrl.value) URL.revokeObjectURL(invoicePreviewUrl.value)
+  invoicePreviewUrl.value = URL.createObjectURL(file)
+}
+
+async function uploadInvoiceFile() {
+  if (!invoiceFile.value) return ''
+  uploadingInvoice.value = true
+  try {
+    const res: any = await uploadInvoice(invoiceFile.value, 'purchase')
+    return res.data?.url || ''
+  } catch {
+    showToast('发票上传失败，将继续提交')
+    return ''
+  } finally {
+    uploadingInvoice.value = false
+  }
+}
+
+function removeInvoice() {
+  if (invoicePreviewUrl.value) {
+    URL.revokeObjectURL(invoicePreviewUrl.value)
+    invoicePreviewUrl.value = ''
+  }
+  invoiceFile.value = null
+  invoiceUrl.value = ''
+}
 
 onMounted(() => {
   cart.clearCart()
+})
+
+onUnmounted(() => {
+  if (invoicePreviewUrl.value) URL.revokeObjectURL(invoicePreviewUrl.value)
 })
 
 async function loadProducts(supplierId?: number) {
@@ -93,14 +135,24 @@ async function submitPurchase() {
   if (!cart.items.length) { showToast('请添加商品'); return }
   submitting.value = true
   try {
+    // Upload invoice first if selected
+    let url = invoiceUrl.value
+    if (invoiceFile.value && !url) {
+      url = await uploadInvoiceFile()
+    }
     await createPurchase({
       supplier_id: selectedSupplier.value.id,
       items: cart.items.map(i => ({ product_id: i.product.id, qty: i.qty, unit_price: i.product.purchase_price || i.product.sale_price })),
-      remark: remark.value
+      remark: remark.value,
+      invoice_url: url
     })
     showSuccessToast('入库成功')
     cart.clearCart()
     remark.value = ''
+    if (invoicePreviewUrl.value) URL.revokeObjectURL(invoicePreviewUrl.value)
+    invoiceFile.value = null
+    invoiceUrl.value = ''
+    invoicePreviewUrl.value = ''
   } catch (err: any) {
     showToast(err.response?.data?.message || '入库失败')
   } finally {
@@ -144,9 +196,13 @@ async function submitPurchase() {
         <span class="product-count">{{ cart.items.length }} 种 | {{ allProducts.length }} 可选</span>
       </div>
 
-      <van-cell-group inset style="margin-bottom:8px">
-        <van-field v-model="productSearch" placeholder="🔍 搜索商品添加" @click="openProductPicker" readonly right-icon="search" />
-      </van-cell-group>
+      <!-- Search Box - prominent -->
+      <div class="search-box" @click="openProductPicker">
+        <van-icon name="search" size="18" color="#2563eb" />
+        <span v-if="!productSearch" class="search-placeholder">搜索商品名称或条码</span>
+        <span v-else class="search-value">{{ productSearch }}</span>
+        <van-icon v-if="productSearch" name="clear" size="16" color="#c8c9cc" @click.stop="productSearch=''" />
+      </div>
 
       <!-- Cart Items -->
       <div v-if="cart.items.length" class="cart-list">
@@ -187,6 +243,28 @@ async function submitPurchase() {
       <van-icon name="shop-o" size="48" color="#c8c9cc" />
       <p>请先选择进货商</p>
       <p class="no-supplier-hint">选择进货商后将显示该供应商的商品列表</p>
+    </div>
+
+    <!-- Invoice Upload (moved to bottom, after products) -->
+    <div v-if="selectedSupplier" class="invoice-card">
+      <div class="invoice-label-row">
+        <span class="invoice-title">🧾 发票凭证</span>
+        <span class="invoice-optional">选填</span>
+      </div>
+      <div v-if="!invoiceFile" class="invoice-picker" @click="invoiceInputRef?.click()">
+        <van-icon name="photograph" size="22" color="#969799" />
+        <span>点击上传发票图片</span>
+      </div>
+      <div v-else class="invoice-preview-row">
+        <div class="invoice-preview">
+          <img :src="invoicePreviewUrl" alt="发票预览" />
+          <div class="invoice-preview-mask" @click="removeInvoice">
+            <van-icon name="cross" size="14" color="#fff" />
+          </div>
+        </div>
+        <span class="invoice-preview-label">发票已选择，提交时自动上传</span>
+      </div>
+      <input ref="invoiceInputRef" type="file" accept="image/*" style="display:none" @change="onInvoiceChange" />
     </div>
 
     <!-- Bottom bar -->
@@ -355,4 +433,47 @@ async function submitPurchase() {
 .picker-supplier-active { background: #f8faff; border-radius: 8px; padding-left: 8px; padding-right: 8px; }
 
 .text-secondary { color: #969799; font-size: 12px; }
+
+/* Invoice Upload */
+.invoice-card {
+  background: #fff; border-radius: 12px; padding: 16px;
+  margin: 0 12px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.invoice-label-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.invoice-title { font-size: 14px; font-weight: 600; color: #323233; }
+.invoice-optional { font-size: 11px; color: #c8c9cc; background: #f2f3f5; padding: 1px 6px; border-radius: 4px; }
+.invoice-picker {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  border: 2px dashed #d4d6da; border-radius: 10px; padding: 22px;
+  color: #969799; font-size: 14px; cursor: pointer;
+  transition: all 0.2s; background: #fafbfc;
+}
+.invoice-picker:active { border-color: #2563eb; background: #f8faff; }
+.invoice-preview-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.invoice-preview {
+  position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0;
+}
+.invoice-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.invoice-preview-mask {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.invoice-preview-label { font-size: 13px; color: #059669; font-weight: 500; }
+
+/* Search Box */
+.search-box {
+  display: flex; align-items: center; gap: 10px;
+  background: #f0f4ff; border: 1.5px solid #bfdbfe;
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.search-box:active { border-color: #2563eb; background: #e8f0fe; }
+.search-placeholder { font-size: 14px; color: #94a3b8; }
+.search-value { font-size: 14px; color: #1e293b; font-weight: 500; }
 </style>

@@ -15,7 +15,9 @@
     "pages/sale-detail/sale-detail",
     "pages/today-sales/today-sales",
     "pages/customer-manage/customer-manage",
-    "pages/supplier-manage/supplier-manage"
+    "pages/supplier-manage/supplier-manage",
+    "pages/supplier-transactions/supplier-transactions",
+    "pages/customer-transactions/customer-transactions"
   ],
   "window": {
     "backgroundTextStyle": "light",

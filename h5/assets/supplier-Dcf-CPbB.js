@@ -1,0 +1,1 @@
+import{k as r}from"./index-9mNQR24b.js";function u(){return r.get("/api/suppliers")}function i(p){return r.post("/api/suppliers",p)}function s(p,t){return r.put(`/api/suppliers/${p}`,t)}export{i as c,u as g,s as u};

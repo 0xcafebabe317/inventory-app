@@ -129,16 +129,19 @@ func main() {
 		api.GET("/suppliers", supplierH.List)
 		api.POST("/suppliers", supplierH.Create)
 		api.PUT("/suppliers/:id", supplierH.Update)
+		api.GET("/suppliers/:id/transactions", supplierH.Transactions)
 
 		// Purchase orders
 		api.POST("/purchase-orders", purchaseH.Create)
 		api.GET("/purchase-orders", purchaseH.List)
 		api.GET("/purchase-orders/:id", purchaseH.Get)
+		api.PUT("/purchase-orders/:id/invoice", purchaseH.UpdateInvoice)
 
 		// Sale orders
 		api.POST("/sale-orders", saleH.Create)
 		api.GET("/sale-orders", saleH.List)
 		api.GET("/sale-orders/:id", saleH.Get)
+		api.PUT("/sale-orders/:id/invoice", saleH.UpdateInvoice)
 		api.POST("/sale-orders/:id/refund", saleH.Refund)
 
 		// Customers
@@ -146,6 +149,7 @@ func main() {
 		api.POST("/customers", customerH.Create)
 		api.PUT("/customers/:id", customerH.Update)
 		api.GET("/customers/:id/ledger", customerH.Ledger)
+		api.GET("/customers/:id/transactions", customerH.Transactions)
 
 		// Repayments
 		api.POST("/repayments", repaymentH.Create)
@@ -157,6 +161,7 @@ func main() {
 
 		// Upload
 		api.POST("/upload/avatar", uploadH.UploadAvatar)
+		api.POST("/upload/invoice", uploadH.UploadInvoice)
 
 		// Export
 		api.GET("/export/products", exportH.ExportProducts)
@@ -222,40 +227,40 @@ func main() {
 			path := c.Request.URL.Path
 			// Only intercept /admin paths that are NOT /admin/api
 			if !strings.HasPrefix(path, "/admin") || strings.HasPrefix(path, "/admin/api") {
-				c.Next()
-				return
+			c.Next()
+			return
 			}
 			// Strip /admin or /admin/ prefix to get the file path
 			filePath := strings.TrimPrefix(path, "/admin")
 			filePath = strings.TrimPrefix(filePath, "/")
 			if filePath == "" {
-				filePath = "index.html"
+			filePath = "index.html"
 			}
 			// Try to read and serve the file directly
 			data, err := adminFS.Open(filePath)
 			if err != nil {
-				// SPA fallback: return index.html
-				data, _ = adminFS.Open("index.html")
+			// SPA fallback: return index.html
+			data, _ = adminFS.Open("index.html")
 			}
 			if data != nil {
-				defer data.Close()
-				stat, _ := data.Stat()
-				if stat != nil && !stat.IsDir() {
-					// Determine content type from file extension
-					contentType := "text/html; charset=utf-8"
-					if strings.HasSuffix(filePath, ".js") {
-						contentType = "application/javascript; charset=utf-8"
-					} else if strings.HasSuffix(filePath, ".css") {
-						contentType = "text/css; charset=utf-8"
-					} else if strings.HasSuffix(filePath, ".svg") {
-						contentType = "image/svg+xml"
-					}
-					buf := make([]byte, stat.Size())
-					data.Read(buf)
-					c.Data(http.StatusOK, contentType, buf)
-					c.Abort()
-					return
+			defer data.Close()
+			stat, _ := data.Stat()
+			if stat != nil && !stat.IsDir() {
+				// Determine content type from file extension
+				contentType := "text/html; charset=utf-8"
+				if strings.HasSuffix(filePath, ".js") {
+					contentType = "application/javascript; charset=utf-8"
+				} else if strings.HasSuffix(filePath, ".css") {
+					contentType = "text/css; charset=utf-8"
+				} else if strings.HasSuffix(filePath, ".svg") {
+					contentType = "image/svg+xml"
 				}
+				buf := make([]byte, stat.Size())
+				data.Read(buf)
+				c.Data(http.StatusOK, contentType, buf)
+				c.Abort()
+				return
+			}
 			}
 			// Ultimate fallback: read index.html from embed
 			fallback, _ := adminAssets.ReadFile("web/admin/index.html")

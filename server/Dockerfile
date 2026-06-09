@@ -14,7 +14,11 @@ RUN adduser -D -g '' appuser
 WORKDIR /app
 COPY --from=builder /app/api .
 COPY --from=builder /app/web ./web
-RUN chown -R appuser:appuser /app
+# Pre-create upload directories with correct ownership
+# Docker copies image contents to named volumes on first mount, so these
+# must exist at build time with the proper permissions for appuser.
+RUN mkdir -p /app/web/uploads/avatars /app/web/uploads/invoices && \
+    chown -R appuser:appuser /app
 EXPOSE 8080
 USER appuser
 CMD ["./api"]

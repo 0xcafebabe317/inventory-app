@@ -12,7 +12,7 @@ const submitting = ref(false)
 
 const form = ref({
   name: '', barcode: '', spec: '', unit: '个',
-  sale_price: '', purchase_price: '', min_stock: '10', category: ''
+  sale_price: '', wholesale_price: '', purchase_price: '', min_stock: '10', category: ''
 })
 
 onMounted(async () => {
@@ -23,7 +23,7 @@ onMounted(async () => {
       if (p) {
         form.value = {
           name: p.name || '', barcode: p.barcode || '', spec: p.spec || '', unit: p.unit || '个',
-          sale_price: String(p.sale_price || ''), purchase_price: String(p.purchase_price || ''),
+          sale_price: String(p.sale_price || ''), wholesale_price: String(p.wholesale_price || ''), purchase_price: String(p.purchase_price || ''),
           min_stock: String(p.min_stock || '10'), category: p.category || ''
         }
       }
@@ -38,6 +38,7 @@ async function handleSubmit() {
     const data = {
       ...form.value,
       sale_price: parseFloat(form.value.sale_price) || 0,
+      wholesale_price: parseFloat(form.value.wholesale_price) || 0,
       purchase_price: parseFloat(form.value.purchase_price) || 0,
       min_stock: parseInt(form.value.min_stock) || 10
     }
@@ -61,6 +62,7 @@ async function handleSubmit() {
         <van-field v-model="form.spec" label="规格" placeholder="规格型号" />
         <van-field v-model="form.unit" label="单位" placeholder="个/箱/件" />
         <van-field v-model="form.sale_price" type="digit" label="售价" placeholder="0.00" />
+        <van-field v-model="form.wholesale_price" type="digit" label="批发价" placeholder="0.00" />
         <van-field v-model="form.purchase_price" type="digit" label="进价" placeholder="0.00" />
         <van-field v-model="form.min_stock" type="digit" label="最低库存" placeholder="10" />
         <van-field v-model="form.category" label="分类" placeholder="分类" />

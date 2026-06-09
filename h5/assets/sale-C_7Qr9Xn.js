@@ -1,1 +1,0 @@
-import{k as r}from"./index-CckqPULc.js";function t(e){return r.post("/api/sale-orders",e)}function s(e){return r.get("/api/sale-orders",{params:e})}function n(e){return r.get(`/api/sale-orders/${e}`)}function o(e){return r.post(`/api/sale-orders/${e}/refund`)}export{s as a,t as c,n as g,o as r};

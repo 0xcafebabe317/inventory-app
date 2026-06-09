@@ -18,7 +18,11 @@ Page({
     showProductPicker: false,
     productSearch: '',
     allProducts: [],
-    pickerProducts: []
+    pickerProducts: [],
+    // Invoice
+    invoiceUrl: '',
+    invoicePath: '',
+    uploadingInvoice: false
   },
 
   onShow() {
@@ -134,18 +138,65 @@ Page({
 
   onRemarkInput(e) { this.setData({ remark: e.detail }) },
 
+  // --- Invoice Upload ---
+  chooseInvoice() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        this.setData({ invoicePath: res.tempFilePaths[0] })
+      }
+    })
+  },
+  removeInvoice() {
+    this.setData({ invoicePath: '', invoiceUrl: '' })
+  },
+  uploadInvoiceFile() {
+    return new Promise((resolve) => {
+      if (!this.data.invoicePath) { resolve(''); return }
+      this.setData({ uploadingInvoice: true })
+      wx.uploadFile({
+        url: 'https://www.tzjxc.online/api/upload/invoice',
+        filePath: this.data.invoicePath,
+        name: 'file',
+        formData: { type: 'purchase' },
+        header: { 'Authorization': 'Bearer ' + wx.getStorageSync('access_token') },
+        success: (res) => {
+          try {
+            const data = JSON.parse(res.data)
+            resolve(data.code === 'OK' ? (data.data.url || '') : '')
+          } catch { resolve('') }
+        },
+        fail: () => { resolve('') },
+        complete: () => { this.setData({ uploadingInvoice: false }) }
+      })
+    })
+  },
+
   // --- Submit ---
-  submit() {
+  async submit() {
     if (!this.data.supplierId) { wx.showToast({ title: '请选择进货商', icon: 'none' }); return }
     if (!this.data.items.length) { wx.showToast({ title: '请添加商品', icon: 'none' }); return }
     this.setData({ submitting: true })
-    request('/api/purchase-orders', 'POST', {
-      supplier_id: this.data.supplierId,
-      items: this.data.items.map(i => ({ product_id: i.product_id, qty: i.qty, unit_price: i.unit_price })),
-      remark: this.data.remark
-    }).then(() => {
+    try {
+      let invoiceUrl = this.data.invoiceUrl
+      if (this.data.invoicePath && !invoiceUrl) {
+        invoiceUrl = await this.uploadInvoiceFile()
+      }
+      await request('/api/purchase-orders', 'POST', {
+        supplier_id: this.data.supplierId,
+        items: this.data.items.map(i => ({ product_id: i.product_id, qty: i.qty, unit_price: i.unit_price })),
+        remark: this.data.remark,
+        invoice_url: invoiceUrl
+      })
       wx.showToast({ title: '入库成功', icon: 'success' })
-      this.setData({ items: [], totalAmount: '0.00', totalQty: 0, remark: '', submitting: false })
-    }).catch(() => this.setData({ submitting: false }))
+      this.setData({
+        items: [], totalAmount: '0.00', totalQty: 0, remark: '',
+        invoicePath: '', invoiceUrl: '', submitting: false
+      })
+    } catch {
+      this.setData({ submitting: false })
+    }
   }
 })

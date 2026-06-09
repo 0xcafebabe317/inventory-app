@@ -6,8 +6,12 @@ const BASE_URL = ''
 
 const http = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000,
-  headers: { 'Content-Type': 'application/json' }
+  timeout: 15000
+  // NOTICE: 不要设置默认 Content-Type！
+  // axios 的 transformRequest 会根据 data 类型自动处理：
+  //   - 普通对象 → 自动设置 application/json
+  //   - FormData  → 浏览器自动设置 multipart/form-data + boundary
+  // 如果显式设置 application/json，axios 会把 FormData 也转成 JSON，导致文件上传失败
 })
 
 let isRefreshing = false

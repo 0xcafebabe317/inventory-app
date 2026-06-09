@@ -1,16 +1,68 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showDialog, showToast } from 'vant'
+import { showDialog, showToast, showSuccessToast } from 'vant'
 import { useAuthStore } from '../../stores/auth'
-import { changePassword, updateProfile } from '../../api/auth'
+import { changePassword, updateProfile, uploadAvatar } from '../../api/auth'
 import { formatPhone } from '../../utils/format'
 
 const router = useRouter()
 const auth = useAuthStore()
+const defaultAvatar = '/default-avatar.png'
 
 onMounted(async () => {
   if (!auth.user) await auth.loadProfile()
+})
+
+// ===== 头像上传 =====
+const avatarFile = ref<File | null>(null)
+const avatarPreviewUrl = ref('')
+const avatarInputRef = ref<HTMLInputElement | null>(null)
+const uploadingAvatar = ref(false)
+
+function onAvatarChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  avatarFile.value = file
+  if (avatarPreviewUrl.value) URL.revokeObjectURL(avatarPreviewUrl.value)
+  avatarPreviewUrl.value = URL.createObjectURL(file)
+  // 选完图片立即上传
+  handleUploadAvatar()
+}
+
+async function handleUploadAvatar() {
+  if (!avatarFile.value) return
+  uploadingAvatar.value = true
+  try {
+    const res: any = await uploadAvatar(avatarFile.value)
+    const url = res.data?.url || ''
+    if (url) {
+      await updateProfile({ avatar_url: url })
+      if (auth.user) auth.user.avatar_url = url
+      showSuccessToast('头像更新成功')
+    }
+  } catch {
+    showToast('头像上传失败')
+  } finally {
+    uploadingAvatar.value = false
+    // 清理预览 URL
+    if (avatarPreviewUrl.value) {
+      URL.revokeObjectURL(avatarPreviewUrl.value)
+      avatarPreviewUrl.value = ''
+    }
+    avatarFile.value = null
+    // 重置 input 以便重复选择同一文件
+    if (avatarInputRef.value) avatarInputRef.value.value = ''
+  }
+}
+
+function triggerAvatarUpload() {
+  avatarInputRef.value?.click()
+}
+
+onUnmounted(() => {
+  if (avatarPreviewUrl.value) URL.revokeObjectURL(avatarPreviewUrl.value)
 })
 
 // Expiry date display with color coding
@@ -122,9 +174,19 @@ function handleLogout() {
   <div class="page">
     <!-- Profile -->
     <div class="profile-card">
-      <van-image round width="60" height="60" src="/h5/default-avatar.png">
-        <template #error><van-icon name="user-o" size="36" /></template>
-      </van-image>
+      <div class="avatar-wrapper" @click="triggerAvatarUpload">
+        <van-image round width="60" height="60" :src="avatarPreviewUrl || auth.user?.avatar_url || defaultAvatar">
+          <template #error><van-icon name="user-o" size="36" /></template>
+          <template #loading><van-icon name="user-o" size="36" /></template>
+        </van-image>
+        <div class="avatar-overlay" v-if="!uploadingAvatar">
+          <van-icon name="photograph" size="18" color="#fff" />
+        </div>
+        <div class="avatar-overlay uploading" v-else>
+          <van-loading size="18" color="#fff" />
+        </div>
+      </div>
+      <input ref="avatarInputRef" type="file" accept="image/*" style="display:none" @change="onAvatarChange" />
       <div class="profile-info">
         <div class="profile-name" @click="openNicknameDialog">
           {{ auth.user?.nickname || '点击设置昵称' }}
@@ -187,6 +249,20 @@ function handleLogout() {
   display: flex; align-items: center; gap: 14px;
   background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 12px;
 }
+.avatar-wrapper {
+  position: relative; width: 60px; height: 60px; border-radius: 50%;
+  cursor: pointer; flex-shrink: 0;
+}
+.avatar-wrapper :deep(.van-image) { display: block; }
+.avatar-overlay {
+  position: absolute; bottom: 0; right: 0;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #2563eb; border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+.avatar-overlay.uploading { background: #94a3b8; }
+.avatar-wrapper:active .avatar-overlay { transform: scale(0.9); }
 .profile-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; }
 .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
 .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }

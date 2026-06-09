@@ -63,3 +63,58 @@ func (h *SupplierHandler) Update(c *gin.Context) {
 
 	utils.OK(c, s)
 }
+
+func (h *SupplierHandler) Transactions(c *gin.Context) {
+	userID := c.GetInt64("user_id")
+	supplierID := c.Param("id")
+	page := parseIntDefault(c.Query("page"), 1)
+	pageSize := parseIntDefault(c.Query("page_size"), 20)
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+	search := c.Query("search")
+
+	// Verify supplier belongs to this user
+	var supplier model.Supplier
+	if err := h.DB.Where("id = ? AND user_id = ?", supplierID, userID).First(&supplier).Error; err != nil {
+		utils.Fail(c, 404, "NOT_FOUND", "进货商不存在")
+		return
+	}
+
+	query := h.DB.Where("purchase_order.user_id = ? AND purchase_order.supplier_id = ?", userID, supplierID)
+
+	// Date range filter
+	if startDate != "" {
+		query = query.Where("purchase_order.created_at >= ?", startDate)
+	}
+	if endDate != "" {
+		query = query.Where("purchase_order.created_at < ?", endDate+" 23:59:59")
+	}
+
+	// Product name search via subquery
+	if search != "" {
+		query = query.Where(`purchase_order.id IN (
+			SELECT pi.order_id FROM purchase_item pi
+			JOIN product p ON p.id = pi.product_id
+			WHERE p.name LIKE ?
+		)`, "%"+search+"%")
+	}
+
+	var total int64
+	query.Model(&model.PurchaseOrder{}).Count(&total)
+
+	var orders []model.PurchaseOrder
+	query.Preload("Supplier").
+		Preload("Items.Product").
+		Order("purchase_order.created_at DESC").
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&orders)
+
+	utils.OK(c, gin.H{
+		"list":      orders,
+		"total":     total,
+		"page":      page,
+		"page_size": pageSize,
+		"supplier":  supplier,
+	})
+}

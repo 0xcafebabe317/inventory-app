@@ -12,6 +12,7 @@ type SaleOrder struct {
 	PayMethod    string     `gorm:"type:enum('cash','wechat','alipay','credit');not null" json:"pay_method"`
 	Status       string     `gorm:"type:enum('completed','refunded');default:'completed';index:idx_status" json:"status"`
 	Remark       string     `gorm:"type:varchar(256);default:''" json:"remark"`
+	InvoiceURL   string     `gorm:"type:varchar(512);default:''" json:"invoice_url"`
 	CreatedAt    time.Time  `gorm:"index:idx_created_at" json:"created_at"`
 	Customer     *Customer  `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
 	Items        []SaleItem `gorm:"foreignKey:OrderID" json:"items,omitempty"`

@@ -4,6 +4,18 @@
   display: flex; align-items: center; gap: 14px;
   background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 12px;
 }
+.avatar-wrapper {
+  position: relative; width: 60px; height: 60px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.avatar-overlay {
+  position: absolute; bottom: 0; right: 0;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #2563eb; border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.avatar-overlay.uploading { background: #94a3b8; }
+.profile-info { flex: 1; }
 .profile-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; }
 
 .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 12px; }

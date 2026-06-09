@@ -1,12 +1,12 @@
 <view class="login-page">
-  <view class="login-bg">
-    <view class="logo-area">
-      <view class="logo-icon">🐰</view>
-      <view class="app-title">兔子进销存</view>
-      <view class="app-subtitle">手机号登录</view>
-    </view>
+  <view class="logo-area">
+    <view class="logo-icon">🐰</view>
+    <view class="app-title">兔子进销存</view>
+    <view class="app-subtitle">手机号登录</view>
+  </view>
 
-    <view class="form-card">
+  <view class="form-area">
+    <van-cell-group inset>
       <van-field
         value="{{phone}}"
         placeholder="请输入手机号"
@@ -14,16 +14,17 @@
         maxlength="11"
         left-icon="phone-o"
         bind:change="onPhoneInput"
-        custom-style="border-radius:8px;margin-bottom:12px"
       />
       <van-field
         value="{{password}}"
-        placeholder="请输入密码（至少6位）"
+        placeholder="请输入密码"
         type="password"
         left-icon="lock"
         bind:change="onPasswordInput"
-        custom-style="border-radius:8px;margin-bottom:20px"
       />
+    </van-cell-group>
+
+    <view style="margin: 24px 0">
       <van-button
         type="primary"
         block
@@ -31,12 +32,12 @@
         loading="{{submitting}}"
         disabled="{{submitting}}"
         bindtap="handleLogin"
-        custom-style="height:44px;font-size:16px"
+        loading-text="登录中..."
       >登录</van-button>
     </view>
+  </view>
 
-    <view class="footer-link" bindtap="goRegister">
-      还没有账号？<text class="link-text">立即注册</text>
-    </view>
+  <view class="footer-link" bindtap="goRegister">
+    还没有账号？立即注册
   </view>
 </view>

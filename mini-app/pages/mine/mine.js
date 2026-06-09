@@ -12,6 +12,7 @@ Page({
     trialDaysLeft: 0,
     expiryDisplay: '',
     expiryClass: '',
+    uploadingAvatar: false,
 
     // Edit nickname
     showNicknameDialog: false,
@@ -60,6 +61,41 @@ Page({
     })
   },
 
+  // --- Avatar Upload ---
+  chooseAvatar() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        this.setData({ uploadingAvatar: true })
+        wx.uploadFile({
+          url: 'https://www.tzjxc.online/api/upload/avatar',
+          filePath: res.tempFilePaths[0],
+          name: 'file',
+          header: { 'Authorization': `Bearer ${wx.getStorageSync('access_token')}` },
+          success: (uploadRes) => {
+            try {
+              const data = JSON.parse(uploadRes.data)
+              if (data.code === 'OK' && data.data.url) {
+                // Update local profile
+                api.updateProfile({ avatar_url: data.data.url }).then(() => {
+                  const user = this.data.userInfo
+                  user.avatar_url = data.data.url
+                  app.globalData.userInfo = user
+                  this.setData({ userInfo: user })
+                  wx.showToast({ title: '头像更新成功', icon: 'success' })
+                }).catch(() => {})
+              }
+            } catch { wx.showToast({ title: '上传失败', icon: 'none' }) }
+          },
+          fail: () => { wx.showToast({ title: '上传失败', icon: 'none' }) },
+          complete: () => { this.setData({ uploadingAvatar: false }) }
+        })
+      }
+    })
+  },
+
   // --- Edit Nickname ---
   openNicknameDialog() {
     this.setData({ nicknameForm: this.data.userInfo.nickname || '', showNicknameDialog: true })
@@ -99,15 +135,9 @@ Page({
   },
 
   // --- Navigation ---
-  goToSuppliers() {
-    wx.navigateTo({ url: '/pages/supplier-manage/supplier-manage' })
-  },
-  goToCustomers() {
-    wx.navigateTo({ url: '/pages/customer-manage/customer-manage' })
-  },
-  goToContact() {
-    wx.navigateTo({ url: '/pages/contact/contact' })
-  },
+  goToSuppliers() { wx.navigateTo({ url: '/pages/supplier-manage/supplier-manage' }) },
+  goToCustomers() { wx.navigateTo({ url: '/pages/customer-manage/customer-manage' }) },
+  goToContact() { wx.navigateTo({ url: '/pages/contact/contact' }) },
 
   logout() {
     wx.showModal({

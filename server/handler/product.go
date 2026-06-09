@@ -93,16 +93,17 @@ func (h *ProductHandler) Update(c *gin.Context) {
 
 	// Only allow updating specific fields
 	h.DB.Model(&p).Updates(map[string]any{
-		"name":           updates.Name,
-		"barcode":        updates.Barcode,
-		"spec":           updates.Spec,
-		"unit":           updates.Unit,
-		"sale_price":     updates.SalePrice,
-		"purchase_price": updates.PurchasePrice,
-		"min_stock":      updates.MinStock,
-		"category":       updates.Category,
-		"image_url":      updates.ImageURL,
-		"supplier_id":    updates.SupplierID,
+		"name":            updates.Name,
+		"barcode":         updates.Barcode,
+		"spec":            updates.Spec,
+		"unit":            updates.Unit,
+		"sale_price":      updates.SalePrice,
+		"wholesale_price": updates.WholesalePrice,
+		"purchase_price":  updates.PurchasePrice,
+		"min_stock":       updates.MinStock,
+		"category":        updates.Category,
+		"image_url":       updates.ImageURL,
+		"supplier_id":     updates.SupplierID,
 	})
 
 	utils.OK(c, p)

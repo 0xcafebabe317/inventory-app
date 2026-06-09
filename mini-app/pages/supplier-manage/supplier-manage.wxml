@@ -1,7 +1,7 @@
 <view class="manage-page">
   <view class="toolbar">
     <text class="text-secondary">共 {{suppliers.length}} 家进货商</text>
-    <van-button size="small" type="primary" bindtap="showAdd">新增进货商</van-button>
+    <van-button size="small" type="primary" icon="plus" bindtap="showAdd">新增进货商</van-button>
   </view>
 
   <view wx:if="{{suppliers.length === 0}}" style="text-align:center;padding:60px 0;color:#969799">
@@ -10,11 +10,21 @@
     </van-empty>
   </view>
 
-  <view wx:for="{{suppliers}}" wx:key="id" class="manage-card" data-supplier="{{item}}" bindtap="showEdit">
-    <view class="manage-name">{{item.name}}</view>
-    <view class="manage-meta">
-      <text wx:if="{{item.contact_name}}">{{item.contact_name}}</text>
-      <text wx:if="{{item.phone}}" style="margin-left:12px">{{item.phone}}</text>
+  <view wx:for="{{suppliers}}" wx:key="id" class="manage-card">
+    <view class="card-header">
+      <view class="card-avatar">🏭</view>
+      <view class="card-info">
+        <text class="manage-name">{{item.name}}</text>
+        <view class="manage-meta">
+          <text wx:if="{{item.contact_name}}">联系人: {{item.contact_name}}</text>
+          <text wx:if="{{item.phone}}" style="margin-left:12px">电话: {{item.phone}}</text>
+        </view>
+        <text wx:if="{{item.remark}}" class="text-secondary" style="margin-top:2px">{{item.remark}}</text>
+      </view>
+    </view>
+    <view class="card-actions">
+      <van-button size="small" plain type="primary" icon="edit" data-supplier="{{item}}" bindtap="showEdit">修改信息</van-button>
+      <van-button size="small" plain icon="records" data-id="{{item.id}}" bindtap="goTransactions">交易记录</van-button>
     </view>
   </view>
 

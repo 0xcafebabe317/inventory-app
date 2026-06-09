@@ -13,11 +13,6 @@
     <van-field value="{{productSearch}}" placeholder="搜索商品名称" readonly right-icon="search" bind:click-input="openProductPicker" />
   </van-cell-group>
 
-  <!-- Scan button -->
-  <view class="scan-area" bindtap="onScan">
-    📷 扫码添加商品
-  </view>
-
   <!-- Cart Items -->
   <view wx:if="{{items.length > 0}}" class="cart-list">
     <view wx:for="{{items}}" wx:key="product_id" class="cart-item">
@@ -46,6 +41,25 @@
     </view>
   </view>
 
+  <!-- Invoice Upload -->
+  <view class="card" wx:if="{{items.length > 0}}">
+    <view class="card-title">🧾 发票凭证 <text class="optional-tag">选填</text></view>
+    <view wx:if="{{!invoicePath}}" class="invoice-picker" bindtap="chooseInvoice">
+      <van-icon name="photograph" size="20px" color="#969799" />
+      <text>上传发票图片</text>
+    </view>
+    <view wx:else class="invoice-preview-row">
+      <view class="invoice-preview">
+        <image src="{{invoicePath}}" mode="aspectFill" />
+        <view class="invoice-preview-mask" bindtap="removeInvoice">
+          <van-icon name="cross" size="14px" color="#fff" />
+        </view>
+      </view>
+      <text wx:if="{{uploadingInvoice}}" class="text-secondary">上传中...</text>
+      <text wx:else class="text-secondary">发票已选择，提交时自动上传</text>
+    </view>
+  </view>
+
   <!-- Bottom bar -->
   <view class="bottom-bar" wx:if="{{items.length > 0}}">
     <view class="total-row">
@@ -68,7 +82,8 @@
           <view class="picker-name">{{item.name}}</view>
           <view class="text-secondary">{{item.spec || ''}} · 库存{{item.stock_qty || 0}}{{item.unit || '个'}} · {{item.supplier_name || '未知供货商'}}</view>
         </view>
-        <text class="picker-price">¥{{item.sale_price_fmt || item.sale_price}}</text>
+        <text class="picker-price" wx:if="{{customerId && item.wholesale_price > 0}}">¥{{item.wholesale_price_fmt}}</text>
+        <text class="picker-price" wx:else>¥{{item.sale_price_fmt}}</text>
       </view>
       <van-empty wx:if="{{allProducts.length === 0 && !productSearch}}" description="暂无商品">
         <van-button type="primary" size="small" bindtap="goToAddProduct">添加第一个商品</van-button>

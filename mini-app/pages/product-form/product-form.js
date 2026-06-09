@@ -5,7 +5,7 @@ Page({
     id: null,
     form: {
       name: '', barcode: '', spec: '', unit: '个',
-      sale_price: '', purchase_price: '', min_stock: '',
+      sale_price: '', wholesale_price: '', purchase_price: '', min_stock: '',
       supplier_id: null
     },
     supplierName: '',
@@ -37,6 +37,7 @@ Page({
           form: {
             name: p.name, barcode: p.barcode || '', spec: p.spec || '',
             unit: p.unit || '个', sale_price: String(p.sale_price || ''),
+            wholesale_price: String(p.wholesale_price || ''),
             purchase_price: String(p.purchase_price || ''), min_stock: String(p.min_stock || ''),
             supplier_id: p.supplier_id || null
           },
@@ -77,6 +78,7 @@ Page({
     const data = {
       name: f.name, barcode: f.barcode || '', spec: f.spec || '', unit: f.unit || '个',
       sale_price: parseFloat(f.sale_price) || 0,
+      wholesale_price: parseFloat(f.wholesale_price) || 0,
       purchase_price: parseFloat(f.purchase_price) || 0,
       min_stock: parseInt(f.min_stock) || 0,
       supplier_id: f.supplier_id || null

@@ -1,9 +1,17 @@
 <view class="mine-page">
   <!-- Profile -->
   <view class="profile-card">
-    <van-image round width="60" height="60" src="{{userInfo.avatar_url || ''}}" use-error-slot>
-      <van-icon slot="error" name="user-o" size="36px" />
-    </van-image>
+    <view class="avatar-wrapper" bindtap="chooseAvatar">
+      <van-image round width="60" height="60" src="{{userInfo.avatar_url || ''}}" use-error-slot>
+        <van-icon slot="error" name="user-o" size="36px" />
+      </van-image>
+      <view class="avatar-overlay" wx:if="{{!uploadingAvatar}}">
+        <van-icon name="photograph" size="18px" color="#fff" />
+      </view>
+      <view class="avatar-overlay uploading" wx:else>
+        <van-loading size="18px" color="#fff" />
+      </view>
+    </view>
     <view class="profile-info">
       <view class="profile-name" bindtap="openNicknameDialog">
         {{userInfo.nickname || '点击设置昵称'}}
@@ -62,7 +70,7 @@
   >
     <view class="dialog-form">
       <van-field value="{{pwdForm.oldPassword}}" type="password" label="旧密码" placeholder="请输入旧密码" bind:change="onOldPwdInput" />
-      <van-field value="{{pwdForm.newPassword}}" type="password" label="新密码" placeholder="至少6位" bind:change="onNewPwdInput" />
+      <van-field value="{{pwdForm.newPassword}}" type="password" label="新密码" placeholder="至少8位" bind:change="onNewPwdInput" />
       <van-field value="{{pwdForm.confirmPassword}}" type="password" label="确认密码" placeholder="再次输入新密码" bind:change="onConfirmPwdInput" />
     </view>
   </van-dialog>

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf /Users/tiscy/Desktop/CC/try/server/web/admin/*)",
+      "Bash(cp -r /Users/tiscy/Desktop/CC/try/admin-h5/dist/* /Users/tiscy/Desktop/CC/try/server/web/admin/)",
+      "Bash(cp -r /Users/tiscy/Desktop/CC/try/app/dist/* /Users/tiscy/Desktop/CC/try/h5/)",
+      "Bash(rm -rf /Users/tiscy/Desktop/CC/try/h5/assets/*)",
+      "Bash(rm -rf /Users/tiscy/Desktop/CC/try/h5/*)"
+    ]
+  }
+}

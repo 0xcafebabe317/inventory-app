@@ -17,6 +17,28 @@
     <van-field wx:if="{{supplierId}}" value="{{remark}}" label="备注" placeholder="选填" label-width="3em" bind:change="onRemarkInput" />
   </view>
 
+  <!-- Invoice Upload -->
+  <view wx:if="{{supplierId}}" class="invoice-card">
+    <view class="invoice-label-row">
+      <text class="invoice-title">🧾 发票凭证</text>
+      <text class="invoice-optional">选填</text>
+    </view>
+    <view wx:if="{{!invoicePath}}" class="invoice-picker" bindtap="chooseInvoice">
+      <van-icon name="photograph" size="22px" color="#969799" />
+      <text>点击上传发票图片</text>
+    </view>
+    <view wx:else class="invoice-preview-row">
+      <view class="invoice-preview">
+        <image src="{{invoicePath}}" mode="aspectFill" />
+        <view class="invoice-preview-mask" bindtap="removeInvoice">
+          <van-icon name="cross" size="14px" color="#fff" />
+        </view>
+      </view>
+      <text wx:if="{{uploadingInvoice}}" class="text-secondary">上传中...</text>
+      <text wx:else class="invoice-preview-label">发票已选择，提交时自动上传</text>
+    </view>
+  </view>
+
   <!-- No supplier selected -->
   <view wx:if="{{!supplierId}}" class="no-supplier">
     <van-icon name="shop-o" size="48px" color="#c8c9cc" />

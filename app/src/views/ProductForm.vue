@@ -16,6 +16,7 @@ const form = ref({
   spec: '',
   unit: '',
   sale_price: '',
+  wholesale_price: '',
   purchase_price: '',
   min_stock: '',
   category: '',
@@ -39,6 +40,7 @@ onMounted(async () => {
           spec: p.spec || '',
           unit: p.unit || '',
           sale_price: p.sale_price != null ? String(p.sale_price) : '',
+          wholesale_price: p.wholesale_price != null ? String(p.wholesale_price) : '',
           purchase_price: p.purchase_price != null ? String(p.purchase_price) : '',
           min_stock: p.min_stock != null ? String(p.min_stock) : '',
           category: p.category || '',
@@ -80,6 +82,7 @@ async function handleSubmit() {
       spec: form.value.spec,
       unit: form.value.unit,
       sale_price: parseFloat(form.value.sale_price) || 0,
+      wholesale_price: parseFloat(form.value.wholesale_price) || 0,
       purchase_price: parseFloat(form.value.purchase_price) || 0,
       min_stock: parseInt(form.value.min_stock) || 0,
       supplier_id: form.value.supplier_id || 0
@@ -106,6 +109,7 @@ async function handleSubmit() {
         <van-field v-model="form.spec" label="规格" placeholder="请输入规格型号" />
         <van-field v-model="form.unit" label="单位" placeholder="请输入单位，如个/箱/件" />
         <van-field v-model="form.sale_price" type="digit" label="售价" placeholder="请输入售价" />
+        <van-field v-model="form.wholesale_price" type="digit" label="批发价" placeholder="请输入批发价" />
         <van-field v-model="form.purchase_price" type="digit" label="进价" placeholder="请输入进价" />
         <van-field v-model="form.min_stock" type="digit" label="最低库存" placeholder="请输入最低库存预警值" />
 

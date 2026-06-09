@@ -1,0 +1,111 @@
+<view class="page">
+  <van-nav-bar title="进货记录" left-text="返回" left-arrow bind:click-left="goBack" />
+
+  <!-- Supplier Header -->
+  <view class="hero-banner" wx:if="{{supplier}}">
+    <view class="hero-glow"></view>
+    <view class="hero-content">
+      <view class="hero-avatar">🏭</view>
+      <view class="hero-info">
+        <view class="hero-name">{{supplier.name}}</view>
+        <view class="hero-meta">{{supplier.contact_name || ''}}{{supplier.contact_name && supplier.phone ? ' · ' : ''}}{{supplier.phone || ''}}</view>
+      </view>
+      <view class="hero-stat">
+        <view class="hero-num">{{total}}</view>
+        <view class="hero-label">笔进货</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Filter Bar -->
+  <view class="filter-bar">
+    <view class="filter-row">
+      <view class="filter-date-group">
+        <input type="date" value="{{filterStartDate}}" bindchange="onFilterStartDate" class="date-input" placeholder="开始日期" />
+        <text class="date-sep">至</text>
+        <input type="date" value="{{filterEndDate}}" bindchange="onFilterEndDate" class="date-input" placeholder="结束日期" />
+      </view>
+      <van-button wx:if="{{filterStartDate || filterEndDate || filterSearch}}" size="small" plain type="primary" bindtap="clearFilters">清除</van-button>
+    </view>
+    <view class="search-row">
+      <van-icon name="search" size="16px" color="#94a3b8" />
+      <input value="{{filterSearch}}" type="text" placeholder="搜索商品名称..." class="search-input" bindinput="onFilterSearchInput" />
+      <van-icon wx:if="{{filterSearch}}" name="clear" size="16px" color="#c8c9cc" bindtap="clearSearch" />
+    </view>
+  </view>
+
+  <van-empty wx:if="{{!loading && !orders.length}}" description="暂无进货记录">
+    <view class="text-secondary" style="font-size:13px">该进货商还没有任何进货记录</view>
+  </van-empty>
+
+  <!-- Transaction List -->
+  <view wx:for="{{orders}}" wx:key="id" class="order-card">
+    <!-- Date & Total Header -->
+    <view class="order-header">
+      <view class="order-date">
+        <text class="date-icon">📅</text>
+        <text>{{item.created_at_fmt}}</text>
+      </view>
+      <view class="order-total">
+        <text class="total-label">合计</text>
+        <text class="total-num">¥{{item.total_amount_fmt}}</text>
+      </view>
+    </view>
+
+    <!-- Items Table -->
+    <view class="items-table">
+      <view class="table-head">
+        <text class="col-name">商品</text>
+        <text class="col-spec">规格</text>
+        <text class="col-price">单价</text>
+        <text class="col-qty">数量</text>
+        <text class="col-sub">小计</text>
+      </view>
+      <view wx:for="{{item.items}}" wx:for-item="it" wx:key="id" class="table-row">
+        <text class="col-name">{{it.product ? it.product.name : '—'}}</text>
+        <text class="col-spec">{{it.product ? it.product.spec || '—' : '—'}}</text>
+        <text class="col-price">¥{{it.unit_price_fmt}}/{{it.product ? it.product.unit || '个' : '个'}}</text>
+        <text class="col-qty">×{{it.qty}}</text>
+        <text class="col-sub">¥{{it.subtotal_fmt}}</text>
+      </view>
+    </view>
+
+    <!-- Invoice Section -->
+    <view class="invoice-section">
+      <view wx:if="{{item.invoice_url}}" class="invoice-has" data-url="{{item.invoice_url}}" bindtap="previewInvoice">
+        <view class="invoice-thumb">
+          <image src="{{item.invoice_url}}" mode="aspectFill" lazy-load />
+        </view>
+        <view class="invoice-meta">
+          <text class="invoice-tag">🧾 发票凭证</text>
+          <text class="invoice-hint">点击查看大图</text>
+        </view>
+        <van-icon name="arrow" size="16px" color="#b45309" />
+      </view>
+
+      <view wx:else class="invoice-none">
+        <view class="invoice-none-icon">📋</view>
+        <view class="invoice-none-text">
+          <text class="none-title">此笔订单未上传发票</text>
+          <text class="none-hint">可补充上传发票凭证</text>
+        </view>
+        <van-button
+          size="small" plain type="warning" icon="photograph"
+          loading="{{uploadingOrderId === item.id}}"
+          data-id="{{item.id}}"
+          bindtap="chooseInvoice"
+        >上传</van-button>
+      </view>
+    </view>
+
+    <!-- Remark -->
+    <view wx:if="{{item.remark}}" class="order-remark">📝 {{item.remark}}</view>
+  </view>
+
+  <!-- Load More -->
+  <view wx:if="{{orders.length < total}}" class="load-more">
+    <van-button size="small" plain loading="{{loadingMore}}" bindtap="loadMore">加载更多</van-button>
+  </view>
+
+  <view style="height:40px"></view>
+</view>

@@ -83,3 +83,78 @@ func (h *UploadHandler) UploadAvatar(c *gin.Context) {
 	url := "/uploads/avatars/" + filename
 	utils.OK(c, gin.H{"url": url})
 }
+
+func (h *UploadHandler) UploadInvoice(c *gin.Context) {
+	userID := c.GetInt64("user_id")
+	invoiceType := c.PostForm("type") // "purchase" or "sale"
+
+	// Validate invoice type
+	if invoiceType != "purchase" && invoiceType != "sale" {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "发票类型无效，必须为 purchase 或 sale")
+		return
+	}
+
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "请选择图片文件")
+		return
+	}
+	defer file.Close()
+
+	// Validate size (max 10MB)
+	if header.Size > 10*1024*1024 {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "图片大小不能超过10MB")
+		return
+	}
+
+	// Validate file extension
+	ext := strings.ToLower(filepath.Ext(header.Filename))
+	allowed := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".webp": true}
+	if !allowed[ext] {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "仅支持 jpg/png/gif/webp 格式")
+		return
+	}
+
+	// Validate MIME type by magic bytes
+	magicBuf := make([]byte, 512)
+	n, _ := file.Read(magicBuf)
+	file.Seek(0, io.SeekStart) // Reset for copy
+	mimeType := http.DetectContentType(magicBuf[:n])
+	allowedMimes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/gif":  true,
+		"image/webp": true,
+	}
+	if !allowedMimes[mimeType] {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "文件类型不合法，仅支持 jpg/png/gif/webp 格式")
+		return
+	}
+
+	// Ensure uploads directory exists: web/uploads/invoices/{user_id}/{type}/
+	uploadDir := fmt.Sprintf("web/uploads/invoices/%d/%s", userID, invoiceType)
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		utils.Fail(c, 500, "INTERNAL_ERROR", "上传目录创建失败")
+		return
+	}
+
+	// Generate unique filename with timestamp and random component
+	filename := fmt.Sprintf("%d_%d%s", time.Now().UnixMilli(), time.Now().Nanosecond()%10000, ext)
+	savePath := filepath.Join(uploadDir, filepath.Base(filename))
+
+	dst, err := os.Create(savePath)
+	if err != nil {
+		utils.Fail(c, 500, "INTERNAL_ERROR", "文件保存失败")
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, file); err != nil {
+		utils.Fail(c, 500, "INTERNAL_ERROR", "文件写入失败")
+		return
+	}
+
+	// Return the URL path
+	url := fmt.Sprintf("/uploads/invoices/%d/%s/%s", userID, invoiceType, filename)
+	utils.OK(c, gin.H{"url": url})
+}

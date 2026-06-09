@@ -1,7 +1,7 @@
 <view class="manage-page">
   <view class="toolbar">
     <text class="text-secondary">共 {{customers.length}} 位客户</text>
-    <van-button size="small" type="primary" bindtap="showAdd">新增客户</van-button>
+    <van-button size="small" type="primary" icon="plus" bindtap="showAdd">新增客户</van-button>
   </view>
 
   <view wx:if="{{customers.length === 0}}" style="text-align:center;padding:60px 0;color:#969799">
@@ -10,14 +10,22 @@
     </van-empty>
   </view>
 
-  <view wx:for="{{customers}}" wx:key="id" class="manage-card" data-customer="{{item}}" bindtap="showEdit">
-    <view class="manage-row">
-      <text class="manage-name">{{item.name}}</text>
-      <text wx:if="{{item.balance > 0}}" class="balance-badge">待还 ¥{{item.balance_fmt}}</text>
+  <view wx:for="{{customers}}" wx:key="id" class="manage-card">
+    <view class="card-header">
+      <view class="card-avatar">👤</view>
+      <view class="card-info">
+        <text class="manage-name">{{item.name}}</text>
+        <view class="manage-meta">
+          <text wx:if="{{item.phone}}">电话: {{item.phone}}</text>
+          <text wx:if="{{item.wechat}}" class="text-secondary" style="margin-left:12px">微信: {{item.wechat}}</text>
+        </view>
+        <text wx:if="{{item.remark}}" class="text-secondary" style="margin-top:2px">{{item.remark}}</text>
+      </view>
+      <text wx:if="{{item.balance > 0}}" class="balance-badge">待还: ¥{{item.balance_fmt}}</text>
     </view>
-    <view class="manage-meta">
-      <text wx:if="{{item.phone}}">{{item.phone}}</text>
-      <text wx:if="{{item.wechat}}" class="text-secondary" style="margin-left:12px">微信: {{item.wechat}}</text>
+    <view class="card-actions">
+      <van-button size="small" plain type="primary" icon="edit" data-customer="{{item}}" bindtap="showEdit">修改信息</van-button>
+      <van-button size="small" plain icon="records" data-id="{{item.id}}" bindtap="goTransactions">交易记录</van-button>
     </view>
   </view>
 

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showSuccessToast } from 'vant'
 import { getProducts } from '../../api/product'
 import { getCustomers } from '../../api/customer'
 import { createSale } from '../../api/sale'
+import { uploadInvoice } from '../../api/upload'
 import { useCartStore } from '../../stores/cart'
 import { formatMoney } from '../../utils/format'
 
@@ -21,6 +22,43 @@ const payMethod = ref('wechat')
 const selectedCustomer = ref<any>(null)
 const paidAmount = ref('')
 const submitting = ref(false)
+const invoiceUrl = ref('')
+const invoiceFile = ref<File | null>(null)
+const invoicePreviewUrl = ref('')
+const invoiceInputRef = ref<HTMLInputElement | null>(null)
+
+function onInvoiceChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  invoiceFile.value = file
+  if (invoicePreviewUrl.value) URL.revokeObjectURL(invoicePreviewUrl.value)
+  invoicePreviewUrl.value = URL.createObjectURL(file)
+}
+
+async function uploadInvoiceFile() {
+  if (!invoiceFile.value) return ''
+  try {
+    const res: any = await uploadInvoice(invoiceFile.value, 'sale')
+    return res.data?.url || ''
+  } catch {
+    showToast('发票上传失败，将继续提交')
+    return ''
+  }
+}
+
+function removeInvoice() {
+  if (invoicePreviewUrl.value) {
+    URL.revokeObjectURL(invoicePreviewUrl.value)
+    invoicePreviewUrl.value = ''
+  }
+  invoiceFile.value = null
+  invoiceUrl.value = ''
+}
+
+onUnmounted(() => {
+  if (invoicePreviewUrl.value) URL.revokeObjectURL(invoicePreviewUrl.value)
+})
 
 const payMethods = [
   { label: '微信', value: 'wechat', icon: '💚' },
@@ -51,8 +89,24 @@ function searchProducts() {
   }
 }
 
+function getDisplayPrice(p: any): number {
+  return (cart.isWholesale && p.wholesale_price > 0) ? p.wholesale_price : p.sale_price
+}
+
+function getItemPrice(item: any): number {
+  if (cart.isWholesale && item.product.wholesale_price > 0) {
+    return item.product.wholesale_price
+  }
+  return item.product.sale_price
+}
+
 function selectProduct(p: any) {
-  cart.addItem({ id: p.id, name: p.name, sale_price: p.sale_price, spec: p.spec, unit: p.unit, stock_qty: p.stock_qty })
+  cart.addItem({
+    id: p.id, name: p.name,
+    sale_price: p.sale_price,
+    wholesale_price: p.wholesale_price || 0,
+    spec: p.spec, unit: p.unit, stock_qty: p.stock_qty
+  })
   productSearch.value = ''
   productResults.value = []
   showProductPicker.value = false
@@ -78,27 +132,43 @@ async function loadCustomers() {
 
 function selectCustomer(c: any) {
   selectedCustomer.value = c
+  cart.isWholesale = true
   showCustomerPicker.value = false
 }
 
 function clearCustomer() {
   selectedCustomer.value = null
+  cart.isWholesale = false
 }
 
 async function submitSale() {
   if (!cart.items.length) { showToast('请添加商品'); return }
   submitting.value = true
   try {
+    // Upload invoice first if selected
+    let url = invoiceUrl.value
+    if (invoiceFile.value && !url) {
+      url = await uploadInvoiceFile()
+    }
     await createSale({
-      items: cart.items.map(i => ({ product_id: i.product.id, qty: i.qty, unit_price: i.product.sale_price })),
+      items: cart.items.map(i => ({
+        product_id: i.product.id,
+        qty: i.qty,
+        unit_price: cart.isWholesale && i.product.wholesale_price ? i.product.wholesale_price : i.product.sale_price
+      })),
       pay_method: payMethod.value,
       customer_id: selectedCustomer.value?.id || null,
-      paid_amount: cart.totalAmount
+      paid_amount: cart.totalAmount,
+      invoice_url: url
     })
     showSuccessToast('收款成功')
     cart.clearCart()
     payMethod.value = 'wechat'
     selectedCustomer.value = null
+    if (invoicePreviewUrl.value) URL.revokeObjectURL(invoicePreviewUrl.value)
+    invoiceFile.value = null
+    invoiceUrl.value = ''
+    invoicePreviewUrl.value = ''
   } catch (err: any) {
     const msg = err.response?.data?.message || '开单失败'
     showToast(msg)
@@ -135,7 +205,7 @@ async function submitSale() {
       <div v-for="(item, idx) in cart.items" :key="idx" class="cart-item">
         <div class="cart-info">
           <div class="cart-name">{{ item.product.name }}</div>
-          <div class="cart-meta">{{ item.product.spec || '' }} · ¥{{ formatMoney(item.product.sale_price) }}/{{ item.product.unit || '个' }}</div>
+          <div class="cart-meta">{{ item.product.spec || '' }} · ¥{{ formatMoney(getItemPrice(item)) }}/{{ item.product.unit || '个' }}</div>
         </div>
         <div class="cart-qty">
           <van-button size="mini" icon="minus" @click="cart.updateQty(idx, -1)" />
@@ -150,7 +220,7 @@ async function submitSale() {
           />
           <van-button size="mini" icon="plus" @click="cart.updateQty(idx, 1)" />
         </div>
-        <div class="cart-sub">¥{{ formatMoney(item.product.sale_price * item.qty) }}</div>
+        <div class="cart-sub">¥{{ formatMoney(getItemPrice(item) * item.qty) }}</div>
         <van-icon name="cross" size="16" color="#c8c9cc" @click="cart.removeItem(idx)" style="margin-left:6px;cursor:pointer" />
       </div>
     </div>
@@ -169,6 +239,22 @@ async function submitSale() {
           {{ p.icon }} {{ p.label }}
         </van-button>
       </div>
+    </div>
+
+    <!-- Invoice Upload -->
+    <div class="card">
+      <div class="card-title">🧾 发票凭证 <span class="optional-tag">选填</span></div>
+      <div v-if="!invoiceFile" class="invoice-picker" @click="invoiceInputRef?.click()">
+        <van-icon name="photograph" size="20" color="#969799" />
+        <span>上传发票图片</span>
+      </div>
+      <div v-else class="invoice-preview">
+        <img :src="invoicePreviewUrl" alt="发票预览" />
+        <div class="invoice-preview-mask" @click="removeInvoice">
+          <van-icon name="cross" size="16" color="#fff" />
+        </div>
+      </div>
+      <input ref="invoiceInputRef" type="file" accept="image/*" style="display:none" @change="onInvoiceChange" />
     </div>
 
     <!-- Bottom bar -->
@@ -193,7 +279,8 @@ async function submitSale() {
             <div class="picker-name">{{ p.name }}</div>
             <div class="text-secondary">{{ p.spec || '' }} · 库存{{ p.stock_qty || 0 }}{{ p.unit || '个' }} · {{ p.supplier?.name || '未知供货商' }}</div>
           </div>
-          <span class="text-large">¥{{ formatMoney(p.sale_price) }}</span>
+          <span class="text-large" v-if="cart.isWholesale && p.wholesale_price > 0">¥{{ formatMoney(p.wholesale_price) }}</span>
+          <span class="text-large" v-else>¥{{ formatMoney(p.sale_price) }}</span>
         </div>
         <van-empty v-if="!allProducts.length && !productSearch" description="暂无商品">
           <van-button type="primary" size="small" @click="router.push({ name: 'ProductForm' })">添加第一个商品</van-button>
@@ -278,4 +365,25 @@ async function submitSale() {
 .text-secondary { color: #969799; font-size: 12px; }
 .text-large { font-weight: 700; font-size: 16px; }
 .text-danger { color: #ee0a24; font-size: 12px; }
+
+/* Invoice Upload */
+.optional-tag { font-size: 11px; color: #c8c9cc; font-weight: 400; margin-left: 4px; }
+.invoice-picker {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1.5px dashed #d4d6da; border-radius: 10px; padding: 18px;
+  color: #969799; font-size: 14px; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.invoice-picker:active { border-color: #2563eb; }
+.invoice-preview {
+  position: relative; width: 100px; height: 100px; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.invoice-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.invoice-preview-mask {
+  position: absolute; top: 6px; right: 6px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
 </style>
