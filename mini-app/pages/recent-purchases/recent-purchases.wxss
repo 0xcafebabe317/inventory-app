@@ -1,0 +1,12 @@
+.page { background: #f7f8fa; min-height: 100vh; padding: 12px; }
+
+.card {
+  background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.card-supplier { font-size: 16px; font-weight: 600; }
+.card-amount { font-size: 24px; font-weight: 700; color: #1a56db; margin-bottom: 6px; }
+.card-meta { font-size: 13px; color: #969799; }
+
+.loading-more { text-align: center; padding: 20px; color: #969799; font-size: 13px; }

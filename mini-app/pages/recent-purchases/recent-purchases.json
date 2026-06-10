@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "van-empty": "@vant/weapp/empty/index",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-nav-bar": "@vant/weapp/nav-bar/index",
+    "van-loading": "@vant/weapp/loading/index"
+  }
+}

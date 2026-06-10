@@ -100,12 +100,16 @@
 }
 .filter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .filter-date-group { display: flex; align-items: center; gap: 6px; flex: 1; }
-.date-input {
-  flex: 1; padding: 8px 10px; font-size: 13px;
+.date-picker {
+  flex: 1;
+}
+.date-picker-text {
+  padding: 8px 10px; font-size: 13px;
   border: 1px solid #e2e8f0; border-radius: 8px;
   color: #334155; background: #f8fafc;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.date-sep { font-size: 12px; color: #94a3b8; }
+.date-sep { font-size: 12px; color: #94a3b8; flex-shrink: 0; }
 .search-row {
   display: flex; align-items: center; gap: 8px;
   background: #f1f5f9; border-radius: 8px; padding: 0 12px;

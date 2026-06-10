@@ -36,16 +36,12 @@
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   width: 100%;
+  margin-top: 8px;
 }
-.qr-placeholder {
-  width: 180px;
-  height: 180px;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #969799;
-  font-size: 14px;
+.qr-image {
+  width: 200px;
+  height: 200px;
+  display: block;
   margin: 0 auto;
 }
 .qr-tip {

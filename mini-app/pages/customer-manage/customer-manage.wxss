@@ -24,5 +24,16 @@
 }
 .card-actions .van-button { flex: 1; }
 
-.dialog-form { padding: 12px 0; }
+/* Popup form */
+.popup-title {
+  font-size: 18px; font-weight: 700; text-align: center;
+  margin-bottom: 20px; color: #1a1a1a;
+}
+.popup-form {
+  margin-bottom: 20px;
+}
+.popup-actions {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 .text-secondary { color: #969799; font-size: 12px; }

@@ -58,10 +58,24 @@ func (h *AdminDashboardHandler) Dashboard(c *gin.Context) {
 		Count(&lowStockCount)
 
 	// Users expiring in next 7 days
+	// - active users: subscription_expires_at is set
+	// - trial users: expiry = trial_start_at + 7 days, subscription_expires_at is NULL
 	var expiringUsers []model.User
-	h.DB.Where("subscription_status = 'active' AND subscription_expires_at BETWEEN ? AND ?", now, weekLater).
-		Order("subscription_expires_at ASC").
+	h.DB.Where(`(
+		(subscription_status = 'active' AND subscription_expires_at BETWEEN ? AND ?)
+		OR
+		(subscription_status = 'trial' AND DATE_ADD(trial_start_at, INTERVAL 7 DAY) BETWEEN ? AND ?)
+	)`, todayStart, weekLater, todayStart, weekLater).
+		Order("COALESCE(subscription_expires_at, DATE_ADD(trial_start_at, INTERVAL 7 DAY)) ASC").
 		Find(&expiringUsers)
+
+	// Fill trial users' display expiry date
+	for i := range expiringUsers {
+		if expiringUsers[i].SubscriptionStatus == "trial" && expiringUsers[i].SubscriptionExpiresAt == nil {
+			exp := expiringUsers[i].TrialStartAt.Add(7 * 24 * time.Hour)
+			expiringUsers[i].SubscriptionExpiresAt = &exp
+		}
+	}
 
 	utils.OK(c, gin.H{
 		"total_users":     totalUsers,

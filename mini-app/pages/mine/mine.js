@@ -30,34 +30,27 @@ Page({
     const g = app.globalData
     const user = g.userInfo || {}
 
-    // 计算到期显示
-    let expiryDisplay = '-'
-    let expiryDays = null
-    if (user.subscription_expires_at) {
-      expiryDisplay = new Date(user.subscription_expires_at).toLocaleDateString('zh-CN')
-      const diff = Math.ceil((new Date(user.subscription_expires_at) - new Date()) / (1000 * 60 * 60 * 24))
-      expiryDays = diff
-    } else if (user.subscription_status === 'trial' && user.created_at) {
-      const d = new Date(user.created_at)
-      d.setDate(d.getDate() + 7)
-      expiryDisplay = d.toLocaleDateString('zh-CN') + '（试用）'
-      const diff = Math.ceil((d - new Date()) / (1000 * 60 * 60 * 24))
-      expiryDays = diff
-    }
+    // 计算到期显示（中文格式）
+    const expiry = util.formatExpiry({
+      subscription_expires_at: user.subscription_expires_at,
+      subscription_status: user.subscription_status,
+      created_at: user.created_at
+    })
 
-    let expiryClass = ''
-    if (expiryDays !== null) {
-      expiryClass = expiryDays <= 7 ? 'expiry-danger' : 'expiry-safe'
+    // 处理头像URL（相对路径转绝对路径）
+    const userInfo = { ...user }
+    if (userInfo.avatar_url) {
+      userInfo.avatar_url = util.fullUrl(userInfo.avatar_url)
     }
 
     this.setData({
-      userInfo: user,
+      userInfo,
       phone: util.formatPhone(g.phone),
       subscriptionStatus: util.subscriptionStatusLabel(g.subscription.status),
       subscriptionPlan: g.subscription.plan || '',
       trialDaysLeft: g.subscription.trialDaysLeft || 0,
-      expiryDisplay,
-      expiryClass
+      expiryDisplay: expiry.display,
+      expiryClass: expiry.cssClass
     })
   },
 
@@ -79,9 +72,10 @@ Page({
               const data = JSON.parse(uploadRes.data)
               if (data.code === 'OK' && data.data.url) {
                 // Update local profile
+                const avatarUrl = util.fullUrl(data.data.url)
                 api.updateProfile({ avatar_url: data.data.url }).then(() => {
                   const user = this.data.userInfo
-                  user.avatar_url = data.data.url
+                  user.avatar_url = avatarUrl
                   app.globalData.userInfo = user
                   this.setData({ userInfo: user })
                   wx.showToast({ title: '头像更新成功', icon: 'success' })

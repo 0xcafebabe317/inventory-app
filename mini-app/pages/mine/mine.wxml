@@ -2,9 +2,12 @@
   <!-- Profile -->
   <view class="profile-card">
     <view class="avatar-wrapper" bindtap="chooseAvatar">
-      <van-image round width="60" height="60" src="{{userInfo.avatar_url || ''}}" use-error-slot>
-        <van-icon slot="error" name="user-o" size="36px" />
+      <van-image wx:if="{{userInfo.avatar_url}}" round width="60" height="60" src="{{userInfo.avatar_url}}" use-error-slot>
+        <van-icon slot="error" name="user-o" size="32px" color="#c8c9cc" />
       </van-image>
+      <view wx:else class="avatar-placeholder">
+        <van-icon name="user-o" size="32px" color="#c8c9cc" />
+      </view>
       <view class="avatar-overlay" wx:if="{{!uploadingAvatar}}">
         <van-icon name="photograph" size="18px" color="#fff" />
       </view>
@@ -45,33 +48,29 @@
 
   <view class="icp-footer">藏ICP备2026000658号</view>
 
-  <!-- Edit Nickname Dialog -->
-  <van-dialog
-    show="{{showNicknameDialog}}"
-    title="修改昵称"
-    show-cancel-button
-    confirm-loading="{{nicknameLoading}}"
-    bind:confirm="handleUpdateNickname"
-    bind:close="closeNicknameDialog"
-  >
-    <view class="dialog-form">
+  <!-- Edit Nickname Popup -->
+  <van-popup show="{{showNicknameDialog}}" bind:close="closeNicknameDialog" position="bottom" custom-style="padding:20px 16px;border-radius:16px 16px 0 0" round>
+    <view class="popup-title">修改昵称</view>
+    <view class="popup-form">
       <van-field value="{{nicknameForm}}" label="昵称" placeholder="请输入昵称" bind:change="onNicknameInput" />
     </view>
-  </van-dialog>
+    <view class="popup-actions">
+      <van-button block round type="primary" loading="{{nicknameLoading}}" bindtap="handleUpdateNickname">确认修改</van-button>
+      <van-button block round plain type="default" bindtap="closeNicknameDialog" custom-style="margin-top:10px">取消</van-button>
+    </view>
+  </van-popup>
 
-  <!-- Change Password Dialog -->
-  <van-dialog
-    show="{{showPwdDialog}}"
-    title="修改密码"
-    show-cancel-button
-    confirm-loading="{{pwdLoading}}"
-    bind:confirm="handleChangePwd"
-    bind:close="closePwdDialog"
-  >
-    <view class="dialog-form">
+  <!-- Change Password Popup -->
+  <van-popup show="{{showPwdDialog}}" bind:close="closePwdDialog" position="bottom" custom-style="padding:20px 16px;border-radius:16px 16px 0 0" round>
+    <view class="popup-title">修改密码</view>
+    <view class="popup-form">
       <van-field value="{{pwdForm.oldPassword}}" type="password" label="旧密码" placeholder="请输入旧密码" bind:change="onOldPwdInput" />
       <van-field value="{{pwdForm.newPassword}}" type="password" label="新密码" placeholder="至少8位" bind:change="onNewPwdInput" />
       <van-field value="{{pwdForm.confirmPassword}}" type="password" label="确认密码" placeholder="再次输入新密码" bind:change="onConfirmPwdInput" />
     </view>
-  </van-dialog>
+    <view class="popup-actions">
+      <van-button block round type="primary" loading="{{pwdLoading}}" bindtap="handleChangePwd">确认修改</van-button>
+      <van-button block round plain type="default" bindtap="closePwdDialog" custom-style="margin-top:10px">取消</van-button>
+    </view>
+  </van-popup>
 </view>

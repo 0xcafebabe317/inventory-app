@@ -28,13 +28,18 @@
     </view>
   </view>
 
-  <!-- Add/Edit Dialog -->
-  <van-dialog show="{{showDialog}}" title="{{dialogTitle}}" show-cancel-button confirm-loading="{{submitting}}" bind:confirm="handleSubmit" bind:close="closeDialog">
-    <view class="dialog-form">
-      <van-field value="{{form.name}}" label="名称" required placeholder="进货商名称" data-field="name" bind:change="onInput" />
-      <van-field value="{{form.contact_name}}" label="联系人" placeholder="联系人姓名" data-field="contact_name" bind:change="onInput" />
-      <van-field value="{{form.phone}}" label="手机" type="number" placeholder="手机号" data-field="phone" bind:change="onInput" />
-      <van-field value="{{form.remark}}" label="备注" placeholder="备注" data-field="remark" bind:change="onInput" />
+  <!-- Add/Edit Popup -->
+  <van-popup show="{{showDialog}}" bind:close="closeDialog" position="bottom" custom-style="padding:20px 16px;border-radius:16px 16px 0 0" round>
+    <view class="popup-title">{{dialogTitle}}</view>
+    <view class="popup-form">
+      <van-field value="{{form.name}}" label="名称" required placeholder="进货商名称" bind:change="onNameInput" />
+      <van-field value="{{form.contact_name}}" label="联系人" placeholder="联系人姓名" bind:change="onContactInput" />
+      <van-field value="{{form.phone}}" label="手机" type="number" placeholder="手机号" bind:change="onPhoneInput" />
+      <van-field value="{{form.remark}}" label="备注" placeholder="备注" bind:change="onRemarkInput" />
     </view>
-  </van-dialog>
+    <view class="popup-actions">
+      <van-button block round type="primary" loading="{{submitting}}" bindtap="handleSubmit">保存</van-button>
+      <van-button block round plain type="default" bindtap="closeDialog" custom-style="margin-top:10px">取消</van-button>
+    </view>
+  </van-popup>
 </view>

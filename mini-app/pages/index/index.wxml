@@ -37,32 +37,58 @@
     </view>
   </view>
 
-  <!-- Low Stock -->
-  <view wx:if="{{lowStockCount > 0}}" class="card low-stock-card" bindtap="goToInventory">
-    <view class="card-title">
-      <text>⚠️ 库存不足</text>
-      <van-tag type="danger" size="medium">{{lowStockCount}}个</van-tag>
-    </view>
-    <view class="low-stock-hint">有商品库存低于安全线，点击查看 ›</view>
-  </view>
-
-  <!-- Today Sales -->
+  <!-- Recent Sales / Purchases Tabs -->
   <view class="card">
-    <view class="card-title" bindtap="goToTodaySales">
-      <text>📋 今日销售</text>
-      <van-icon name="arrow" size="14px" color="#969799" />
-    </view>
-    <view wx:if="{{recentSales.length === 0}}" class="empty-state">
-      <text class="text-secondary">暂无销售记录</text>
-    </view>
-    <view wx:for="{{recentSales}}" wx:key="id" class="sale-item" data-id="{{item.id}}" bindtap="goToSaleDetail">
-      <view class="sale-row">
-        <text class="sale-customer">{{item.customer_name}}</text>
-        <text class="sale-amount">¥{{item.total_amount_fmt}}</text>
+    <!-- Tab Header -->
+    <view class="recents-header">
+      <view class="recents-tabs">
+        <view class="recents-tab {{activeTab === 'sale' ? 'recents-tab-active' : ''}}" data-tab="sale" bindtap="switchTab">
+          <text>最近销售</text>
+        </view>
+        <view class="recents-tab {{activeTab === 'purchase' ? 'recents-tab-active' : ''}}" data-tab="purchase" bindtap="switchTab">
+          <text>最近进货</text>
+        </view>
       </view>
-      <view class="sale-meta">
-        <van-tag type="{{item.pay_method === 'credit' ? 'warning' : 'success'}}" size="medium">{{item.pay_method === 'credit' ? '赊账' : '已收'}}</van-tag>
-        <text class="text-secondary">{{item.created_at_fmt}}</text>
+      <view wx:if="{{activeTab === 'sale'}}" class="recents-more" bindtap="goToRecentSales">
+        <text class="recents-more-text">最近一周</text>
+        <van-icon name="arrow" size="12px" color="#969799" />
+      </view>
+      <view wx:else class="recents-more" bindtap="goToRecentPurchases">
+        <text class="recents-more-text">最近一周</text>
+        <van-icon name="arrow" size="12px" color="#969799" />
+      </view>
+    </view>
+
+    <!-- Sale List -->
+    <view wx:if="{{activeTab === 'sale'}}">
+      <view wx:if="{{recentSales.length === 0}}" class="empty-state">
+        <text class="text-secondary">暂无销售记录</text>
+      </view>
+      <view wx:for="{{recentSales}}" wx:key="id" class="sale-item" data-id="{{item.id}}" bindtap="goToSaleDetail">
+        <view class="sale-row">
+          <text class="sale-customer">{{item.customer_name}}</text>
+          <text class="sale-amount">¥{{item.total_amount_fmt}}</text>
+        </view>
+        <view class="sale-meta">
+          <van-tag type="{{item.pay_method === 'credit' ? 'warning' : 'success'}}" size="medium">{{item.pay_method === 'credit' ? '赊账' : '已收'}}</van-tag>
+          <text class="text-secondary">{{item.created_at_fmt}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Purchase List -->
+    <view wx:else>
+      <view wx:if="{{recentPurchases.length === 0}}" class="empty-state">
+        <text class="text-secondary">暂无进货记录</text>
+      </view>
+      <view wx:for="{{recentPurchases}}" wx:key="id" class="sale-item" data-id="{{item.id}}" bindtap="goToPurchaseDetail">
+        <view class="sale-row">
+          <text class="sale-customer">{{item.supplier_name}}</text>
+          <text class="sale-amount" style="color:#1a56db">¥{{item.total_amount_fmt}}</text>
+        </view>
+        <view class="sale-meta">
+          <text class="text-secondary">{{item.created_at_fmt}}</text>
+        </view>
       </view>
     </view>
   </view>

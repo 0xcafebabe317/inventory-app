@@ -4,9 +4,6 @@
 
     <van-cell-group inset>
       <van-field label="名称" required value="{{form.name}}" placeholder="商品名称" data-field="name" bind:change="onInput" />
-      <van-field label="条码" value="{{form.barcode}}" placeholder="扫码或手动输入" data-field="barcode" bind:change="onInput">
-        <van-icon slot="right-icon" name="scan" size="20px" bindtap="onScan" />
-      </van-field>
       <van-field label="规格" value="{{form.spec}}" placeholder="型号/规格" data-field="spec" bind:change="onInput" />
       <van-field label="单位" value="{{form.unit}}" placeholder="个/箱/斤..." data-field="unit" bind:change="onInput" />
       <van-field label="售价" type="digit" value="{{form.sale_price}}" placeholder="0.00" data-field="sale_price" bind:change="onInput" />

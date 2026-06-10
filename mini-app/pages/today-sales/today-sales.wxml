@@ -10,7 +10,7 @@
     <view class="sale-meta">共 {{item.item_count}} 种商品 · {{item.total_qty}} 件 · {{item.created_at_fmt}}</view>
   </view>
 
-  <van-empty wx:if="{{!loading && sales.length === 0}}" description="今日暂无销售" />
+  <van-empty wx:if="{{!loading && sales.length === 0}}" description="最近暂无销售" />
   <view wx:if="{{loading}}" class="loading-more">加载中...</view>
   <view wx:elif="{{!hasMore && sales.length > 0}}" class="loading-more">— 已加载全部 —</view>
 </view>

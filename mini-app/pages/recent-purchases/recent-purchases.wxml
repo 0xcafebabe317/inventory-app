@@ -1,0 +1,16 @@
+<view class="page">
+  <van-nav-bar title="最近进货" left-text="返回" left-arrow bind:click-left="goBack" />
+
+  <view wx:for="{{purchases}}" wx:key="id" class="card" data-id="{{item.id}}" bindtap="goToDetail">
+    <view class="card-top">
+      <text class="card-supplier">{{item.supplier_name}}</text>
+      <van-tag type="primary" size="medium">进货</van-tag>
+    </view>
+    <view class="card-amount">¥{{item.total_amount_fmt}}</view>
+    <view class="card-meta">共 {{item.item_count}} 种商品 · {{item.total_qty}} 件 · {{item.created_at_fmt}}</view>
+  </view>
+
+  <van-empty wx:if="{{!loading && purchases.length === 0}}" description="最近暂无进货" />
+  <view wx:if="{{loading}}" class="loading-more">加载中...</view>
+  <view wx:elif="{{!hasMore && purchases.length > 0}}" class="loading-more">— 已加载全部 —</view>
+</view>

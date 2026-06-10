@@ -4,25 +4,23 @@
     <view class="lock-title">使用权限已到期</view>
     <view class="lock-desc">试用期已结束，请添加管理员微信继续使用</view>
 
-    <view class="qr-card">
-      <van-image
-        src="/assets/admin-qr.png"
-        width="180"
-        height="180"
-        fit="contain"
-        use-error-slot
-      >
-        <view slot="error" class="qr-placeholder">二维码加载中</view>
-      </van-image>
-      <view class="qr-tip">截屏或长按保存图片，微信扫码添加</view>
-    </view>
-
     <van-button
+      wx:if="{{!showQr}}"
       type="primary"
       block
       round
-      bindtap="goToContact"
-      custom-style="margin-top:20px;height:44px"
+      bindtap="showAdminQr"
+      custom-style="height:44px;font-size:15px"
     >联系管理员</van-button>
+
+    <view wx:if="{{showQr}}" class="qr-card">
+      <image
+        src="/assets/admin-qr.png"
+        mode="widthFix"
+        class="qr-image"
+        show-menu-by-longpress="{{true}}"
+      />
+      <view class="qr-tip">长按二维码保存图片，微信扫码添加管理员</view>
+    </view>
   </view>
 </view>

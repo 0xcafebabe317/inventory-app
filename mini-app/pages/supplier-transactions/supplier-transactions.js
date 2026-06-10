@@ -24,32 +24,48 @@ Page({
 
   goBack() { wx.navigateBack() },
 
-  onFilterStartDate(e) { this.setData({ filterStartDate: e.detail }); this.loadTransactions() },
-  onFilterEndDate(e) { this.setData({ filterEndDate: e.detail }); this.loadTransactions() },
+  onFilterStartDate(e) {
+    const val = e.detail.value
+    this.setData({ filterStartDate: val })
+    this.loadTransactions({ startDate: val })
+  },
+  onFilterEndDate(e) {
+    const val = e.detail.value
+    this.setData({ filterEndDate: val })
+    this.loadTransactions({ endDate: val })
+  },
   onFilterSearchInput(e) {
-    this.setData({ filterSearch: e.detail })
+    const val = e.detail.value
+    this.setData({ filterSearch: val })
     clearTimeout(this._searchTimer)
-    this._searchTimer = setTimeout(() => this.loadTransactions(), 400)
+    this._searchTimer = setTimeout(() => this.loadTransactions({ search: val }), 400)
   },
   clearSearch() {
     this.setData({ filterSearch: '' })
-    this.loadTransactions()
+    this.loadTransactions({ search: '' })
   },
   clearFilters() {
     this.setData({ filterStartDate: '', filterEndDate: '', filterSearch: '' })
-    this.loadTransactions()
+    this.loadTransactions({ startDate: '', endDate: '', search: '' })
   },
 
-  loadTransactions() {
+  loadTransactions(overrides = {}) {
     this.setData({ loading: true, page: 1 })
     const params = { page: 1, page_size: this.data.pageSize }
-    if (this.data.filterStartDate) params.start_date = this.data.filterStartDate
-    if (this.data.filterEndDate) params.end_date = this.data.filterEndDate
-    if (this.data.filterSearch) params.search = this.data.filterSearch
+
+    // Use override values if provided, otherwise read from data
+    const startDate = overrides.hasOwnProperty('startDate') ? overrides.startDate : this.data.filterStartDate
+    const endDate = overrides.hasOwnProperty('endDate') ? overrides.endDate : this.data.filterEndDate
+    const search = overrides.hasOwnProperty('search') ? overrides.search : this.data.filterSearch
+
+    if (startDate) params.start_date = startDate
+    if (endDate) params.end_date = endDate
+    if (search) params.search = search
 
     request('/api/suppliers/' + this.data.supplierId + '/transactions', 'GET', params).then(res => {
       const list = (res.data.list || []).map(o => ({
         ...o,
+        invoice_url: util.fullUrl(o.invoice_url),
         total_amount_fmt: util.formatMoney(o.total_amount),
         created_at_fmt: util.formatDateTime(o.created_at),
         items: (o.items || []).map(item => ({
@@ -78,6 +94,7 @@ Page({
     request('/api/suppliers/' + this.data.supplierId + '/transactions', 'GET', params).then(res => {
       const list = (res.data.list || []).map(o => ({
         ...o,
+        invoice_url: util.fullUrl(o.invoice_url),
         total_amount_fmt: util.formatMoney(o.total_amount),
         created_at_fmt: util.formatDateTime(o.created_at),
         items: (o.items || []).map(item => ({
@@ -117,7 +134,7 @@ Page({
               const data = JSON.parse(uploadRes.data)
               if (data.code === 'OK' && data.data.url) {
                 request('/api/purchase-orders/' + orderId + '/invoice', 'PUT', { invoice_url: data.data.url }).then(() => {
-                  const orders = this.data.orders.map(o => o.id === orderId ? { ...o, invoice_url: data.data.url } : o)
+                  const orders = this.data.orders.map(o => o.id === orderId ? { ...o, invoice_url: util.fullUrl(data.data.url) } : o)
                   this.setData({ orders })
                   wx.showToast({ title: '发票已上传', icon: 'success' })
                 }).catch(() => {})

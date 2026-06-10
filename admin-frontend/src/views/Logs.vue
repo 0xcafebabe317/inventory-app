@@ -13,7 +13,7 @@
             <span class="admin-name">{{ row.admin_name || '-' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="user_nickname" label="用户昵称" width="110">
+        <el-table-column prop="user_nickname" label="用户昵称" width="140" show-overflow-tooltip>
           <template #default="{ row }">
             {{ row.user_nickname || '-' }}
           </template>
@@ -38,7 +38,7 @@
             {{ row.expires_at ? new Date(row.expires_at).toLocaleDateString('zh-CN') : '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="remark" label="备注" min-width="150" />
+        <el-table-column prop="remark" label="备注" min-width="90" show-overflow-tooltip />
         <el-table-column label="操作时间" width="170">
           <template #default="{ row }">
             {{ new Date(row.created_at).toLocaleString('zh-CN') }}

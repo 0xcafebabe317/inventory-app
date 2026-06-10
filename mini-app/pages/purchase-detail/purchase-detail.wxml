@@ -1,0 +1,30 @@
+<view class="detail-page">
+  <van-nav-bar title="进货详情" left-text="返回" left-arrow bind:click-left="goBack" />
+
+  <van-loading wx:if="{{loading}}" custom-style="padding:60px" />
+  <block wx:else>
+    <!-- Order info -->
+    <view class="card">
+      <view class="order-header">
+        <text class="order-supplier">{{order.supplier_name}}</text>
+        <van-tag type="primary" size="medium">进货</van-tag>
+      </view>
+      <view wx:if="{{order.supplier_phone}}" class="order-meta">📞 {{order.supplier_phone}}</view>
+      <view class="order-meta">📅 {{order.created_at_fmt}}</view>
+      <view class="order-total">¥{{order.total_amount_fmt}}</view>
+      <view wx:if="{{order.remark}}" class="order-remark">📝 {{order.remark}}</view>
+    </view>
+
+    <!-- Items -->
+    <view class="card">
+      <view class="card-title">商品明细</view>
+      <view wx:for="{{items}}" wx:key="id" class="item-row">
+        <view class="item-left">
+          <text class="item-name">{{item.product_name}}</text>
+          <text class="text-secondary">{{item.product_spec || '默认规格'}} · ¥{{item.unit_price_fmt}}/{{item.product_unit}} · ×{{item.qty}}</text>
+        </view>
+        <text class="item-sub">¥{{item.subtotal_fmt}}</text>
+      </view>
+    </view>
+  </block>
+</view>

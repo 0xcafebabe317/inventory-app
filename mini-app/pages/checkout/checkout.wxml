@@ -32,7 +32,7 @@
   <view wx:else class="empty-hint">点击上方搜索框添加商品</view>
 
   <!-- Payment Method -->
-  <view class="card" wx:if="{{items.length > 0}}">
+  <view class="card">
     <view class="card-title">收款方式</view>
     <view class="pay-row">
       <van-button type="{{payMethod === 'wechat' ? 'primary' : 'default'}}" size="small" round data-method="wechat" bindtap="selectPayMethod">💚 微信</van-button>
@@ -42,7 +42,7 @@
   </view>
 
   <!-- Invoice Upload -->
-  <view class="card" wx:if="{{items.length > 0}}">
+  <view wx:if="{{customerId}}" class="card">
     <view class="card-title">🧾 发票凭证 <text class="optional-tag">选填</text></view>
     <view wx:if="{{!invoicePath}}" class="invoice-picker" bindtap="chooseInvoice">
       <van-icon name="photograph" size="20px" color="#969799" />
@@ -61,7 +61,7 @@
   </view>
 
   <!-- Bottom bar -->
-  <view class="bottom-bar" wx:if="{{items.length > 0}}">
+  <view class="bottom-bar">
     <view class="total-row">
       <text>共 {{totalQty}} 件 · 合计</text>
       <text class="total-amount">¥{{totalAmount}}</text>

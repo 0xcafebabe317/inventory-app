@@ -21,9 +21,13 @@
   <view class="filter-bar">
     <view class="filter-row">
       <view class="filter-date-group">
-        <input type="date" value="{{filterStartDate}}" bindchange="onFilterStartDate" class="date-input" placeholder="开始日期" />
+        <picker mode="date" value="{{filterStartDate}}" bindchange="onFilterStartDate" class="date-picker">
+          <view class="date-picker-text">{{filterStartDate || '开始日期'}}</view>
+        </picker>
         <text class="date-sep">至</text>
-        <input type="date" value="{{filterEndDate}}" bindchange="onFilterEndDate" class="date-input" placeholder="结束日期" />
+        <picker mode="date" value="{{filterEndDate}}" bindchange="onFilterEndDate" class="date-picker">
+          <view class="date-picker-text">{{filterEndDate || '结束日期'}}</view>
+        </picker>
       </view>
       <van-button wx:if="{{filterStartDate || filterEndDate || filterSearch}}" size="small" plain type="primary" bindtap="clearFilters">清除</van-button>
     </view>

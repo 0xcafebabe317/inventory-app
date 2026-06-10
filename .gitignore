@@ -1,6 +1,6 @@
 # 账号密码/敏感信息
-serverZMMM.txt
 .env
+账号密码.txt
 
 # 需求文档
 需求.txt
@@ -27,4 +27,4 @@ Thumbs.db
 *.swo
 project.private.config.json
 nginx/ssl/
-账号密码.txt
+

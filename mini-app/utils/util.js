@@ -32,6 +32,67 @@ function formatPhone(phone) {
   return phone.slice(0, 3) + '****' + phone.slice(-4)
 }
 
+const BASE_URL = 'https://www.tzjxc.online'
+
+function formatDateCN(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  const y = d.getFullYear()
+  const m = d.getMonth() + 1
+  const day = d.getDate()
+  return `${y}年${m}月${day}日`
+}
+
+function formatExpiry(user) {
+  if (!user) return { display: '-', cssClass: '' }
+
+  let expiresAt = null
+  let isTrial = false
+
+  if (user.subscription_expires_at) {
+    expiresAt = new Date(user.subscription_expires_at)
+  } else if (user.subscription_status === 'trial' && user.created_at) {
+    const d = new Date(user.created_at)
+    d.setDate(d.getDate() + 7)
+    expiresAt = d
+    isTrial = true
+  }
+
+  if (!expiresAt) return { display: '-', cssClass: '' }
+
+  const now = new Date()
+  const diffDays = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24))
+  const dateStr = formatDateCN(expiresAt)
+
+  let suffix = ''
+  let cssClass = ''
+
+  if (diffDays < 0) {
+    suffix = '（已到期）'
+    cssClass = 'expiry-danger'
+  } else if (diffDays === 0) {
+    suffix = '（今日到期）'
+    cssClass = 'expiry-danger'
+  } else if (diffDays <= 7) {
+    suffix = `（还剩${diffDays}天）`
+    cssClass = 'expiry-danger'
+  } else if (isTrial) {
+    suffix = `（试用 · 还剩${diffDays}天）`
+    cssClass = 'expiry-safe'
+  } else {
+    suffix = `（还剩${diffDays}天）`
+    cssClass = 'expiry-safe'
+  }
+
+  return { display: dateStr + suffix, cssClass }
+}
+
+function fullUrl(path) {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return BASE_URL + path
+}
+
 function payMethodLabel(method) {
   const map = {
     cash: '现金',
@@ -54,9 +115,12 @@ function subscriptionStatusLabel(status) {
 
 module.exports = {
   formatDate,
+  formatDateCN,
   formatDateTime,
+  formatExpiry,
   formatMoney,
   formatPhone,
+  fullUrl,
   payMethodLabel,
   subscriptionStatusLabel
 }

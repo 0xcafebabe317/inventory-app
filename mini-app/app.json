@@ -17,7 +17,9 @@
     "pages/customer-manage/customer-manage",
     "pages/supplier-manage/supplier-manage",
     "pages/supplier-transactions/supplier-transactions",
-    "pages/customer-transactions/customer-transactions"
+    "pages/customer-transactions/customer-transactions",
+    "pages/purchase-detail/purchase-detail",
+    "pages/recent-purchases/recent-purchases"
   ],
   "window": {
     "backgroundTextStyle": "light",

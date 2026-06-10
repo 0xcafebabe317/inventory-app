@@ -32,6 +32,28 @@
 .low-stock-card { cursor: pointer; }
 .low-stock-hint { font-size: 13px; color: #969799; margin-top: 4px; }
 
+/* Recents Tabs */
+.recents-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.recents-tabs {
+  display: flex; gap: 0;
+  background: #f2f3f5; border-radius: 8px; padding: 3px;
+}
+.recents-tab {
+  padding: 6px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+  color: #646566; transition: all 0.2s;
+}
+.recents-tab-active {
+  background: #fff; color: #1989fa; font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.recents-more {
+  display: flex; align-items: center; gap: 2px;
+}
+.recents-more-text { font-size: 12px; color: #969799; }
+
 /* Sales */
 .sale-item { padding: 12px 0; border-bottom: 1px solid #f7f7f7; }
 .sale-item:last-child { border-bottom: none; }

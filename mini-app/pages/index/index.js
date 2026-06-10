@@ -11,7 +11,9 @@ Page({
     monthProfit: 0,
     totalAr: 0,
     lowStockCount: 0,
+    activeTab: 'sale',
     recentSales: [],
+    recentPurchases: [],
     customersWithDebt: [],
     trialDaysLeft: 0,
     loading: true
@@ -35,10 +37,17 @@ Page({
     const sub = app.globalData.subscription
     this.setData({ trialDaysLeft: sub.trialDaysLeft || 0 })
 
+    // 最近7天日期
+    const weekAgo = new Date()
+    weekAgo.setDate(weekAgo.getDate() - 7)
+    const weekAgoStr = `${weekAgo.getFullYear()}-${String(weekAgo.getMonth() + 1).padStart(2, '0')}-${String(weekAgo.getDate()).padStart(2, '0')}`
+
     return Promise.all([
       request('/api/reports/summary', 'GET'),
-      request('/api/customers', 'GET')
-    ]).then(([summary, customers]) => {
+      request('/api/customers', 'GET'),
+      request('/api/sale-orders', 'GET', { page: 1, page_size: 5, start_date: weekAgoStr }),
+      request('/api/purchase-orders', 'GET', { page: 1, page_size: 5, start_date: weekAgoStr })
+    ]).then(([summary, customers, saleRes, purchaseRes]) => {
       const s = summary.data
       this.setData({
         todaySales: util.formatMoney(s.today_sales),
@@ -47,11 +56,17 @@ Page({
         monthProfit: util.formatMoney(s.month_profit),
         totalAr: util.formatMoney(s.total_ar),
         lowStockCount: s.low_stock_count,
-        recentSales: (s.recent_sales || []).map(o => ({
+        recentSales: ((saleRes.data && saleRes.data.list) || []).map(o => ({
           ...o,
           total_amount_fmt: util.formatMoney(o.total_amount),
           created_at_fmt: util.formatDate(o.created_at),
           customer_name: o.customer ? o.customer.name : '散客'
+        })),
+        recentPurchases: ((purchaseRes.data && purchaseRes.data.list) || []).map(o => ({
+          ...o,
+          total_amount_fmt: util.formatMoney(o.total_amount),
+          created_at_fmt: util.formatDate(o.created_at),
+          supplier_name: o.supplier ? o.supplier.name : '未知'
         })),
         customersWithDebt: (customers.data || [])
           .filter(c => c.balance > 0)
@@ -64,6 +79,11 @@ Page({
     })
   },
 
+  switchTab(e) {
+    const tab = e.currentTarget.dataset.tab
+    this.setData({ activeTab: tab })
+  },
+
   goToCustomer(e) {
     const id = e.currentTarget.dataset.id
     wx.navigateTo({ url: `/pages/customer-detail/customer-detail?id=${id}` })
@@ -74,11 +94,20 @@ Page({
     wx.navigateTo({ url: `/pages/sale-detail/sale-detail?id=${id}` })
   },
 
-  goToInventory() {
-    wx.switchTab({ url: '/pages/inventory/inventory' })
+  goToPurchaseDetail(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: `/pages/purchase-detail/purchase-detail?id=${id}` })
   },
 
-  goToTodaySales() {
+  goToRecentSales() {
     wx.navigateTo({ url: '/pages/today-sales/today-sales' })
+  },
+
+  goToRecentPurchases() {
+    wx.navigateTo({ url: '/pages/recent-purchases/recent-purchases' })
+  },
+
+  goToInventory() {
+    wx.switchTab({ url: '/pages/inventory/inventory' })
   }
 })

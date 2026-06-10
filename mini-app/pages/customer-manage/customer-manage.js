@@ -25,18 +25,28 @@ Page({
 
   // --- Add/Edit ---
   showAdd() {
-    this.setData({ editingId: null, dialogTitle: '新增客户', form: { name: '', phone: '', wechat: '', remark: '' }, showDialog: true })
+    this.setData({
+      editingId: null,
+      dialogTitle: '新增客户',
+      form: { name: '', phone: '', wechat: '', remark: '' },
+      showDialog: true
+    })
   },
   showEdit(e) {
     const c = e.currentTarget.dataset.customer
-    this.setData({ editingId: c.id, dialogTitle: '编辑客户', form: { name: c.name, phone: c.phone || '', wechat: c.wechat || '', remark: c.remark || '' }, showDialog: true })
+    this.setData({
+      editingId: c.id,
+      dialogTitle: '编辑客户',
+      form: { name: c.name || '', phone: c.phone || '', wechat: c.wechat || '', remark: c.remark || '' },
+      showDialog: true
+    })
   },
   closeDialog() { this.setData({ showDialog: false }) },
 
-  onInput(e) {
-    const field = e.currentTarget.dataset.field
-    this.setData({ [`form.${field}`]: e.detail })
-  },
+  onNameInput(e) { this.setData({ 'form.name': e.detail }) },
+  onPhoneInput(e) { this.setData({ 'form.phone': e.detail }) },
+  onWechatInput(e) { this.setData({ 'form.wechat': e.detail }) },
+  onRemarkInput(e) { this.setData({ 'form.remark': e.detail }) },
 
   handleSubmit() {
     if (!this.data.form.name) { wx.showToast({ title: '请输入客户名称', icon: 'none' }); return }
@@ -55,7 +65,10 @@ Page({
       wx.showToast({ title: this.data.editingId ? '已更新' : '已添加', icon: 'success' })
       this.setData({ showDialog: false, submitting: false })
       this.loadData()
-    }).catch(() => this.setData({ submitting: false }))
+    }).catch(() => {
+      wx.showToast({ title: '操作失败，请重试', icon: 'none' })
+      this.setData({ submitting: false })
+    })
   },
 
   goTransactions(e) {
