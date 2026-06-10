@@ -7,7 +7,8 @@ Page({
     nickname: '',
     password: '',
     confirmPassword: '',
-    submitting: false
+    submitting: false,
+    agreed: false
   },
 
   onPhoneInput(e) { this.setData({ phone: e.detail }) },
@@ -41,6 +42,15 @@ Page({
     }).finally(() => {
       this.setData({ submitting: false })
     })
+  },
+
+  onAgreeChange(e) {
+    this.setData({ agreed: e.detail })
+  },
+
+  viewAgreement(e) {
+    const type = e.currentTarget.dataset.type
+    wx.navigateTo({ url: '/pages/agreement/agreement?type=' + type })
   },
 
   goLogin() {

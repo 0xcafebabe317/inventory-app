@@ -24,13 +24,28 @@
       />
     </van-cell-group>
 
-    <view style="margin: 24px 0">
+    <!-- 隐私声明 -->
+    <view class="privacy-notice">
+      <text class="privacy-icon">🔒</text>
+      <text class="privacy-text">您的手机号仅用于注册登录，作为账号唯一标识，不会用于其他任何用途。</text>
+    </view>
+
+    <!-- 协议同意 -->
+    <view class="agreement-row">
+      <van-checkbox value="{{agreed}}" bind:change="onAgreeChange" />
+      <text class="agreement-text">我已阅读并同意</text>
+      <text class="agreement-link" bindtap="viewAgreement" data-type="service">《用户服务协议》</text>
+      <text class="agreement-text">及</text>
+      <text class="agreement-link" bindtap="viewAgreement" data-type="privacy">《隐私政策》</text>
+    </view>
+
+    <view style="margin: 16px 0">
       <van-button
         type="primary"
         block
         round
         loading="{{submitting}}"
-        disabled="{{submitting}}"
+        disabled="{{submitting || !agreed}}"
         bindtap="handleLogin"
         loading-text="登录中..."
       >登录</van-button>

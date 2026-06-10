@@ -19,7 +19,8 @@
     "pages/supplier-transactions/supplier-transactions",
     "pages/customer-transactions/customer-transactions",
     "pages/purchase-detail/purchase-detail",
-    "pages/recent-purchases/recent-purchases"
+    "pages/recent-purchases/recent-purchases",
+    "pages/agreement/agreement"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -82,6 +83,7 @@
     "van-dialog": "@vant/weapp/dialog/index",
     "van-image": "@vant/weapp/image/index",
     "van-loading": "@vant/weapp/loading/index",
-    "van-stepper": "@vant/weapp/stepper/index"
+    "van-stepper": "@vant/weapp/stepper/index",
+    "van-checkbox": "@vant/weapp/checkbox/index"
   }
 }
