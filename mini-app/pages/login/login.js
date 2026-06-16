@@ -5,6 +5,7 @@ Page({
   data: {
     nickname: '',
     password: '',
+    showPassword: false,
     submitting: false,
     agreed: false
   },
@@ -18,6 +19,7 @@ Page({
 
   onNicknameInput(e) { this.setData({ nickname: e.detail }) },
   onPasswordInput(e) { this.setData({ password: e.detail }) },
+  togglePassword() { this.setData({ showPassword: !this.data.showPassword }) },
 
   handleLogin() {
     const { nickname, password } = this.data

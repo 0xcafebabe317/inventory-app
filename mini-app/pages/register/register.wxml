@@ -16,16 +16,20 @@
       <van-field
         value="{{password}}"
         placeholder="密码（至少8位）"
-        type="password"
+        type="{{showPassword ? 'text' : 'password'}}"
         left-icon="lock"
+        right-icon="{{showPassword ? 'eye-o' : 'closed-eye'}}"
         bind:change="onPasswordInput"
+        bind:click-icon="togglePassword"
       />
       <van-field
         value="{{confirmPassword}}"
         placeholder="确认密码"
-        type="password"
+        type="{{showConfirmPassword ? 'text' : 'password'}}"
         left-icon="lock"
+        right-icon="{{showConfirmPassword ? 'eye-o' : 'closed-eye'}}"
         bind:change="onConfirmInput"
+        bind:click-icon="toggleConfirmPassword"
       />
     </van-cell-group>
 

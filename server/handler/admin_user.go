@@ -7,6 +7,7 @@ import (
 	"inventory-api/utils"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -200,4 +201,50 @@ func (h *AdminUserHandler) Disable(c *gin.Context) {
 	})
 
 	utils.OK(c, gin.H{"msg": "已停用"})
+}
+
+func (h *AdminUserHandler) ResetPassword(c *gin.Context) {
+	adminID := c.GetInt64("admin_id")
+	userID := c.Param("id")
+
+	var req struct {
+		NewPassword string `json:"new_password" binding:"required,min=6"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入新密码(至少6位)")
+		return
+	}
+
+	var user model.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		utils.Fail(c, 404, "NOT_FOUND", "用户不存在")
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		utils.Fail(c, 500, "INTERNAL_ERROR", "服务器错误")
+		return
+	}
+
+	now := time.Now()
+	h.DB.Transaction(func(tx *gorm.DB) error {
+		tx.Model(&user).Updates(map[string]any{
+			"password_hash":       string(hash),
+			"password_changed_at": now,
+		})
+
+		tx.Create(&model.AdminOperationLog{
+			AdminID: adminID,
+			UserID:  user.ID,
+			Action:  "reset_password",
+		})
+		return nil
+	})
+
+	// Return the plain text password so admin can tell the user
+	utils.OK(c, gin.H{
+		"msg":          "密码已重置",
+		"new_password": req.NewPassword,
+	})
 }

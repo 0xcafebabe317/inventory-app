@@ -18,11 +18,6 @@
             {{ row.user_nickname || '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="user_nickname" label="用户昵称" width="130">
-          <template #default="{ row }">
-            {{ row.user_nickname || '-' }}
-          </template>
-        </el-table-column>
         <el-table-column label="操作" width="90">
           <template #default="{ row }">
             <el-tag :type="actionType(row.action)" size="small">{{ actionLabel(row.action) }}</el-tag>

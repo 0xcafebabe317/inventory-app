@@ -6,6 +6,8 @@ Page({
     nickname: '',
     password: '',
     confirmPassword: '',
+    showPassword: false,
+    showConfirmPassword: false,
     submitting: false,
     agreed: false
   },
@@ -13,6 +15,8 @@ Page({
   onNicknameInput(e) { this.setData({ nickname: e.detail }) },
   onPasswordInput(e) { this.setData({ password: e.detail }) },
   onConfirmInput(e) { this.setData({ confirmPassword: e.detail }) },
+  togglePassword() { this.setData({ showPassword: !this.data.showPassword }) },
+  toggleConfirmPassword() { this.setData({ showConfirmPassword: !this.data.showConfirmPassword }) },
 
   handleRegister() {
     const { nickname, password, confirmPassword } = this.data

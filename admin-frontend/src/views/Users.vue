@@ -45,11 +45,6 @@
             <span class="user-name">{{ row.nickname || '用户' + row.id }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="nickname" label="昵称" width="140">
-          <template #default="{ row }">
-            <span class="user-nickname">{{ row.nickname }}</span>
-          </template>
-        </el-table-column>
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="statusType(row.subscription_status)" size="small">
@@ -72,6 +67,13 @@
         <el-table-column label="注册时间" width="130">
           <template #default="{ row }">
             {{ new Date(row.created_at).toLocaleDateString('zh-CN') }}
+          </template>
+        </el-table-column>
+        <el-table-column label="密码" width="80" align="center">
+          <template #default="{ row }">
+            <el-button size="small" type="warning" plain @click="openResetPwd(row)" title="重置密码">
+              <el-icon><View /></el-icon>
+            </el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="220" fixed="right">
@@ -106,14 +108,43 @@
       :user="selectedUser"
       @success="loadUsers"
     />
+
+    <!-- Reset Password Dialog -->
+    <el-dialog v-model="resetPwdVisible" title="重置用户密码" width="420px">
+      <div v-if="resetPwdUser">
+        <p style="margin-bottom: 12px; color: #64748b">
+          为用户 <strong>{{ resetPwdUser.nickname }}</strong> 设置新密码：
+        </p>
+        <el-input
+          v-model="resetPwdForm.newPassword"
+          type="password"
+          placeholder="请输入新密码（至少6位）"
+          show-password
+          size="large"
+        />
+        <div v-if="resetPwdDone" style="margin-top: 16px">
+          <el-alert type="success" :closable="false" show-icon>
+            <template #title>
+              密码已重置，新密码为：<strong style="font-size:16px;color:#16a34a">{{ resetPwdDone }}</strong>
+            </template>
+          </el-alert>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="resetPwdVisible = false">{{ resetPwdDone ? '关闭' : '取消' }}</el-button>
+        <el-button v-if="!resetPwdDone" type="primary" :loading="resetPwdLoading" @click="handleResetPwd">
+          确认重置
+        </el-button>
+      </template>
+    </el-dialog>
   </DefaultLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getUsers, disableUser } from '../api/admin'
+import { getUsers, disableUser, resetUserPassword } from '../api/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import { Search, View } from '@element-plus/icons-vue'
 import DefaultLayout from '../components/DefaultLayout.vue'
 import ActivateDialog from '../components/ActivateDialog.vue'
 
@@ -125,6 +156,13 @@ const search = ref('')
 const statusFilter = ref('')
 const dialogVisible = ref(false)
 const selectedUser = ref(null)
+
+// Password reset
+const resetPwdVisible = ref(false)
+const resetPwdUser = ref<any>(null)
+const resetPwdForm = ref({ newPassword: '' })
+const resetPwdLoading = ref(false)
+const resetPwdDone = ref('')
 
 onMounted(() => loadUsers())
 
@@ -159,6 +197,27 @@ function handleDisable(user: any) {
     ElMessage.success('已停用')
     loadUsers()
   }).catch(() => {})
+}
+
+function openResetPwd(user: any) {
+  resetPwdUser.value = user
+  resetPwdForm.value.newPassword = ''
+  resetPwdDone.value = ''
+  resetPwdVisible.value = true
+}
+
+function handleResetPwd() {
+  if (!resetPwdForm.value.newPassword || resetPwdForm.value.newPassword.length < 6) {
+    ElMessage.warning('请输入至少6位新密码')
+    return
+  }
+  resetPwdLoading.value = true
+  resetUserPassword(resetPwdUser.value.id, resetPwdForm.value.newPassword)
+    .then((res: any) => {
+      resetPwdDone.value = res.data.new_password || resetPwdForm.value.newPassword
+      ElMessage.success('密码已重置')
+    })
+    .finally(() => resetPwdLoading.value = false)
 }
 
 function isExpiringSoon(dateStr: string) {
@@ -211,7 +270,6 @@ function planLabel(p: string) {
   overflow: hidden;
 }
 .user-name { font-weight: 500; color: #1e293b; }
-.user-nickname { color: #2563eb; font-weight: 500; }
 .text-danger { color: #ef4444; font-weight: 500; }
 .table-footer {
   display: flex;

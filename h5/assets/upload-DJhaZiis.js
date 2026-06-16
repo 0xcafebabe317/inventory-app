@@ -1,1 +1,0 @@
-import{k as t}from"./index-9mNQR24b.js";function n(e,p){const o=new FormData;return o.append("file",e),o.append("type",p),t.post("/api/upload/invoice",o,{headers:{"Content-Type":void 0}})}export{n as u};

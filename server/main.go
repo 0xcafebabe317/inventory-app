@@ -183,6 +183,7 @@ func main() {
 		adminAPI.GET("/users/:id", adminUserH.GetUser)
 		adminAPI.POST("/users/:id/activate", adminUserH.Activate)
 		adminAPI.POST("/users/:id/disable", adminUserH.Disable)
+		adminAPI.POST("/users/:id/reset-password", adminUserH.ResetPassword)
 		adminAPI.GET("/dashboard", adminDashboardH.Dashboard)
 		adminAPI.GET("/operation-logs", adminDashboardH.OperationLogs)
 

@@ -1,0 +1,1 @@
+import{k as t}from"./index-CP7rb0SC.js";function s(r){return t.post("/api/purchase-orders",r)}function i(r,e){return t.get(`/api/suppliers/${r}/transactions`,{params:e})}function n(r,e){return t.put(`/api/purchase-orders/${r}/invoice`,{invoice_url:e})}export{s as c,i as g,n as u};

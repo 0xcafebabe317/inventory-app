@@ -20,5 +20,8 @@ export const activateUser = (id: number, data: { plan: string; expires_at: strin
 export const disableUser = (id: number) =>
   http.post(`/admin/api/users/${id}/disable`)
 
+export const resetUserPassword = (id: number, newPassword: string) =>
+  http.post(`/admin/api/users/${id}/reset-password`, { new_password: newPassword })
+
 export const getOperationLogs = (params: any) =>
   http.get('/admin/api/operation-logs', { params })

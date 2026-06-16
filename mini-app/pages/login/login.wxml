@@ -16,9 +16,11 @@
       <van-field
         value="{{password}}"
         placeholder="请输入密码"
-        type="password"
+        type="{{showPassword ? 'text' : 'password'}}"
         left-icon="lock"
+        right-icon="{{showPassword ? 'eye-o' : 'closed-eye'}}"
         bind:change="onPasswordInput"
+        bind:click-icon="togglePassword"
       />
     </van-cell-group>
 
