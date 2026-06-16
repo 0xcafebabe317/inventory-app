@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/admin/',
+  base: '/admin-mobile/',
   server: {
     port: 5174,
     proxy: {

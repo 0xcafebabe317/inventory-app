@@ -37,7 +37,6 @@ async function loadLedger() {
     <template v-if="!loading && customer.id">
       <div class="card header-card">
         <div class="customer-name">{{ customer.name }}</div>
-        <div class="text-secondary">{{ customer.phone || '' }}</div>
         <div class="balance" :class="{ red: (customer.balance || 0) > 0 }">
           应收余额 ¥{{ formatMoney(customer.balance || 0) }}
         </div>

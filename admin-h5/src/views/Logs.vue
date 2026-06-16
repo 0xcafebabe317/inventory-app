@@ -46,7 +46,7 @@ function actionColor(a: string): 'success' | 'primary' | 'danger' {
           <span class="text-secondary">{{ formatDateTime(log.created_at) }}</span>
         </div>
         <div class="item-info">
-          <span>目标用户：{{ log.user_phone || '用户'+log.user_id }}</span>
+          <span>目标用户：{{ log.user_nickname || '用户'+log.user_id }}</span>
           <span>操作人：{{ log.admin_name || '管理员'+log.admin_id }}</span>
           <span v-if="log.plan">套餐：{{ planLabel(log.plan) }}</span>
           <span v-if="log.remark">备注：{{ log.remark }}</span>

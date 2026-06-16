@@ -24,6 +24,14 @@ export function disableUser(id: number) {
   return http.post(`/admin/api/users/${id}/disable`)
 }
 
+export function resetUserPassword(id: number, newPassword: string) {
+  return http.post(`/admin/api/users/${id}/reset-password`, { new_password: newPassword })
+}
+
+export function viewUserPassword(id: number) {
+  return http.post(`/admin/api/users/${id}/view-password`)
+}
+
 // Products (via admin api)
 export function getProducts(params: any) {
   return http.get('/admin/api/products', { params })

@@ -8,6 +8,7 @@ type User struct {
 	Nickname              string     `gorm:"type:varchar(64);not null;uniqueIndex" json:"nickname"`
 	Phone                 string     `gorm:"type:varchar(11);default:''" json:"phone,omitempty"`
 	PasswordHash          string     `gorm:"type:varchar(256);default:''" json:"-"`
+	PasswordPlain         string     `gorm:"type:text;default:''" json:"-"` // AES-encrypted plaintext, admin-viewable
 	AvatarURL             string     `gorm:"type:varchar(512);default:''" json:"avatar_url"`
 	SubscriptionStatus    string     `gorm:"type:enum('trial','active','expired','disabled');default:'trial';index:idx_status" json:"subscription_status"`
 	SubscriptionPlan      string     `gorm:"type:enum('custom','monthly','quarterly','yearly','permanent');default:null" json:"subscription_plan"`

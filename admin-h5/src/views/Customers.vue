@@ -31,7 +31,6 @@ function goDetail(id: number) { router.push(`/customer-detail/${id}`) }
           应收 ¥{{ formatMoney(c.balance || 0) }}
         </div>
       </div>
-      <div class="text-secondary">{{ c.phone || '无手机号' }}</div>
     </div>
     <van-empty v-if="!loading && !customers.length" description="暂无客户" />
   </div>

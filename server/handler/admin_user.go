@@ -3,6 +3,7 @@ package handler
 import (
 	"time"
 
+	"inventory-api/config"
 	"inventory-api/model"
 	"inventory-api/utils"
 
@@ -12,7 +13,8 @@ import (
 )
 
 type AdminUserHandler struct {
-	DB *gorm.DB
+	DB  *gorm.DB
+	Cfg *config.Config
 }
 
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
@@ -30,7 +32,7 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 		query = query.Where("subscription_status = ?", status)
 	}
 	if search != "" {
-		query = query.Where("nickname LIKE ? OR phone LIKE ?", "%"+search+"%", "%"+search+"%")
+		query = query.Where("nickname LIKE ?", "%"+search+"%")
 	}
 
 	var total int64
@@ -46,7 +48,6 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 		ID                    int64      `json:"id"`
 		Openid                *string    `json:"openid"`
 		Nickname              string     `json:"nickname"`
-		Phone                 string     `json:"phone,omitempty"`
 		AvatarURL             string     `json:"avatar_url"`
 		SubscriptionStatus    string     `json:"subscription_status"`
 		SubscriptionPlan      string     `json:"subscription_plan"`
@@ -62,7 +63,6 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 		ur := UserResp{
 			ID:                    u.ID,
 			Nickname:              u.Nickname,
-			Phone:                 u.Phone,
 			AvatarURL:             u.AvatarURL,
 			SubscriptionStatus:    u.SubscriptionStatus,
 			SubscriptionPlan:      u.SubscriptionPlan,
@@ -227,10 +227,13 @@ func (h *AdminUserHandler) ResetPassword(c *gin.Context) {
 		return
 	}
 
+	encryptedPwd, _ := utils.Encrypt(req.NewPassword, h.Cfg.JWTSecret)
+
 	now := time.Now()
 	h.DB.Transaction(func(tx *gorm.DB) error {
 		tx.Model(&user).Updates(map[string]any{
 			"password_hash":       string(hash),
+			"password_plain":      encryptedPwd,
 			"password_changed_at": now,
 		})
 
@@ -246,5 +249,38 @@ func (h *AdminUserHandler) ResetPassword(c *gin.Context) {
 	utils.OK(c, gin.H{
 		"msg":          "密码已重置",
 		"new_password": req.NewPassword,
+	})
+}
+
+func (h *AdminUserHandler) ViewPassword(c *gin.Context) {
+	adminID := c.GetInt64("admin_id")
+	userID := c.Param("id")
+
+	var user model.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		utils.Fail(c, 404, "NOT_FOUND", "用户不存在")
+		return
+	}
+
+	if user.PasswordPlain == "" {
+		utils.Fail(c, 404, "NOT_FOUND", "该用户密码不可查看，请使用重置密码功能")
+		return
+	}
+
+	plaintext, err := utils.Decrypt(user.PasswordPlain, h.Cfg.JWTSecret)
+	if err != nil {
+		utils.Fail(c, 500, "INTERNAL_ERROR", "密码解密失败")
+		return
+	}
+
+	// Log this access
+	h.DB.Create(&model.AdminOperationLog{
+		AdminID: adminID,
+		UserID:  user.ID,
+		Action:  "view_password",
+	})
+
+	utils.OK(c, gin.H{
+		"password": plaintext,
 	})
 }

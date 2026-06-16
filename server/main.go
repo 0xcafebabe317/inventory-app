@@ -84,7 +84,7 @@ func main() {
 	reportH := &handler.ReportHandler{DB: db}
 	exportH := &handler.ExportHandler{DB: db}
 	uploadH := &handler.UploadHandler{}
-	adminUserH := &handler.AdminUserHandler{DB: db}
+	adminUserH := &handler.AdminUserHandler{DB: db, Cfg: cfg}
 	adminDashboardH := &handler.AdminDashboardHandler{DB: db}
 
 	// Router
@@ -184,6 +184,7 @@ func main() {
 		adminAPI.POST("/users/:id/activate", adminUserH.Activate)
 		adminAPI.POST("/users/:id/disable", adminUserH.Disable)
 		adminAPI.POST("/users/:id/reset-password", adminUserH.ResetPassword)
+			adminAPI.POST("/users/:id/view-password", adminUserH.ViewPassword)
 		adminAPI.GET("/dashboard", adminDashboardH.Dashboard)
 		adminAPI.GET("/operation-logs", adminDashboardH.OperationLogs)
 

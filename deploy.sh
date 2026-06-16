@@ -19,7 +19,7 @@ rsync -avz --delete \
   --exclude='.git' \
   --exclude='.gitignore' \
   --exclude='node_modules' \
-  --exclude='dist' \
+  --exclude='app/dist' \
   --exclude='.DS_Store' \
   --exclude='serverZMMM.txt' \
   --exclude='需求.txt' \

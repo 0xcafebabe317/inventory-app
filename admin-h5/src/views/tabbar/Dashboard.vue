@@ -33,7 +33,6 @@ onMounted(async () => {
       <div v-for="u in dashboard.expiring_users" :key="u.id" class="expiring-row" @click="router.push('/user-detail/' + u.id)">
         <div>
           <span class="expiring-name">{{ u.nickname || '用户' }}</span>
-          <span class="expiring-phone">{{ u.phone }}</span>
         </div>
         <span class="text-secondary">{{ formatDate(u.subscription_expires_at) }} 到期</span>
       </div>
@@ -61,6 +60,5 @@ onMounted(async () => {
   padding: 8px 0; border-top: 1px solid #f5f5f5; cursor: pointer;
 }
 .expiring-name { font-size: 14px; font-weight: 600; }
-.expiring-phone { font-size: 12px; color: #646566; margin-left: 8px; }
 .text-secondary { color: #969799; font-size: 13px; }
 </style>

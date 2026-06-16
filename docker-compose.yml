@@ -9,6 +9,7 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./h5:/usr/share/nginx/h5:ro
       - ./admin-frontend/dist:/usr/share/nginx/admin:ro
+      - ./admin-h5/dist:/usr/share/nginx/admin-mobile:ro
       - uploads_data:/usr/share/nginx/uploads:ro
     depends_on:
       - api

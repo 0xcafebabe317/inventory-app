@@ -129,12 +129,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	phone := req.Phone
+	// Encrypt plaintext password for admin viewing
+	encryptedPwd, _ := utils.Encrypt(req.Password, h.Cfg.JWTSecret)
 
 	user := model.User{
 		Nickname:           req.Nickname,
-		Phone:              phone,
 		PasswordHash:       string(hash),
+		PasswordPlain:      encryptedPwd,
 		SubscriptionStatus: "trial",
 		TrialStartAt:       time.Now(),
 	}
