@@ -1,15 +1,21 @@
 <view class="contact-page">
   <view class="contact-card">
-    <view class="contact-icon">💬</view>
-    <view class="contact-title">添加管理员微信</view>
-    <view class="contact-desc">如需开通权限或咨询问题，请联系管理员</view>
-
-    <view class="qr-wrapper">
-      <van-image src="/assets/admin-qr.png" width="200" height="200" fit="contain" use-error-slot>
-        <view slot="error" class="qr-placeholder">微信二维码</view>
-      </van-image>
+    <view class="contact-icon">🔑</view>
+    <view class="contact-title">联系管理员</view>
+    <view class="contact-desc">
+      {{fromForgotPassword ? '如忘记密码，请联系管理员重置密码' : '如需开通权限或咨询问题，请联系管理员'}}
     </view>
 
-    <view class="qr-tip">截屏或长按保存图片，微信扫码添加</view>
+    <view class="qr-wrapper" bindtap="previewQrCode">
+      <image
+        class="qr-image"
+        src="/assets/admin-qr.png"
+        mode="widthFix"
+        show-menu-by-longpress="{{true}}"
+      />
+    </view>
+
+    <view class="qr-tip">📱 长按图片保存二维码，打开微信扫码添加</view>
+    <view class="qr-tip-sub">点击图片可放大查看</view>
   </view>
 </view>

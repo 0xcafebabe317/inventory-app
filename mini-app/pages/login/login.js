@@ -58,6 +58,10 @@ Page({
     wx.navigateTo({ url: '/pages/agreement/agreement?type=' + type })
   },
 
+  goForgotPassword() {
+    wx.navigateTo({ url: '/pages/contact/contact?from=forgot-password' })
+  },
+
   goRegister() {
     wx.navigateTo({ url: '/pages/register/register' })
   }

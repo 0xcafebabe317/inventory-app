@@ -24,12 +24,6 @@
       />
     </van-cell-group>
 
-    <!-- 隐私声明 -->
-    <view class="privacy-notice">
-      <text class="privacy-icon">🔒</text>
-      <text class="privacy-text">您的昵称仅用于注册登录，作为账号唯一标识，不会用于其他任何用途。</text>
-    </view>
-
     <!-- 协议同意 -->
     <view class="agreement-row">
       <van-checkbox value="{{agreed}}" bind:change="onAgreeChange" />
@@ -50,6 +44,10 @@
         loading-text="登录中..."
       >登录</van-button>
     </view>
+  </view>
+
+  <view class="footer-link" bindtap="goForgotPassword">
+    忘记密码？联系管理员
   </view>
 
   <view class="footer-link" bindtap="goRegister">
