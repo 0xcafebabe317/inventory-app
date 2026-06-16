@@ -5,8 +5,8 @@ const request = require('./request').default
 
 module.exports = {
   // Auth
-  login: (phone, password) => request('/api/auth/login', 'POST', { phone, password }),
-  register: (phone, password, nickname) => request('/api/auth/register', 'POST', { phone, password, nickname }),
+  login: (nickname, password) => request('/api/auth/login', 'POST', { nickname, password }),
+  register: (nickname, password) => request('/api/auth/register', 'POST', { nickname, password }),
   refreshToken: (refreshToken) => request('/api/auth/refresh', 'POST', { refresh_token: refreshToken }),
   getProfile: () => request('/api/user/profile', 'GET'),
   updateProfile: (data) => request('/api/user/profile', 'PUT', data),

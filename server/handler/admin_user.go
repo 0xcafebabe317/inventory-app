@@ -17,19 +17,19 @@ type AdminUserHandler struct {
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	page := parseIntDefault(c.Query("page"), 1)
 	pageSize := parseIntDefault(c.Query("page_size"), 10)
-	phone := c.Query("phone")
+	nickname := c.Query("nickname")
 	status := c.Query("status")
 	search := c.Query("search")
 
 	query := h.DB.Model(&model.User{})
-	if phone != "" {
-		query = query.Where("phone LIKE ?", "%"+phone+"%")
+	if nickname != "" {
+		query = query.Where("nickname LIKE ?", "%"+nickname+"%")
 	}
 	if status != "" {
 		query = query.Where("subscription_status = ?", status)
 	}
 	if search != "" {
-		query = query.Where("phone LIKE ? OR nickname LIKE ?", "%"+search+"%", "%"+search+"%")
+		query = query.Where("nickname LIKE ? OR phone LIKE ?", "%"+search+"%", "%"+search+"%")
 	}
 
 	var total int64
@@ -41,34 +41,33 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 		Limit(pageSize).
 		Find(&users)
 
-	// Mask phone numbers
 	type UserResp struct {
 		ID                    int64      `json:"id"`
 		Openid                *string    `json:"openid"`
-		Phone                 string     `json:"-"`
-		PhoneMasked           string     `json:"phone_masked"`
 		Nickname              string     `json:"nickname"`
+		Phone                 string     `json:"phone,omitempty"`
 		AvatarURL             string     `json:"avatar_url"`
 		SubscriptionStatus    string     `json:"subscription_status"`
 		SubscriptionPlan      string     `json:"subscription_plan"`
 		TrialStartAt          time.Time  `json:"trial_start_at"`
 		SubscriptionExpiresAt *time.Time `json:"subscription_expires_at"`
+		NicknameChangedAt     *time.Time `json:"nickname_changed_at"`
 		CreatedAt             time.Time  `json:"created_at"`
 		UpdatedAt             time.Time  `json:"updated_at"`
 		TrialExpiresAt        string     `json:"trial_expires_at,omitempty"`
 	}
 	var result []UserResp
 	for _, u := range users {
-		masked := maskPhone(u.Phone)
 		ur := UserResp{
 			ID:                    u.ID,
-			PhoneMasked:           masked,
 			Nickname:              u.Nickname,
+			Phone:                 u.Phone,
 			AvatarURL:             u.AvatarURL,
 			SubscriptionStatus:    u.SubscriptionStatus,
 			SubscriptionPlan:      u.SubscriptionPlan,
 			TrialStartAt:          u.TrialStartAt,
 			SubscriptionExpiresAt: u.SubscriptionExpiresAt,
+			NicknameChangedAt:     u.NicknameChangedAt,
 			CreatedAt:             u.CreatedAt,
 			UpdatedAt:             u.UpdatedAt,
 		}
@@ -94,8 +93,6 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 		utils.Fail(c, 404, "NOT_FOUND", "用户不存在")
 		return
 	}
-	// Mask phone number in response
-	user.Phone = maskPhone(user.Phone)
 	utils.OK(c, gin.H{
 		"user": user,
 	})
@@ -203,11 +200,4 @@ func (h *AdminUserHandler) Disable(c *gin.Context) {
 	})
 
 	utils.OK(c, gin.H{"msg": "已停用"})
-}
-
-func maskPhone(phone string) string {
-	if len(phone) < 7 {
-		return phone
-	}
-	return phone[:3] + "****" + phone[len(phone)-4:]
 }

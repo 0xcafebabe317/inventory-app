@@ -32,7 +32,7 @@
       </div>
       <el-table :data="expiringUsers" stripe style="width:100%">
         <el-table-column prop="nickname" label="昵称" min-width="120" />
-        <el-table-column prop="phone" label="手机号" width="140" />
+        <el-table-column prop="nickname" label="昵称" width="140" />
         <el-table-column label="套餐" width="90">
           <template #default="{ row }">
             <el-tag size="small" :type="planTagType(row.subscription_plan)">

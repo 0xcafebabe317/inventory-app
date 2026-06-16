@@ -6,15 +6,18 @@ import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
 const auth = useAuthStore()
-const phone = ref('')
+const nickname = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const nickname = ref('')
 const loading = ref(false)
 
 async function handleRegister() {
-  if (!phone.value || !password.value) {
-    showToast('请输入手机号和密码')
+  if (!nickname.value || !password.value) {
+    showToast('请输入昵称和密码')
+    return
+  }
+  if (nickname.value.length < 2) {
+    showToast('昵称至少2个字符')
     return
   }
   if (password.value.length < 8) {
@@ -27,7 +30,7 @@ async function handleRegister() {
   }
   loading.value = true
   try {
-    await auth.register(phone.value, password.value, nickname.value || '用户')
+    await auth.register(nickname.value, password.value)
     showToast('注册成功，7天试用已开启')
     router.push('/dashboard')
   } catch (err: any) {
@@ -49,31 +52,24 @@ async function handleRegister() {
     <van-form @submit="handleRegister">
       <van-cell-group inset>
         <van-field
-          v-model="phone"
-          type="tel"
-          maxlength="11"
-          placeholder="请输入手机号"
-          left-icon="phone-o"
-          :rules="[{ required: true }]"
-        />
-        <van-field
           v-model="nickname"
-          placeholder="昵称（选填）"
+          placeholder="请输入昵称（唯一标识）"
           left-icon="user-o"
+          :rules="[{ required: true, message: '请输入昵称' }]"
         />
         <van-field
           v-model="password"
           type="password"
           placeholder="密码（至少8位）"
           left-icon="lock"
-          :rules="[{ required: true }]"
+          :rules="[{ required: true, message: '请输入密码' }]"
         />
         <van-field
           v-model="confirmPassword"
           type="password"
           placeholder="确认密码"
           left-icon="lock"
-          :rules="[{ required: true }]"
+          :rules="[{ required: true, message: '请确认密码' }]"
         />
       </van-cell-group>
 

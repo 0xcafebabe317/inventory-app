@@ -102,9 +102,9 @@ func main() {
 	authGroup.Use(middleware.RateLimit(rdb, 10, 1*time.Minute))
 	{
 		authGroup.POST("/register", authH.Register)
-		authGroup.POST("/login", authH.PhoneLogin)
+		authGroup.POST("/login", authH.Login)
 		authGroup.POST("/wechat-login", authH.WechatLogin)
-		authGroup.POST("/bind-phone", authH.BindPhone)
+		authGroup.POST("/bind-profile", authH.BindProfile)
 		authGroup.POST("/refresh", authH.RefreshToken)
 	}
 

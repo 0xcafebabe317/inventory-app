@@ -6,13 +6,13 @@ import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
 const auth = useAuthStore()
-const phone = ref('')
+const nickname = ref('')
 const password = ref('')
 const loading = ref(false)
 
 async function handleLogin() {
-  if (!phone.value || !password.value) {
-    showToast('请输入手机号和密码')
+  if (!nickname.value || !password.value) {
+    showToast('请输入昵称和密码')
     return
   }
   if (password.value.length < 8) {
@@ -21,7 +21,7 @@ async function handleLogin() {
   }
   loading.value = true
   try {
-    await auth.login(phone.value, password.value)
+    await auth.login(nickname.value, password.value)
     showToast('登录成功')
     router.push('/dashboard')
   } catch (err: any) {
@@ -37,18 +37,16 @@ async function handleLogin() {
     <div class="auth-header">
       <img src="/logo.png" alt="logo" class="auth-logo" @error="e => (e.target as any).style.display='none'" />
       <h2>兔子进销存</h2>
-      <p>手机号登录</p>
+      <p>昵称登录</p>
     </div>
 
     <van-form @submit="handleLogin">
       <van-cell-group inset>
         <van-field
-          v-model="phone"
-          type="tel"
-          maxlength="11"
-          placeholder="请输入手机号"
-          left-icon="phone-o"
-          :rules="[{ required: true, message: '请输入手机号' }]"
+          v-model="nickname"
+          placeholder="请输入昵称"
+          left-icon="user-o"
+          :rules="[{ required: true, message: '请输入昵称' }]"
         />
         <van-field
           v-model="password"

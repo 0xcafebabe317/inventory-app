@@ -6,18 +6,21 @@ const api = require('../../utils/api')
 Page({
   data: {
     userInfo: {},
-    phone: '',
+    nickname: '',
     subscriptionStatus: '',
     subscriptionPlan: '',
     trialDaysLeft: 0,
     expiryDisplay: '',
     expiryClass: '',
     uploadingAvatar: false,
+    nicknameChangedAt: '',
 
     // Edit nickname
     showNicknameDialog: false,
     nicknameForm: '',
     nicknameLoading: false,
+    canChangeNickname: true,
+    nextChangeDate: '',
 
     // Change password
     showPwdDialog: false,
@@ -43,15 +46,37 @@ Page({
       userInfo.avatar_url = util.fullUrl(userInfo.avatar_url)
     }
 
+    // 计算昵称修改限制
+    let canChangeNickname = true
+    let nextChangeDate = ''
+    if (user.nickname_changed_at) {
+      const changedAt = new Date(user.nickname_changed_at)
+      const nextChange = new Date(changedAt)
+      nextChange.setMonth(nextChange.getMonth() + 6)
+      const now = new Date()
+      if (nextChange > now) {
+        canChangeNickname = false
+        nextChangeDate = `${nextChange.getFullYear()}-${String(nextChange.getMonth() + 1).padStart(2, '0')}-${String(nextChange.getDate()).padStart(2, '0')}`
+      }
+    }
+
     this.setData({
       userInfo,
-      phone: util.formatPhone(g.phone),
+      nickname: g.nickname || user.nickname || '',
       subscriptionStatus: util.subscriptionStatusLabel(g.subscription.status),
       subscriptionPlan: g.subscription.plan || '',
       trialDaysLeft: g.subscription.trialDaysLeft || 0,
       expiryDisplay: expiry.display,
-      expiryClass: expiry.cssClass
+      expiryClass: expiry.cssClass,
+      nicknameChangedAt: user.nickname_changed_at || '',
+      canChangeNickname,
+      nextChangeDate
     })
+  },
+
+  // --- Copy Nickname ---
+  copyNickname() {
+    util.copyText(this.data.nickname)
   },
 
   // --- Avatar Upload ---
@@ -92,6 +117,10 @@ Page({
 
   // --- Edit Nickname ---
   openNicknameDialog() {
+    if (!this.data.canChangeNickname) {
+      wx.showToast({ title: '昵称每半年只能改一次，下次可改：' + this.data.nextChangeDate, icon: 'none', duration: 3000 })
+      return
+    }
     this.setData({ nicknameForm: this.data.userInfo.nickname || '', showNicknameDialog: true })
   },
   onNicknameInput(e) { this.setData({ nicknameForm: e.detail }) },
@@ -99,13 +128,24 @@ Page({
   handleUpdateNickname() {
     if (!this.data.nicknameForm) { wx.showToast({ title: '请输入昵称', icon: 'none' }); return }
     this.setData({ nicknameLoading: true })
-    api.updateProfile({ nickname: this.data.nicknameForm }).then(() => {
+    api.updateProfile({ nickname: this.data.nicknameForm }).then((res) => {
       const user = this.data.userInfo
       user.nickname = this.data.nicknameForm
+      user.nickname_changed_at = new Date().toISOString()
       app.globalData.userInfo = user
-      this.setData({ userInfo: user, showNicknameDialog: false })
+      app.globalData.nickname = this.data.nicknameForm
+      this.setData({
+        userInfo: user,
+        nickname: this.data.nicknameForm,
+        showNicknameDialog: false,
+        canChangeNickname: false,
+        nicknameChangedAt: user.nickname_changed_at
+      })
       wx.showToast({ title: '昵称修改成功', icon: 'success' })
-    }).catch(() => {}).finally(() => this.setData({ nicknameLoading: false }))
+    }).catch((err) => {
+      const msg = (err && err.data && err.data.message) || '修改失败'
+      wx.showToast({ title: msg, icon: 'none' })
+    }).finally(() => this.setData({ nicknameLoading: false }))
   },
 
   // --- Change Password ---

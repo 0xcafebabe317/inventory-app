@@ -7,16 +7,17 @@ USE inventory;
 CREATE TABLE IF NOT EXISTS user (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     openid VARCHAR(64) NOT NULL UNIQUE,
-    phone VARCHAR(11) NOT NULL UNIQUE,
-    nickname VARCHAR(64) DEFAULT '',
+    nickname VARCHAR(64) NOT NULL UNIQUE,
+    phone VARCHAR(11) DEFAULT '',
     avatar_url VARCHAR(512) DEFAULT '',
     subscription_status ENUM('trial','active','expired','disabled') DEFAULT 'trial',
     subscription_plan ENUM('monthly','quarterly','yearly') DEFAULT NULL,
     trial_start_at DATETIME NOT NULL,
     subscription_expires_at DATETIME DEFAULT NULL,
+    nickname_changed_at DATETIME DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_phone (phone),
+    INDEX idx_nickname (nickname),
     INDEX idx_status (subscription_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

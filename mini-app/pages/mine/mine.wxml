@@ -20,7 +20,10 @@
         {{userInfo.nickname || '点击设置昵称'}}
         <van-icon name="edit" size="14px" color="#969799" style="margin-left:4px" />
       </view>
-      <view class="text-secondary">{{phone}}</view>
+      <view class="nickname-row" bindtap="copyNickname">
+        <text class="nickname-label">昵称：{{nickname}}</text>
+        <van-icon name="records" size="14px" color="#2563eb" style="margin-left:6px" />
+      </view>
     </view>
   </view>
 
@@ -34,7 +37,7 @@
 
   <!-- Menu -->
   <van-cell-group inset custom-style="margin-top:12px">
-    <van-cell title="修改昵称" icon="user-o" is-link bindtap="openNicknameDialog" />
+    <van-cell title="修改昵称" icon="user-o" is-link bindtap="openNicknameDialog" label="{{canChangeNickname ? '' : '下次可修改：' + nextChangeDate}}" />
     <van-cell title="修改密码" icon="lock" is-link bindtap="openPwdDialog" />
     <van-cell title="进货商管理" icon="shop-o" is-link bindtap="goToSuppliers" />
     <van-cell title="客户管理" icon="friends-o" is-link bindtap="goToCustomers" />
@@ -51,8 +54,9 @@
   <!-- Edit Nickname Popup -->
   <van-popup show="{{showNicknameDialog}}" bind:close="closeNicknameDialog" position="bottom" custom-style="padding:20px 16px;border-radius:16px 16px 0 0" round>
     <view class="popup-title">修改昵称</view>
+    <view class="popup-rule">昵称每半年只能修改一次，请谨慎设置</view>
     <view class="popup-form">
-      <van-field value="{{nicknameForm}}" label="昵称" placeholder="请输入昵称" bind:change="onNicknameInput" />
+      <van-field value="{{nicknameForm}}" label="昵称" placeholder="请输入新昵称" bind:change="onNicknameInput" />
     </view>
     <view class="popup-actions">
       <van-button block round type="primary" loading="{{nicknameLoading}}" bindtap="handleUpdateNickname">确认修改</van-button>

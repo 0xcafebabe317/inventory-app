@@ -1,11 +1,11 @@
 import http from './request'
 
-export function register(phone: string, password: string, nickname: string) {
-  return http.post('/api/auth/register', { phone, password, nickname })
+export function register(nickname: string, password: string) {
+  return http.post('/api/auth/register', { nickname, password })
 }
 
-export function login(phone: string, password: string) {
-  return http.post('/api/auth/login', { phone, password })
+export function login(nickname: string, password: string) {
+  return http.post('/api/auth/login', { nickname, password })
 }
 
 export function getProfile() {

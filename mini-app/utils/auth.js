@@ -25,27 +25,25 @@ function login() {
   })
 }
 
-function phoneLogin(phone, password) {
-  return request('/api/auth/login', 'POST', { phone, password }).then(data => {
+function nicknameLogin(nickname, password) {
+  return request('/api/auth/login', 'POST', { nickname, password }).then(data => {
     wx.setStorageSync('access_token', data.data.access)
     wx.setStorageSync('refresh_token', data.data.refresh)
     return data.data
   })
 }
 
-function phoneRegister(phone, password, nickname) {
-  return request('/api/auth/register', 'POST', { phone, password, nickname }).then(data => {
+function nicknameRegister(nickname, password) {
+  return request('/api/auth/register', 'POST', { nickname, password }).then(data => {
     wx.setStorageSync('access_token', data.data.access)
     wx.setStorageSync('refresh_token', data.data.refresh)
     return data.data
   })
 }
 
-function bindPhone(openid, encryptedData, iv, nickname, avatarUrl) {
-  return request('/api/auth/bind-phone', 'POST', {
+function bindProfile(openid, nickname, avatarUrl) {
+  return request('/api/auth/bind-profile', 'POST', {
     openid,
-    encrypted_data: encryptedData,
-    iv,
     nickname: nickname || '',
     avatar_url: avatarUrl || ''
   }).then(data => {
@@ -78,7 +76,7 @@ function logout() {
   wx.removeStorageSync('access_token')
   wx.removeStorageSync('refresh_token')
   getApp().globalData.userInfo = null
-  getApp().globalData.phone = ''
+  getApp().globalData.nickname = ''
 }
 
-module.exports = { login, phoneLogin, phoneRegister, bindPhone, checkAuth, requireAuth, logout }
+module.exports = { login, nicknameLogin, nicknameRegister, bindProfile, checkAuth, requireAuth, logout }

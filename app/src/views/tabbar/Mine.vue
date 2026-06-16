@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { showDialog, showToast, showSuccessToast } from 'vant'
 import { useAuthStore } from '../../stores/auth'
 import { changePassword, updateProfile, uploadAvatar } from '../../api/auth'
-import { formatPhone } from '../../utils/format'
+import { copyText } from '../../utils/format'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -192,7 +192,10 @@ function handleLogout() {
           {{ auth.user?.nickname || '点击设置昵称' }}
           <van-icon name="edit" size="14" color="#969799" style="margin-left:4px" />
         </div>
-        <div class="text-secondary">{{ formatPhone(auth.user?.phone || '') }}</div>
+        <div class="nickname-row" @click="copyText(auth.user?.nickname || '')">
+          <span class="nickname-label">昵称：{{ auth.user?.nickname || '' }}</span>
+          <van-icon name="records" size="14" color="#2563eb" style="margin-left:6px" />
+        </div>
       </div>
     </div>
 
@@ -282,6 +285,12 @@ function handleLogout() {
   color: #c62828;
 }
 .text-secondary { color: #969799; font-size: 13px; }
+.nickname-row {
+  display: flex; align-items: center; padding: 4px 8px;
+  background: #f0f7ff; border-radius: 6px; margin-top: 4px;
+  cursor: pointer;
+}
+.nickname-label { font-size: 12px; color: #64748b; }
 .dialog-form { padding: 12px 0; }
 
 .icp-footer {

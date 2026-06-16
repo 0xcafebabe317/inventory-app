@@ -11,9 +11,10 @@
       </view>
       <view class="section">
         <view class="section-title">二、账号注册与使用</view>
-        <view class="text">1. 您在注册时需要使用手机号码进行实名注册。手机号码仅用于用户身份的唯一标识和账号安全验证，不会用于任何其他商业用途。</view>
-        <view class="text">2. 您应当对以您的账号进行的所有活动和事件承担法律责任。</view>
-        <view class="text">3. 您应妥善保管账号信息，不得将账号提供给第三方使用。因账号保管不善导致的损失由您自行承担。</view>
+        <view class="text">1. 您在注册时需要设置昵称作为账号的唯一标识。昵称仅用于用户身份识别和账号管理，不会用于任何其他商业用途。</view>
+        <view class="text">2. 昵称每半年可修改一次，修改后您历史记录中的昵称将同步更新。</view>
+        <view class="text">3. 您应当对以您的账号进行的所有活动和事件承担法律责任。</view>
+        <view class="text">4. 您应妥善保管账号信息，不得将账号提供给第三方使用。因账号保管不善导致的损失由您自行承担。</view>
       </view>
       <view class="section">
         <view class="section-title">三、服务内容</view>
@@ -47,16 +48,16 @@
       <view class="update-date">更新日期：2025年06月10日</view>
       <view class="section">
         <view class="section-title">一、信息收集</view>
-        <view class="text">1. <text class="bold">手机号码</text>：您在注册本服务时，我们需要收集您的手机号码。手机号码仅用于：</view>
+        <view class="text">1. <text class="bold">昵称</text>：您在注册本服务时，需要设置一个昵称。昵称仅用于：</view>
         <view class="text indent">（1）创建您的唯一用户账号；</view>
         <view class="text indent">（2）作为用户身份的唯一标识；</view>
         <view class="text indent">（3）登录验证和账号安全保护。</view>
         <view class="text">2. 您在使用过程中产生的业务数据（如商品信息、库存记录、交易记录等）会上传至我们的服务器进行存储。</view>
-        <view class="text">3. 我们<text class="bold">不会</text>收集您的地理位置、通讯录、相册、短信等个人隐私信息，除非您主动使用相关功能（如发票上传）。</view>
+        <view class="text">3. 我们<text class="bold">不会</text>收集您的地理位置、通讯录、相册、短信等个人隐私信息，除非您主动使用相关功能（如头像上传、发票上传）。</view>
       </view>
       <view class="section">
         <view class="section-title">二、信息使用</view>
-        <view class="text">1. 您的手机号码<span class="bold">仅用于注册登录和账号管理，绝不出售、分享或用于任何第三方营销、广告推送等商业用途</span>。</view>
+        <view class="text">1. 您的昵称<span class="bold">仅用于注册登录和账号管理，绝不出售、分享或用于任何第三方营销、广告推送等商业用途</span>。</view>
         <view class="text">2. 您的业务数据仅用于为您提供进销存管理服务。</view>
         <view class="text">3. 我们不会对您的数据进行任何形式的分析和挖掘用于商业目的。</view>
       </view>
@@ -68,12 +69,12 @@
       </view>
       <view class="section">
         <view class="section-title">四、信息共享</view>
-        <view class="text">1. 我们<text class="bold">不会</text>将您的个人信息（包括手机号码）出售、出租或分享给任何第三方。</view>
+        <view class="text">1. 我们<text class="bold">不会</text>将您的个人信息（包括昵称）出售、出租或分享给任何第三方。</view>
         <view class="text">2. 除法律法规要求或政府机关强制性要求外，我们不会向任何第三方披露您的信息。</view>
       </view>
       <view class="section">
         <view class="section-title">五、您的权利</view>
-        <view class="text">1. 您有权随时查看、更正您的账号信息。</view>
+        <view class="text">1. 您有权随时查看、更正您的账号信息（昵称每半年可修改一次）。</view>
         <view class="text">2. 您有权随时注销账号，注销后您的所有数据将被永久删除。</view>
         <view class="text">3. 如对本隐私政策有任何疑问，可通过"我的"页面中的联系方式联系我们。</view>
       </view>

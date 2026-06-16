@@ -52,11 +52,10 @@ func (h *AuthHandler) WechatLogin(c *gin.Context) {
 		if result.Error == gorm.ErrRecordNotFound {
 			// Only auto-create users in explicit development mode
 			if h.Cfg.IsDevelopment() {
-				phone := fmt.Sprintf("138%08d", time.Now().Unix()%100000000)
+				nickname := fmt.Sprintf("用户%08d", time.Now().Unix()%100000000)
 				user = model.User{
 					Openid:             &openid,
-					Phone:              phone,
-					Nickname:           "开发测试",
+					Nickname:           nickname,
 					SubscriptionStatus: "trial",
 					TrialStartAt:       time.Now(),
 				}
@@ -103,23 +102,23 @@ func (h *AuthHandler) WechatLogin(c *gin.Context) {
 	})
 }
 
-// ========== Phone+Password Auth ==========
+// ========== Nickname+Password Auth ==========
 
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req struct {
-		Phone    string `json:"phone" binding:"required"`
+		Nickname string `json:"nickname" binding:"required"`
 		Password string `json:"password" binding:"required,min=8"`
-		Nickname string `json:"nickname"`
+		Phone    string `json:"phone"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入手机号和密码(至少6位)")
+		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入昵称和密码(至少6位)")
 		return
 	}
 
-	// Check phone uniqueness
+	// Check nickname uniqueness
 	var existing model.User
-	if err := h.DB.Where("phone = ?", req.Phone).First(&existing).Error; err == nil {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "注册失败，请检查输入信息")
+	if err := h.DB.Where("nickname = ?", req.Nickname).First(&existing).Error; err == nil {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "该昵称已被注册，请换一个")
 		return
 	}
 
@@ -130,15 +129,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	nickname := req.Nickname
-	if nickname == "" {
-		nickname = "用户"
-	}
+	phone := req.Phone
 
 	user := model.User{
-		Phone:              req.Phone,
+		Nickname:           req.Nickname,
+		Phone:              phone,
 		PasswordHash:       string(hash),
-		Nickname:           nickname,
 		SubscriptionStatus: "trial",
 		TrialStartAt:       time.Now(),
 	}
@@ -162,24 +158,24 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	})
 }
 
-func (h *AuthHandler) PhoneLogin(c *gin.Context) {
+func (h *AuthHandler) Login(c *gin.Context) {
 	var req struct {
-		Phone    string `json:"phone" binding:"required"`
+		Nickname string `json:"nickname" binding:"required"`
 		Password string `json:"password" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入手机号和密码")
+		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入昵称和密码")
 		return
 	}
 
 	var user model.User
-	if err := h.DB.Where("phone = ?", req.Phone).First(&user).Error; err != nil {
-		utils.Fail(c, 401, "UNAUTHORIZED", "手机号或密码错误")
+	if err := h.DB.Where("nickname = ?", req.Nickname).First(&user).Error; err != nil {
+		utils.Fail(c, 401, "UNAUTHORIZED", "昵称或密码错误")
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		utils.Fail(c, 401, "UNAUTHORIZED", "手机号或密码错误")
+		utils.Fail(c, 401, "UNAUTHORIZED", "昵称或密码错误")
 		return
 	}
 
@@ -206,17 +202,16 @@ func (h *AuthHandler) PhoneLogin(c *gin.Context) {
 	})
 }
 
-// ========== End Phone+Password Auth ==========
+// ========== End Nickname+Password Auth ==========
 
-func (h *AuthHandler) BindPhone(c *gin.Context) {
+func (h *AuthHandler) BindProfile(c *gin.Context) {
 	isDev := h.Cfg.IsDevelopment()
 
 	var req struct {
 		Openid        string `json:"openid" binding:"required"`
 		EncryptedData string `json:"encrypted_data"`
 		Iv            string `json:"iv"`
-		Phone         string `json:"phone"`
-		Nickname      string `json:"nickname"`
+		Nickname      string `json:"nickname" binding:"required"`
 		AvatarURL     string `json:"avatar_url"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -227,33 +222,29 @@ func (h *AuthHandler) BindPhone(c *gin.Context) {
 	// Check if openid already bound
 	var existing model.User
 	if err := h.DB.Where("openid = ?", req.Openid).First(&existing).Error; err == nil {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "该微信已绑定手机号")
+		utils.Fail(c, 400, "VALIDATION_ERROR", "该微信已绑定账号")
 		return
 	}
 
-	// Determine phone: use plain phone if provided, or decrypt in production
-	phone := req.Phone
-	if phone == "" && isDev {
-		phone = req.EncryptedData
-		if phone == "" {
-			phone = fmt.Sprintf("138%08d", time.Now().Unix()%100000000)
-		}
+	nickname := req.Nickname
+	if nickname == "" && isDev {
+		nickname = fmt.Sprintf("用户%08d", time.Now().Unix()%100000000)
 	}
-	if phone == "" {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "缺少手机号")
+	if nickname == "" {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "请输入昵称")
 		return
 	}
 
-	var phoneUser model.User
-	if err := h.DB.Where("phone = ?", phone).First(&phoneUser).Error; err == nil {
-		utils.Fail(c, 400, "VALIDATION_ERROR", "该手机号已被绑定")
+	// Check nickname uniqueness
+	var nicknameUser model.User
+	if err := h.DB.Where("nickname = ?", nickname).First(&nicknameUser).Error; err == nil {
+		utils.Fail(c, 400, "VALIDATION_ERROR", "该昵称已被注册，请换一个")
 		return
 	}
 
 	user := model.User{
 		Openid:             &req.Openid,
-		Phone:              phone,
-		Nickname:           req.Nickname,
+		Nickname:           nickname,
 		AvatarURL:          req.AvatarURL,
 		SubscriptionStatus: "trial",
 		TrialStartAt:       time.Now(),
@@ -378,7 +369,36 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 
 	updates := map[string]any{}
 	if req.Nickname != "" {
-		updates["nickname"] = req.Nickname
+		// Check 6-month nickname change restriction
+		var currentUser model.User
+		if err := h.DB.First(&currentUser, userID).Error; err != nil {
+			utils.Fail(c, 404, "NOT_FOUND", "用户不存在")
+			return
+		}
+
+		// Only check restriction if nickname is actually changing
+		if currentUser.Nickname != req.Nickname {
+			if currentUser.NicknameChangedAt != nil {
+				sixMonthsAgo := time.Now().AddDate(0, -6, 0)
+				if currentUser.NicknameChangedAt.After(sixMonthsAgo) {
+					nextChange := currentUser.NicknameChangedAt.AddDate(0, 6, 0)
+					utils.Fail(c, 400, "NICKNAME_RESTRICTED",
+						fmt.Sprintf("昵称每半年只能修改一次，下次可修改时间：%s", nextChange.Format("2006-01-02")))
+					return
+				}
+			}
+
+			// Check new nickname uniqueness
+			var existing model.User
+			if err := h.DB.Where("nickname = ? AND id != ?", req.Nickname, userID).First(&existing).Error; err == nil {
+				utils.Fail(c, 400, "VALIDATION_ERROR", "该昵称已被使用，请换一个")
+				return
+			}
+
+			now := time.Now()
+			updates["nickname"] = req.Nickname
+			updates["nickname_changed_at"] = now
+		}
 	}
 	if req.AvatarURL != "" {
 		updates["avatar_url"] = req.AvatarURL

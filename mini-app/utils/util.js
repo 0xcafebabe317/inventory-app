@@ -27,9 +27,11 @@ function formatMoney(n) {
   return Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
-function formatPhone(phone) {
-  if (!phone || phone.length < 7) return phone
-  return phone.slice(0, 3) + '****' + phone.slice(-4)
+function copyText(text) {
+  wx.setClipboardData({
+    data: text || '',
+    success() { wx.showToast({ title: '已复制', icon: 'success' }) }
+  })
 }
 
 const BASE_URL = 'https://www.tzjxc.online'
@@ -119,7 +121,7 @@ module.exports = {
   formatDateTime,
   formatExpiry,
   formatMoney,
-  formatPhone,
+  copyText,
   fullUrl,
   payMethodLabel,
   subscriptionStatusLabel

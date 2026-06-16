@@ -94,7 +94,6 @@ func (h *AdminDashboardHandler) Dashboard(c *gin.Context) {
 type LogResp struct {
 	model.AdminOperationLog
 	AdminName    string `json:"admin_name"`
-	UserPhone    string `json:"user_phone"`
 	UserNickname string `json:"user_nickname"`
 }
 
@@ -107,7 +106,7 @@ func (h *AdminDashboardHandler) OperationLogs(c *gin.Context) {
 
 	var logs []LogResp
 	h.DB.Table("admin_operation_log").
-		Select("admin_operation_log.*, admin.username as admin_name, user.phone as user_phone, user.nickname as user_nickname").
+		Select("admin_operation_log.*, admin.username as admin_name, user.nickname as user_nickname").
 		Joins("LEFT JOIN admin ON admin.id = admin_operation_log.admin_id").
 		Joins("LEFT JOIN user ON user.id = admin_operation_log.user_id").
 		Order("admin_operation_log.created_at DESC").

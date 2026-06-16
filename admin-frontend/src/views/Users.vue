@@ -10,7 +10,7 @@
       <div class="toolbar-left">
         <el-input
           v-model="search"
-          placeholder="搜索手机号 / 昵称"
+          placeholder="搜索昵称"
           clearable
           @clear="searchUsers"
           @keyup.enter="searchUsers"
@@ -45,7 +45,11 @@
             <span class="user-name">{{ row.nickname || '用户' + row.id }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="phone" label="手机号" width="140" />
+        <el-table-column prop="nickname" label="昵称" width="140">
+          <template #default="{ row }">
+            <span class="user-nickname">{{ row.nickname }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="statusType(row.subscription_status)" size="small">
@@ -145,7 +149,7 @@ function openActivate(user: any) {
 }
 
 function handleDisable(user: any) {
-  ElMessageBox.confirm(`确定要停用用户「${user.nickname || user.phone}」吗？`, '确认停用', {
+  ElMessageBox.confirm(`确定要停用用户「${user.nickname || user.id}」吗？`, '确认停用', {
     confirmButtonText: '确定停用',
     cancelButtonText: '取消',
     type: 'warning'
@@ -207,6 +211,7 @@ function planLabel(p: string) {
   overflow: hidden;
 }
 .user-name { font-weight: 500; color: #1e293b; }
+.user-nickname { color: #2563eb; font-weight: 500; }
 .text-danger { color: #ef4444; font-weight: 500; }
 .table-footer {
   display: flex;

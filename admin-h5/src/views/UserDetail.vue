@@ -88,7 +88,7 @@ async function handleDisable() {
           <span>昵称：{{ user.nickname || '未设置' }}</span>
           <van-tag :type="statusColor(user.subscription_status)">{{ statusLabel(user.subscription_status) }}</van-tag>
         </div>
-        <div class="info-row"><span>手机号</span><span>{{ user.phone || user.phone_masked }}</span></div>
+        <div class="info-row"><span>昵称</span><span>{{ user.nickname }}</span></div>
         <div class="info-row"><span>订阅方案</span><span>{{ planLabel(user.subscription_plan) }}</span></div>
         <div class="info-row"><span>试用开始</span><span>{{ formatDate(user.trial_start_at) }}</span></div>
         <div class="info-row" v-if="user.subscription_expires_at">

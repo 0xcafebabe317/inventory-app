@@ -3,7 +3,6 @@ const app = getApp()
 
 Page({
   data: {
-    phone: '',
     nickname: '',
     password: '',
     confirmPassword: '',
@@ -11,24 +10,22 @@ Page({
     agreed: false
   },
 
-  onPhoneInput(e) { this.setData({ phone: e.detail }) },
   onNicknameInput(e) { this.setData({ nickname: e.detail }) },
   onPasswordInput(e) { this.setData({ password: e.detail }) },
   onConfirmInput(e) { this.setData({ confirmPassword: e.detail }) },
 
   handleRegister() {
-    const { phone, nickname, password, confirmPassword } = this.data
-    if (!phone) { wx.showToast({ title: '请输入手机号', icon: 'none' }); return }
-    if (!/^1\d{10}$/.test(phone)) { wx.showToast({ title: '手机号格式不正确', icon: 'none' }); return }
+    const { nickname, password, confirmPassword } = this.data
+    if (!nickname) { wx.showToast({ title: '请输入昵称', icon: 'none' }); return }
+    if (nickname.length < 2) { wx.showToast({ title: '昵称至少2个字符', icon: 'none' }); return }
     if (!password) { wx.showToast({ title: '请输入密码', icon: 'none' }); return }
     if (password.length < 8) { wx.showToast({ title: '密码至少8位', icon: 'none' }); return }
     if (password !== confirmPassword) { wx.showToast({ title: '两次密码不一致', icon: 'none' }); return }
 
     this.setData({ submitting: true })
-    const name = nickname || '用户' + phone.slice(-4)
-    auth.phoneRegister(phone, password, name).then(data => {
+    auth.nicknameRegister(nickname, password).then(data => {
       app.globalData.userInfo = data.user || null
-      app.globalData.phone = phone
+      app.globalData.nickname = nickname
       app.globalData.subscription = {
         status: 'trial',
         plan: null,

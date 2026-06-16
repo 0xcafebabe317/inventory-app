@@ -32,13 +32,13 @@ func (h *AdminDashboardHandler) Dashboard(c *gin.Context) {
 
 	type ExpiringUser struct {
 		model.User
-		PhoneMasked string `json:"phone_masked"`
+		Nickname string `json:"nickname"``
 	}
 	var result []ExpiringUser
 	for _, u := range expiringUsers {
 		result = append(result, ExpiringUser{
 			User:        u,
-			PhoneMasked: maskPhone(u.Phone),
+			Nickname: u.Nickname,
 		})
 	}
 

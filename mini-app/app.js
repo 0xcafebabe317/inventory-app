@@ -4,7 +4,7 @@ const request = require('./utils/request').default
 App({
   globalData: {
     userInfo: null,
-    phone: '',
+    nickname: '',
     subscription: {
       status: 'trial',
       plan: null,
@@ -52,13 +52,12 @@ App({
         this.globalData.userInfo = {
           nickname: user.nickname,
           avatar_url: user.avatar_url,
-          phone: user.phone,
           subscription_status: user.subscription_status,
           subscription_plan: user.subscription_plan,
           subscription_expires_at: user.subscription_expires_at,
           created_at: user.created_at
         }
-        this.globalData.phone = user.phone
+        this.globalData.nickname = user.nickname
         this.globalData.subscription = {
           status: user.subscription_status,
           plan: user.subscription_plan,

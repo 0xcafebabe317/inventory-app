@@ -4,8 +4,8 @@ import { login as apiLogin, register as apiRegister, getProfile } from '../api/a
 
 export interface User {
   id: number
-  phone: string
   nickname: string
+  phone?: string
   avatar_url: string
   subscription_status: string
   subscription_plan: string
@@ -34,8 +34,8 @@ export const useAuthStore = defineStore('auth', () => {
     return map[subscriptionStatus.value] || '试用中'
   })
 
-  async function login(phone: string, password: string) {
-    const res: any = await apiLogin(phone, password)
+  async function login(nickname: string, password: string) {
+    const res: any = await apiLogin(nickname, password)
     const data = res.data
     setTokens(data.access, data.refresh)
     user.value = data.user
@@ -43,8 +43,8 @@ export const useAuthStore = defineStore('auth', () => {
     return data
   }
 
-  async function register(phone: string, password: string, nickname: string) {
-    const res: any = await apiRegister(phone, password, nickname)
+  async function register(nickname: string, password: string) {
+    const res: any = await apiRegister(nickname, password)
     const data = res.data
     setTokens(data.access, data.refresh)
     user.value = data.user

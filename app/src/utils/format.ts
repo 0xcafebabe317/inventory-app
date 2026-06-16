@@ -28,9 +28,11 @@ export function formatDateTime(dateStr: string): string {
   return `${y}-${M}-${day} ${h}:${m}`
 }
 
-export function formatPhone(phone: string): string {
-  if (!phone || phone.length < 7) return phone || ''
-  return phone.slice(0, 3) + '****' + phone.slice(-4)
+export function copyText(text: string): void {
+  if (!text) return
+  navigator.clipboard.writeText(text).then(() => {
+    // showToast is imported at call site
+  }).catch(() => {})
 }
 
 export function payMethodLabel(method: string): string {

@@ -17,19 +17,19 @@ type AdminUserHandler struct {
 func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	page := parseIntDefault(c.Query("page"), 1)
 	pageSize := parseIntDefault(c.Query("page_size"), 20)
-	phone := c.Query("phone")
+	phone := c.Query("nickname")
 	status := c.Query("status")
 	search := c.Query("search")
 
 	query := h.DB.Model(&model.User{})
 	if phone != "" {
-		query = query.Where("phone LIKE ?", "%"+phone+"%")
+		query = query.Where("nickname LIKE ?", "%"+phone+"%")
 	}
 	if status != "" {
 		query = query.Where("subscription_status = ?", status)
 	}
 	if search != "" {
-		query = query.Where("phone LIKE ? OR nickname LIKE ?", "%"+search+"%", "%"+search+"%")
+		query = query.Where("nickname LIKE ? OR nickname LIKE ?", "%"+search+"%", "%"+search+"%")
 	}
 
 	var total int64
@@ -44,12 +44,12 @@ func (h *AdminUserHandler) ListUsers(c *gin.Context) {
 	// Mask phone numbers
 	type UserResp struct {
 		model.User
-		PhoneMasked string `json:"phone_masked"`
+		Nickname string `json:"phone_masked"`
 	}
 	var result []UserResp
 	for _, u := range users {
-		masked := maskPhone(u.Phone)
-		result = append(result, UserResp{User: u, PhoneMasked: masked})
+		masked := u.Nickname
+		result = append(result, UserResp{User: u, Nickname: masked})
 	}
 
 	utils.OK(c, gin.H{
@@ -69,7 +69,7 @@ func (h *AdminUserHandler) GetUser(c *gin.Context) {
 	}
 	utils.OK(c, gin.H{
 		"user":          user,
-		"phone_masked":  maskPhone(user.Phone),
+		"phone_masked":  user.Nickname,
 	})
 }
 
@@ -158,7 +158,7 @@ func (h *AdminUserHandler) Disable(c *gin.Context) {
 	utils.OK(c, gin.H{"msg": "已停用"})
 }
 
-func maskPhone(phone string) string {
+func maskPhone(phone string) string { return "" }
 	if len(phone) < 7 {
 		return phone
 	}

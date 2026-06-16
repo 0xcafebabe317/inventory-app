@@ -8,16 +8,8 @@
   <view class="form-area">
     <van-cell-group inset>
       <van-field
-        value="{{phone}}"
-        placeholder="请输入手机号"
-        type="number"
-        maxlength="11"
-        left-icon="phone-o"
-        bind:change="onPhoneInput"
-      />
-      <van-field
         value="{{nickname}}"
-        placeholder="昵称（选填）"
+        placeholder="请输入昵称（唯一标识）"
         left-icon="user-o"
         bind:change="onNicknameInput"
       />
@@ -40,7 +32,7 @@
     <!-- 隐私声明 -->
     <view class="privacy-notice">
       <text class="privacy-icon">🔒</text>
-      <text class="privacy-text">您的手机号仅用于注册登录，作为账号唯一标识，不会用于其他任何用途。</text>
+      <text class="privacy-text">您的昵称仅用于注册登录，作为账号唯一标识。昵称每半年可修改一次，不会用于其他任何用途。</text>
     </view>
 
     <!-- 协议同意 -->

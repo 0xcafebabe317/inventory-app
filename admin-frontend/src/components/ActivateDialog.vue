@@ -8,7 +8,7 @@
     <div v-if="user">
       <el-descriptions :column="1" border size="small" style="margin-bottom:20px">
         <el-descriptions-item label="用户">{{ user.nickname || '用户' + user.id }}</el-descriptions-item>
-        <el-descriptions-item label="手机号">{{ user.phone || user.phone_masked }}</el-descriptions-item>
+        <el-descriptions-item label="昵称">{{ user.nickname }}</el-descriptions-item>
         <el-descriptions-item label="当前状态">
           <el-tag :type="statusType(user.subscription_status)" size="small">
             {{ statusLabel(user.subscription_status) }}

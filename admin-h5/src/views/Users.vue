@@ -36,7 +36,7 @@ function goDetail(id: number) { router.push(`/user-detail/${id}`) }
 
 async function handleDisable(u: any) {
   try {
-    await showConfirmDialog({ title: '确认停用', message: `确定要停用「${u.nickname || u.phone}」吗？` })
+    await showConfirmDialog({ title: '确认停用', message: `确定要停用「${u.nickname || u.id}」吗？` })
     await disableUser(u.id)
     showToast('已停用')
     loadUsers(true)
@@ -106,7 +106,7 @@ async function handleActivate() {
         <div class="item-row">
           <div>
             <div class="item-name">{{ u.nickname || '用户' + u.id }}</div>
-            <div class="text-secondary">{{ u.phone }} · 注册 {{ formatDate(u.created_at) }}</div>
+            <div class="text-secondary">注册 {{ formatDate(u.created_at) }}</div>
           </div>
           <van-tag :type="statusColor(u.subscription_status)" size="medium">
             {{ statusLabel(u.subscription_status) }}

@@ -18,9 +18,9 @@
             {{ row.user_nickname || '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="user_phone" label="用户电话" width="130">
+        <el-table-column prop="user_nickname" label="用户昵称" width="130">
           <template #default="{ row }">
-            {{ row.user_phone || '-' }}
+            {{ row.user_nickname || '-' }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="90">
